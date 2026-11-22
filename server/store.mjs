@@ -23,6 +23,7 @@ export function openStore(file,templates) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;')
   db.exec(readFileSync(new URL('./migrations/001.sql',import.meta.url),'utf8'))
   db.exec(readFileSync(new URL('./migrations/002.sql',import.meta.url),'utf8'))
+  db.exec(readFileSync(new URL('./migrations/003.sql',import.meta.url),'utf8'))
   const category = db.prepare('INSERT OR IGNORE INTO categories(id) VALUES (?)')
   const template = db.prepare('INSERT INTO templates(id,category) VALUES (?,?) ON CONFLICT(id) DO UPDATE SET category=excluded.category')
   transaction(db,()=>{

@@ -10,10 +10,11 @@ writeFileSync('drizzle/0002_catalog.sql',[
 const journal={version:'7',dialect:'sqlite',entries:[
   {idx:0,version:'6',when:1795104000000,tag:'0000_001',breakpoints:true},
   {idx:1,version:'6',when:1795104000001,tag:'0001_002',breakpoints:true},
-  {idx:2,version:'6',when:1795104000002,tag:'0002_catalog',breakpoints:true}
+  {idx:2,version:'6',when:1795104000002,tag:'0002_catalog',breakpoints:true},
+  {idx:3,version:'6',when:1795104000003,tag:'0003_lifecycle',breakpoints:true}
 ]};
 writeFileSync('drizzle/meta/_journal.json',JSON.stringify(journal,null,2)+'\n');
-for(const [source,target] of [['001','0000_001'],['002','0001_002']]) {
+for(const [source,target] of [['001','0000_001'],['002','0001_002'],['003','0003_lifecycle']]) {
   const lines=readFileSync('server/migrations/'+source+'.sql','utf8').trim().split('\n');
   let trigger=false;
   const output=[];

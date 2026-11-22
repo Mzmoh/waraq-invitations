@@ -113,6 +113,8 @@ button { cursor: pointer; }
   .studio-button,.occasion-tile,.template-tile a,.template-art img { transition: none; }
   .template-tile a:hover img { scale: none; }
 }
+.studio-feature{padding:24px;border:1px solid #dacbc4;border-radius:14px;background:#ffffff85}.studio-feature p{line-height:1.8}
+.studio-faq details{border-bottom:1px solid #dacbc4;padding:16px 0}.studio-faq summary{cursor:pointer;min-height:44px;font-weight:600;display:list-item}.studio-faq p{max-width:70ch;line-height:1.8}
 @media(max-width: 420px) {
   .header-inner nav,.nav-actions { gap: 4px; }
   .header-inner nav a { font-size: .79rem; }

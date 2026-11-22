@@ -21,6 +21,16 @@ export function raster(dataUrl) {
   const bytes = Buffer.from(match[2], 'base64')
   let width, height
   if (match[1] === 'png' && bytes.length >= 33 && bytes.subarray(0,8).toString('hex') === '89504e470d0a1a0a' && bytes.toString('ascii',12,16) === 'IHDR') {
+    let at=8,hasPixels=false,ended=false;
+    while(at+12<=bytes.length){
+      const size=bytes.readUInt32BE(at),type=bytes.toString('ascii',at+4,at+8);
+      if(size>bytes.length-at-12)invalid('Truncated PNG.');
+      if(at===8 && (type!=='IHDR'||size!==13))invalid('Invalid PNG header.');
+      if(type==='IDAT'&&size>0)hasPixels=true;
+      at+=size+12;
+      if(type==='IEND'){if(size!==0||at!==bytes.length)invalid('Invalid PNG ending.');ended=true;break;}
+    }
+    if(!hasPixels||!ended)invalid('Incomplete PNG file.');
     width = bytes.readUInt32BE(16); height = bytes.readUInt32BE(20)
   } else if (match[1] === 'jpeg' && bytes[0] === 255 && bytes[1] === 216 && bytes.at(-2) === 255 && bytes.at(-1) === 217) {
     let i = 2
@@ -65,6 +75,7 @@ export function validateData(input, publish = false) {
     const utc = str(input.startAt,60)
     if (!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?Z$/.test(utc) || !Number.isFinite(Date.parse(utc))) invalid('وقت البداية غير صالح.')
     data.startAt = new Date(utc).toISOString()
+    if (data.startAt.slice(0,19)!==utc.slice(0,19)) invalid('Invalid calendar date.')
   }
   data.timeZone = str(input.timeZone || 'Asia/Baghdad',80,1)
   try { new Intl.DateTimeFormat('en',{timeZone:data.timeZone}) } catch { invalid('المنطقة الزمنية غير صالحة.') }
@@ -93,13 +104,36 @@ export function validateData(input, publish = false) {
       if (!plain(im) || typeof im.src !== 'string') invalid()
       if (!/^\/api\/assets\/[a-f0-9-]{36}$/.test(im.src)) raster(im.src)
       const image = {src:im.src,alt:str(im.alt??'',320)}
-      for (const [k,min,max,fallback] of [['x',0,100,50],['y',0,100,50],['zoom',1,5,1]]) {
+      if(im.role!==undefined) {if(!['photo','background'].includes(im.role))invalid();image.role=im.role}
+      if(im.primary!==undefined) {if(typeof im.primary!=='boolean')invalid();image.primary=im.primary}
+      for (const [k,min,max,fallback] of [['x',0,100,50],['y',0,100,50],['zoom',1,5,1],['rotation',-180,180,0]]) {
         const v = im[k] ?? fallback
         if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) invalid()
         image[k] = v
       }
       return image
     })
+  }
+  if ('appearance' in input) {
+    const a=input.appearance;if(!plain(a))invalid();data.appearance={};
+    if(a.typeface!==undefined){if(!['classic','modern','arabic','kufi','editorial'].includes(a.typeface))invalid();data.appearance.typeface=a.typeface}
+    if(a.align!==undefined){if(!['start','center','end'].includes(a.align))invalid();data.appearance.align=a.align}
+    for(const [k,min,max] of [['titleSize',20,72],['bodySize',14,26],['weight',300,800],['lineHeight',1.2,2.5],['spacing',0,.15]])if(a[k]!==undefined){if(typeof a[k]!=='number'||!Number.isFinite(a[k])||a[k]<min||a[k]>max)invalid();data.appearance[k]=a[k]}
+    for(const k of ['titleColor','textColor'])if(a[k]!==undefined){if(!/^#[a-f\d]{6}$/i.test(a[k]))invalid();data.appearance[k]=a[k]}
+  }
+  if('audio' in input) {
+    const a=input.audio;if(!plain(a))invalid();
+    if(!['silent','celebration','serenity','upload'].includes(a.track))invalid();
+    if(typeof a.volume!=='number'||!Number.isFinite(a.volume)||a.volume<0||a.volume>1||typeof a.loop!=='boolean')invalid();
+    data.audio={track:a.track,volume:a.volume,loop:a.loop};
+    if(a.track==='upload') {
+      if(a.rightsConfirmed!==true)invalid('Confirm audio usage rights.');
+      const match=typeof a.src==='string' && /^data:audio\/(mpeg|wav|ogg);base64,([A-Za-z0-9+/]+={0,2})$/.exec(a.src);
+      if(!match||a.src.length>700000)invalid('Audio must be MP3, WAV or OGG up to 512 KB.');
+      const b=Buffer.from(match[2],'base64');if(b.length>524288||b.length<12)invalid();
+      if(!(match[1]==='wav'&&b.toString('ascii',0,4)==='RIFF'&&b.toString('ascii',8,12)==='WAVE'||match[1]==='ogg'&&b.toString('ascii',0,4)==='OggS'||match[1]==='mpeg'&&(b.toString('ascii',0,3)==='ID3'||b[0]===255&&(b[1]&224)===224)))invalid('Unsupported audio header.');
+      data.audio.src=a.src;data.audio.rightsConfirmed=true;
+    }
   }
   return data
 }

@@ -9,6 +9,7 @@ test('HTTP ownership, privacy, assets, concurrency and administration',async t=>
   const base='http://127.0.0.1:'+server.address().port;
   t.after(()=>new Promise(resolve=>server.close(resolve)));
   async function request(path,{method='GET',data,cookie,origin}={}) {
+    if(method==='PATCH' && /^\/api\/invitations\/[^/]+$/.test(path) && data && !data.expectedUpdatedAt){const current=await fetch(base+path,{headers:{Cookie:cookie||''}});if(current.ok)data={...data,expectedUpdatedAt:(await current.json()).invitation.updatedAt};}
     const response=await fetch(base+path,{method,headers:{
       ...(data?{'Content-Type':'application/json'}:{}),
       ...(cookie?{Cookie:cookie}:{}),...(origin?{Origin:origin}:{})

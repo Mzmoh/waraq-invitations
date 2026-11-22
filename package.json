@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "engines": {"node": ">=24"},
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "node --env-file-if-exists=.env server/index.mjs",
     "start": "node --env-file-if-exists=.env server/index.mjs",
@@ -12,7 +14,11 @@
     "build": "node scripts/build.mjs",
     "test:e2e": "node tests/browser.mjs",
     "build:hosting": "node scripts/build-worker.mjs",
-    "test:hosting": "node tests/worker-contract.mjs"
+    "test:hosting": "node tests/worker-contract.mjs",
+    "test:e2e:finishing": "node tests/finishing-browser.mjs",
+    "test:e2e:dashboard": "node tests/dashboard-browser.mjs",
+    "review:templates": "node tests/template-visuals.mjs",
+    "backup": "node scripts/backup.mjs"
   },
   "devDependencies": {
     "esbuild": "0.27.0",

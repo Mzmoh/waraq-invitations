@@ -21,6 +21,7 @@ test('persistent invitation service', async t=>{
   await listen()
   t.after(async()=>{await close(); await rm(temp,{recursive:true,force:true})})
   async function call(path,method='GET',body,session='',more={}) {
+    if(method==='PATCH' && /^\/api\/invitations\/[^/]+$/.test(path) && body && !body.expectedUpdatedAt){const current=await fetch(url+path,{headers:{cookie:session}});if(current.ok)body={...body,expectedUpdatedAt:(await current.json()).invitation.updatedAt};}
     const r=await fetch(url+path,{method,headers:{'content-type':'application/json',cookie:session,...more},body:body===undefined?undefined:JSON.stringify(body)})
     let value
     if(r.headers.get('content-type')?.includes('json')) value=await r.json()

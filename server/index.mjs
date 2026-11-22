@@ -1,4 +1,5 @@
 import http from 'node:http'
+import {randomUUID} from 'node:crypto'
 import {readFile,stat,realpath} from 'node:fs/promises'
 import {resolve,extname,sep} from 'node:path'
 import {fileURLToPath,pathToFileURL} from 'node:url'
@@ -7,7 +8,7 @@ import {HttpError,fail,plain} from './validation.mjs'
 import {apiHandler} from './api.mjs'
 
 const root=fileURLToPath(new URL('../',import.meta.url))
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.avif':'image/avif','.woff2':'font/woff2','.ico':'image/x-icon','.txt':'text/plain; charset=utf-8','.mp4':'video/mp4'}
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.avif':'image/avif','.woff2':'font/woff2','.ico':'image/x-icon','.txt':'text/plain; charset=utf-8','.mp4':'video/mp4','.wav':'audio/wav','.mp3':'audio/mpeg','.ogg':'audio/ogg'}
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 async function readBody(req) {
   if (req.headers['content-type']?.split(';')[0]!=='application/json') fail(415,'JSON_REQUIRED','أرسل البيانات بصيغة JSON.')
@@ -30,14 +31,16 @@ export async function createApp({database=process.env.DATABASE_PATH||resolve(roo
   const {route,published}=await apiHandler(db)
   const publicPath=await realpath(publicDir)
   const server=http.createServer({requestTimeout:30000,headersTimeout:15000},async(req,res)=>{
+    const requestId=randomUUID();res.setHeader('X-Request-ID',requestId)
     res.setHeader('X-Content-Type-Options','nosniff')
     res.setHeader('Referrer-Policy','strict-origin-when-cross-origin')
     res.setHeader('X-Frame-Options','SAMEORIGIN')
     res.setHeader('Cache-Control','no-store')
-    res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'")
+    res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'")
     try {
       const appOrigin=origin?new URL(origin).origin:'http://'+req.headers.host
       const url=new URL(req.url,'http://localhost')
+      if(/^\/(?:auth|login|register|dashboard|admin|create)(?:\/|$)/.test(url.pathname))res.setHeader('X-Robots-Tag','noindex, nofollow')
       let path
       try {path=decodeURIComponent(url.pathname)} catch {fail(400,'BAD_PATH','رابط غير صالح.')}
       if (path.includes('\\') || path.includes('\0') || path.split('/').includes('..')) fail(400,'BAD_PATH','رابط غير صالح.')
@@ -82,7 +85,7 @@ export async function createApp({database=process.env.DATABASE_PATH||resolve(roo
     } catch(e) {
       if (res.writableEnded) return
       const expected=e instanceof HttpError
-      if (!expected) console.error('Request failed:',e.code||e.name)
+      if (!expected) console.error('Request failed:',requestId,e.code||e.name)
       res.statusCode=expected?e.status:500
       res.setHeader('Content-Type','application/json; charset=utf-8')
       if (res.statusCode===429) res.setHeader('Retry-After','900')
@@ -92,7 +95,7 @@ export async function createApp({database=process.env.DATABASE_PATH||resolve(roo
   server.on('close',()=>db.close())
   return {server,db}
 }
-if (process.argv[1] && import.meta.url===pathToFileURL(resolve(process.argv[1])).href) {
+if (import.meta.main || (process.argv[1] && import.meta.url===pathToFileURL(resolve(process.argv[1])).href)) {
   try {process.loadEnvFile?.(resolve(root,'.env'))} catch(e) {if(e.code!=='ENOENT') throw e}
   const {server}=await createApp()
   const port=Number(process.env.PORT||3000),host=process.env.HOST||'127.0.0.1'

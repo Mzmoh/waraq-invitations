@@ -1,3 +1,4 @@
+import {enhanceExperience} from './experience.js';
 import { templates, scene } from './templates/index.js';
 import { validMap } from './editor-model.js';
 import { downloadCalendar, shareInvitation, downloadShareCard, showQR } from './invitation-share.js';
@@ -73,10 +74,10 @@ function sections(data,options,t) {
   }
   const schedule=list(data.schedule).filter(item=>item?.title);
   if(schedule.length) blocks.schedule=section(t('برنامج المناسبة','Order of events'),'<ol class="inv-timeline">'+schedule.map(item=>'<li><time dir="ltr">'+esc(item.time)+'</time><span>'+esc(item.title)+'</span></li>').join('')+'</ol>','schedule');
-  const photos=list(data.images).filter(safePhoto);
+  const photos=list(data.images).filter(im=>im.role!=='background').filter(safePhoto);
   if(photos.length) blocks.gallery=section(t('ألبوم الصور','Photo album'),'<div class="inv-photos">'+photos.map(image=>{
     const x=bound(image.x,0,100,50),y=bound(image.y,0,100,50),zoom=bound(image.zoom,1,3,1);
-    return '<figure><img loading="lazy" decoding="async" alt="'+esc(image.alt || t('صورة المناسبة','Event photograph'))+'" style="object-position:'+x+'% '+y+'%;transform-origin:'+x+'% '+y+'%;transform:scale('+zoom+')" src="'+esc(safePhoto(image))+'"></figure>';
+    return '<figure><img loading="lazy" decoding="async" alt="'+esc(image.alt || t('صورة المناسبة','Event photograph'))+'" style="object-position:'+x+'% '+y+'%;transform-origin:'+x+'% '+y+'%;transform:scale('+zoom+') rotate('+bound(image.rotation,-180,180,0)+'deg)" src="'+esc(safePhoto(image))+'"></figure>';
   }).join('')+'</div>','gallery');
   if(data.rsvpEnabled) {
     const limit=bound(data.maxGuests,1,100,1);
@@ -104,7 +105,7 @@ export function renderInvitation(root, template, data={}, options={}) {
   const shownDate=formatDate(data.startAt,data.timeZone,en);
   const intro=template.titleEn || '';
   const envelope=/envelope|wax seal/i.test(intro);
-  const portrait=list(data.images).find(safePhoto);
+  const portrait=list(data.images).filter(im=>im.role!=='background').sort((a,b)=>Number(!!b.primary)-Number(!!a.primary)).find(safePhoto);
   const portraitLead=portrait && /wax seal|editorial|photo album|birth announcement|photo timeline/i.test(intro);
   const initials=template.category==='wedding' ? [data.groom,data.bride].filter(Boolean).map(s=>Array.from(s.trim())[0]).join(' · ') : '';
 
@@ -126,7 +127,7 @@ export function renderInvitation(root, template, data={}, options={}) {
     (envelope?'<button class="inv-seal-target" type="button" data-open aria-label="'+t('افتح ختم الدعوة','Open the invitation seal')+'"></button>':'')+
     '<div class="inv-stage-foot"><button type="button" class="inv-open" data-open>'+icon('open')+t('افتح الدعوة','Open invitation')+'</button></div></header>'+
     '<div class="inv-body" '+(options.opened?'':'hidden')+'><div class="inv-stationery">'+
-    (portraitLead?'<figure class="inv-portrait"><img decoding="async" loading="lazy" src="'+esc(safePhoto(portrait))+'" alt="'+esc(portrait.alt||t('صورة المناسبة','Event portrait'))+'" style="object-position:'+bound(portrait.x,0,100,50)+'% '+bound(portrait.y,0,100,50)+'%;transform-origin:'+bound(portrait.x,0,100,50)+'% '+bound(portrait.y,0,100,50)+'%;transform:scale('+bound(portrait.zoom,1,3,1)+')"></figure>':'')+
+    (portraitLead?'<figure class="inv-portrait"><img decoding="async" loading="lazy" src="'+esc(safePhoto(portrait))+'" alt="'+esc(portrait.alt||t('صورة المناسبة','Event portrait'))+'" style="object-position:'+bound(portrait.x,0,100,50)+'% '+bound(portrait.y,0,100,50)+'%;transform-origin:'+bound(portrait.x,0,100,50)+'% '+bound(portrait.y,0,100,50)+'%;transform:scale('+bound(portrait.zoom,1,3,1)+') rotate('+bound(portrait.rotation,-180,180,0)+'deg)"></figure>':'')+
     '<div class="inv-diamond" aria-hidden="true">'+esc(initials || '✧')+'</div>'+
     '<h2 tabindex="-1">'+esc(hostNames?heading:primary)+'</h2>'+(hostNames?'<h3 class="inv-names">'+esc(hostNames)+'</h3>':'')+
     (data.hosts?'<p class="inv-hosts">'+esc(data.hosts)+'</p>':'')+(data.message?'<p class="inv-message">'+esc(data.message)+'</p>':'')+
@@ -152,6 +153,7 @@ export function renderInvitation(root, template, data={}, options={}) {
   }
   motion.onclick=()=>{motionPaused=!motionPaused;syncMotion();};syncMotion();
   function scrollEffects() {
+    observer?.disconnect();
     if(!('IntersectionObserver' in window)) return;
     observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
       if(entry.isIntersecting) {entry.target.classList.add('inv-appear');observer.unobserve(entry.target);}
@@ -204,6 +206,10 @@ export function renderInvitation(root, template, data={}, options={}) {
   const form=$('.inv-rsvp-form');
   if(form) {
     form.elements.attending.onchange=()=>{const declined=form.elements.attending.value==='no';form.querySelector('[data-party]').hidden=declined;form.elements.count.disabled=declined;};
+    const submissionKey='waraq-rsvp:'+options.slug;
+    let submissionId;
+    try {submissionId=sessionStorage.getItem(submissionKey)||crypto.randomUUID();sessionStorage.setItem(submissionKey,submissionId);}catch{submissionId=crypto.randomUUID();}
+    const trap=document.createElement('input');trap.name='website';trap.tabIndex=-1;trap.autocomplete='off';trap.setAttribute('aria-hidden','true');trap.style.cssText='position:fixed;left:0;top:0;width:1px;height:1px;clip-path:inset(50%);opacity:0;pointer-events:none';form.append(trap);
     form.onsubmit=async event=>{
       event.preventDefault();
       const feedback=form.querySelector('[data-feedback]');
@@ -211,13 +217,14 @@ export function renderInvitation(root, template, data={}, options={}) {
       const submit=form.querySelector('[type=submit]');submit.disabled=true;
       const attending=form.elements.attending.value==='yes';
       try{
-        const response=await fetch('/api/public/'+encodeURIComponent(options.slug)+'/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},signal:controller.signal,body:JSON.stringify({name:form.elements.name.value.trim(),attending,count:attending?Number(form.elements.count.value):0,comment:form.elements.comment.value.trim()})});
+        const response=await fetch('/api/public/'+encodeURIComponent(options.slug)+'/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},signal:controller.signal,body:JSON.stringify({name:form.elements.name.value.trim(),attending,count:attending?Number(form.elements.count.value):0,comment:form.elements.comment.value.trim(),submissionId,website:trap.value})});
         if(!response.ok)throw new Error(response.status===429?t('انتظر قليلًا قبل إعادة المحاولة.','Please wait before trying again.'):t('تعذر حفظ الرد. تحقق من البيانات وأعد المحاولة.','Could not save your response. Check your details and try again.'));
         form.replaceChildren(Object.assign(document.createElement('p'),{textContent:t('شكرًا لك، وصل ردّك إلى المضيف.','Thank you. Your host has received your response.'),role:'status'}));
       }catch(error){if(!controller.signal.aborted){feedback.textContent=error.message;submit.disabled=false;}}
     };
   }
-  const cleanup=()=>{disposed=true;clearTimeout(timer);clearTimeout(revealTimer);observer?.disconnect();controller.abort();sessions.delete(root);};
+  const disposeExperience=enhanceExperience(card,template,data,options);
+  const cleanup=()=>{disposeExperience();disposed=true;clearTimeout(timer);clearTimeout(revealTimer);observer?.disconnect();controller.abort();sessions.delete(root);};
   sessions.set(root,cleanup);return cleanup;
 }
 

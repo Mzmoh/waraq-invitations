@@ -4,7 +4,7 @@ import {join,extname} from 'node:path';
 
 const require=createRequire(import.meta.url);
 const {build}=require(process.env.ESBUILD_MODULE||'esbuild');
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.webp':'image/webp','.woff2':'font/woff2','.png':'image/png','.txt':'text/plain'};
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.webp':'image/webp','.woff2':'font/woff2','.png':'image/png','.txt':'text/plain','.wav':'audio/wav','.mp3':'audio/mpeg','.ogg':'audio/ogg'};
 const assets={};
 for(const file of readdirSync('public',{recursive:true})) {
   if(!extname(file))continue;

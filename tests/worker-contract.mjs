@@ -4,7 +4,7 @@ import {DatabaseSync} from 'node:sqlite';
 import worker from '../dist/server/index.js';
 
 const sql=new DatabaseSync(':memory:');
-for(const file of ['0000_001.sql','0001_002.sql','0002_catalog.sql'])sql.exec(readFileSync('drizzle/'+file,'utf8'));
+for(const file of ['0000_001.sql','0001_002.sql','0002_catalog.sql','0003_lifecycle.sql'])sql.exec(readFileSync('drizzle/'+file,'utf8'));
 const bind=statement=>({
   bind:(...args)=>({
     first:async()=>sql.prepare(statement).get(...args)??null,
@@ -29,6 +29,7 @@ async function request(path,method='GET',data,authenticated=true) {
   const headers={'cf-connecting-ip':'127.0.0.1'};
   if(data)headers['Content-Type']='application/json';
   if(authenticated && cookie)headers.Cookie=cookie;
+  if(method==='PATCH' && /^\/api\/invitations\/[^/]+$/.test(path) && data && !data.expectedUpdatedAt){const current=await request(path,'GET',undefined,authenticated);if(current.ok)data={...data,expectedUpdatedAt:(await current.json()).invitation.updatedAt};}
   const response=await worker.fetch(new Request('https://qa.test'+path,{method,headers,body:data?JSON.stringify(data):undefined}),{DB});
   return response;
 }

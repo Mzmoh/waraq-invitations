@@ -10,3 +10,16 @@
 - نجح 36 تحققًا آليًا و16 مجموعة متصفح وعقد الاستضافة. النتائج المفصلة وحدود التحقق مسجلة في TEST_RESULTS.md.
 - حُجزت هوية الاستضافة وجُهز Worker ومخطط D1. تعطل رفع المصدر بسبب DNS، لذا بوابة النشر الخارجي مفتوحة. اختبارات الهاتف الفعلي وقياسات الأداء لم تُستكمل.
 
+
+
+## Production finishing — 2026-11-22
+
+- Phase A: inventoried existing main@e6f39c8, preserved startup change and runtime data. Baseline: 36 tests and Node build passed. Report: PROJECT_GAP_AUDIT.md.
+- Phase B: added owner-only copy/delete/CSV, receipt-based RSVP deduplication, image cleanup, impossible-date rejection, effective link state, mandatory PATCH version precondition, sanitized Worker errors, private-page noindex and recovery/verification backend. Existing API tests now explicitly fetch current versions before PATCH; dedicated tests reject missing/stale versions. New mail flows return 503 when unconfigured and never return raw tokens to API clients.
+- Phase C: retained SVG/CSS engine, added replay, scene state, pointer parallax, reduced-motion listener, bounded celebratory Canvas particles and lifecycle cleanup in public/experience.js. All 80 interactive preview routes passed fresh Chrome traversal.
+- Phase D: added persisted typography, image rotation/roles/main-image, section visibility, palettes, viewport controls, 20-step Undo/Redo and user-controlled audio with two original generated clips. Assets from old revisions remain under quota for Undo until explicit cleanup. New finishing browser tests passed all 6 journeys before final regression.
+- Phase E: added cross-category search, feature cards/FAQ, account recovery UI, lifecycle controls and safe CSV downloads. Fixed RTL overflow caused by off-screen honeypot based on failed browser evidence. Main browser suite subsequently passed 16/16.
+- Phase F/G: visual matrices, full regression and production checklist in progress. External mail, real device QA and online deployment remain unverified.
+
+- Phase F: 80 fresh opening compositions captured and eight contact sheets inspected; all 80 interactive openings passed. Matrix: TEMPLATE_REVIEW_MATRIX.md. Four reference videos sampled across their timelines and inspected; retained vector art direction and did not copy reference imagery.
+- Phase G: final 44 unit/API tests, Node build (49 modules), 16 main browser checks, 7 finishing journeys and dashboard integration pass. Backup/restore verified. Worker build remains blocked by unavailable esbuild/npm DNS. Source-host DNS still prevents Sites publication. Production runbook records exact hosting, mail, persistent storage, font and real-device release gates. No production URL claimed.

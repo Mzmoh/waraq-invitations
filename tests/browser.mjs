@@ -30,7 +30,7 @@ async function test(name, run){
 }
 async function shot(p,file){if(evidence)await p.screenshot({path:path.join(evidence,file+'.png'),animations:'disabled'});}
 async function open(p, route){await p.goto(route,{waitUntil:'domcontentloaded'});}
-async function fit(p){assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1),'Horizontal overflow at '+p.url());}
+async function fit(p){const overflow=await p.evaluate(()=>({width:innerWidth,total:document.documentElement.scrollWidth,items:[...document.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect();return r.width&& (r.right>innerWidth+1||r.left< -1)}).slice(-12).map(e=>({tag:e.tagName,cls:e.className,w:e.getBoundingClientRect().width,left:e.getBoundingClientRect().left}))}));if(overflow.total>overflow.width+1){console.log(JSON.stringify(overflow));await shot(p,'overflow-failure');}assert.ok(overflow.total<=overflow.width+1,'Horizontal overflow at '+p.url());}
 let templates=[], id, slug;
 try{
   await test('Manifest, unique signatures and standalone cover responses',async()=>{
@@ -114,7 +114,7 @@ try{
     const image={name:'portrait.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')};
     await page.locator('.ed-drop input').setInputFiles(image);await page.locator('.ed-photo img').waitFor();
     await page.locator('.ed-photo input[type=file]').setInputFiles(image);
-    await page.locator('.ed-photo button').click();await page.locator('.ed-photo').waitFor({state:'detached'});
+    await page.locator('.ed-photo').getByRole('button',{name:/Remove photo|حذف الصورة/}).click();await page.locator('.ed-photo').waitFor({state:'detached'});
     await page.locator('.ed-drop input').setInputFiles(image);await page.locator('.ed-photo img').waitFor();
     await page.locator('[name=alt]').fill('QA portrait');await page.locator('[name=zoom]').press('End');
     await shot(page,'editor-desktop');
@@ -153,7 +153,7 @@ try{
       const download=await file;assert.match(download.suggestedFilename(),/\.ics$/);const bytes=await readFile(await download.path(),'utf8');assert.match(bytes,/DTSTART:20351021T153437Z/);
       assert.match(await p.locator('a[href*="google.com/maps"]').getAttribute('href'),/^https:/);
       for(const attending of ['yes','no']){
-        if(attending==='no'){await p.reload();await p.locator('[data-skip]').click();}
+        if(attending==='no'){await p.evaluate(key=>sessionStorage.removeItem(key),'waraq-rsvp:'+slug);await p.reload();await p.locator('[data-skip]').click();}
         await p.locator('.inv-rsvp-form [name=name]').fill('QA '+attending);await p.locator('.inv-rsvp-form [name=attending]').selectOption(attending);
         const saved=p.waitForResponse(r=>r.url().endsWith('/rsvp')&&r.request().method()==='POST');
         await p.locator('.inv-rsvp-form button[type=submit]').click();assert.ok((await saved).ok());await fit(p);

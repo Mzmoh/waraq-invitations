@@ -1,6 +1,7 @@
 import { renderInvitation } from './invitation.js';
 import { specialFields, localDateTime, utcCandidates, validMap, sectionLabels, localDraft } from './editor-model.js';
 import { preparePhoto } from './editor-images.js';
+import {soundLibrary} from './experience.js';
 
 function node(tag, props={}, ...children) {
   const element = document.createElement(tag);
@@ -54,6 +55,8 @@ export async function renderEditor(root,template,initialId) {
   const settings=Object.assign({privacy:'unlisted',rsvpEnabled:true,maxGuests:4},(record || pending)?.settings);
   delete settings.pin;
   let wall = pending?.wall || localDateTime(data.startAt,data.timeZone);
+  const undoStack=[],redoStack=[];
+  let previousSnapshot;
   let pinStored=Boolean(record?.settings?.hasPin || record?.settings?.privacy==='pin');
   let serverVersion=record?.updatedAt, conflict=false;
   const isPublished = record?.status==='published';
@@ -78,6 +81,17 @@ export async function renderEditor(root,template,initialId) {
   const previewTitle=node('header',{className:'ed-preview-title'},node('strong',{textContent:t('معاينة حية','Live preview')}),
     button(t('أعِد فتح الدعوة','Replay opening'),()=>refresh(false)));
   const aside=node('aside',{className:'ed-aside'},previewTitle,screen);
+  function restoreHistory(from,to) {
+    if(!from.length||busy||conflict)return;
+    to.push(snapshot());const value=from.pop();
+    for(const k of Object.keys(data))delete data[k];Object.assign(data,value.data);
+    for(const k of Object.keys(settings))delete settings[k];Object.assign(settings,value.settings);
+    wall=value.wall;revision++;previousSnapshot=snapshot();draw();refresh();
+    clearTimeout(saveTimer);if(!isPublished)saveTimer=setTimeout(()=>save(true).catch(e=>announce(e.message,true)),650);
+    announce(t('تغييرات غير محفوظة','Unsaved changes'));
+  }
+  heading.append(button(t('تراجع','Undo'),()=>restoreHistory(undoStack,redoStack)),button(t('إعادة','Redo'),()=>restoreHistory(redoStack,undoStack)));
+  previewTitle.append(button(t('هاتف','Phone'),()=>{screen.style.maxWidth='390px';screen.style.marginInline='auto'}),button(t('شاشة واسعة','Wide preview'),()=>{screen.style.maxWidth='none';screen.style.marginInline='0'}));
   panel.append(steps,form);layout.append(panel,aside);rootPanel.replaceChildren(heading,mobileTabs,layout);setView('form');
   function refresh(open) {
     if (!rootPanel.isConnected) {cleanup();return}
@@ -124,6 +138,7 @@ export async function renderEditor(root,template,initialId) {
       }
       if(!id){adoptId(res.invitation.id);await localDraft(localKey,'delete').catch(()=>{})}
       serverVersion=res.invitation.updatedAt;
+      if(v===revision && res.invitation.data.images){data.images=res.invitation.data.images;previousSnapshot=snapshot();}
       pinStored=body.settings.privacy==='pin';
       savedRevision=v;
       if(v===revision)announce(t('تم الحفظ في حسابك','Saved to your account'));
@@ -131,6 +146,8 @@ export async function renderEditor(root,template,initialId) {
     queue=operation.catch(()=>{});return operation;
   }
   function changed() {
+    if(previousSnapshot){undoStack.push(previousSnapshot);if(undoStack.length>20)undoStack.shift();redoStack.length=0;}
+    previousSnapshot=snapshot();
     revision++;clearTimeout(previewTimer);previewTimer=setTimeout(()=>refresh(),110);
     clearTimeout(saveTimer);
     announce(isPublished?t('تغييرات بانتظار النشر','Unpublished changes'):t('تغييرات بانتظار الحفظ','Saving changes…'));
@@ -238,12 +255,15 @@ export async function renderEditor(root,template,initialId) {
     const album=subsection(t('صور الدعوة','Invitation photos'),drop);
     data.images.forEach((photo,i)=>{
       const image=node('img',{src:photo.src,alt:photo.alt || t('معاينة الاقتصاص','Crop preview')});
-      const showCrop=()=>{image.style.objectPosition=photo.x+'% '+photo.y+'%';image.style.transformOrigin=image.style.objectPosition;image.style.transform='scale('+photo.zoom+')'};showCrop();
+      const showCrop=()=>{image.style.objectPosition=photo.x+'% '+photo.y+'%';image.style.transformOrigin=image.style.objectPosition;image.style.transform='scale('+photo.zoom+') rotate('+(photo.rotation||0)+'deg)'};showCrop();
       const item=node('div',{className:'ed-photo'},node('div',{className:'ed-crop'},image),field('alt','وصف الصورة','Image description','text',{target:photo}));
       for(const [key,ar,eng,min,max,inc] of [['x','الموضع الأفقي','Horizontal focus',0,100,1],['y','الموضع العمودي','Vertical focus',0,100,1],['zoom','التكبير','Zoom',1,2,.05]])
         item.append(field(key,ar,eng,'range',{target:photo,attrs:{min,max,step:inc},after:showCrop}));
+      item.append(field('rotation','تدوير الصورة','Rotate image','range',{target:photo,value:photo.rotation||0,attrs:{min:-180,max:180,step:1},after:()=>{image.style.transform='scale('+photo.zoom+') rotate('+(photo.rotation||0)+'deg)'}}),
+        choice('role','استخدام الصورة','Image role',[['photo',t('صورة في الألبوم','Album photo')],['background',t('خلفية المقدمة','Opening background')]],{target:photo,value:photo.role||'photo'}),
+        button(t('تعيين صورة رئيسية','Set as main photo'),()=>{data.images.forEach(p=>p.primary=false);photo.primary=true;changed();draw()}));
       const replacement=node('input',{type:'file',accept:upload.accept});
-      replacement.onchange=async()=>{if(!replacement.files[0])return;try{data.images[i]={...await preparePhoto(replacement.files[0],t),alt:photo.alt};changed();draw()}catch(e){announce(e.message,true)}};
+      replacement.onchange=async()=>{if(!replacement.files[0])return;try{data.images[i]={...photo,...await preparePhoto(replacement.files[0],t),alt:photo.alt};changed();draw()}catch(e){announce(e.message,true)}};
       item.append(node('label',{className:'ed-field'},node('span',{textContent:t('استبدال الصورة','Replace photo')}),replacement),
         button(t('حذف الصورة','Remove photo'),()=>{data.images.splice(i,1);changed();draw()}));
       album.append(item);
@@ -259,6 +279,27 @@ export async function renderEditor(root,template,initialId) {
     fields.append(album,field('accent','لون التمييز','Accent color','color',{value:data.accent || template.colorTokens?.accent || '#956643'}),
       choice('font','نمط الخط','Typeface',[['serif',t('كلاسيكي','Classic')],['sans',t('عصري','Modern')]]),
       choice('language','لغة الدعوة للضيف','Guest invitation language',[['ar','العربية'],['en','English']]),order);
+    const appearance=data.appearance||={typeface:'classic',titleSize:32,bodySize:16,weight:400,lineHeight:1.75,spacing:0,align:'center',titleColor:'#302622',textColor:'#302622'};
+    const typography=subsection(t('الخطوط والنصوص','Typography'),
+      choice('typeface','عائلة الخط','Typeface',[['classic','Classic — Georgia'],['modern','Modern — Tahoma'],['arabic','Arabic — Naskh'],['kufi','Arabic — Kufi'],['editorial','Editorial — Palatino']],{target:appearance}),
+      info(t('تعتمد بعض الخطوط على توفرها بالجهاز؛ تستخدم بدائل آمنة عند غيابها.','Some fonts depend on device availability; safe fallbacks are used.')),
+      choice('align','المحاذاة','Alignment',[['start',t('بداية السطر','Start')],['center',t('وسط','Center')],['end',t('نهاية السطر','End')]],{target:appearance}));
+    for(const [k,ar,eng,min,max,step] of [['titleSize','حجم العنوان','Title size',20,72,1],['bodySize','حجم النص','Body size',14,26,1],['weight','وزن الخط','Font weight',300,800,100],['lineHeight','تباعد الأسطر','Line height',1.2,2.5,.05],['spacing','تباعد الحروف','Letter spacing',0,.15,.01]])typography.append(field(k,ar,eng,'range',{target:appearance,attrs:{min,max,step}}));
+    typography.append(field('titleColor','لون العنوان','Title color','color',{target:appearance}),field('textColor','لون النص','Text color','color',{target:appearance}));
+    const sections=subsection(t('إظهار الأقسام','Visible sections'));
+    for(const [key,label] of Object.entries(sectionLabels))sections.append(field(key,label[0],label[1],'checkbox',{value:data.sections.includes(key),set:v=>{data.sections=v?[...data.sections,key]:data.sections.filter(s=>s!==key)}}));
+    const palette=subsection(t('لوحات ألوان','Color palettes'));
+    for(const [name,color] of [['Gold','#ad824c'],['Rose','#a4546b'],['Emerald','#267262'],['Indigo','#5557a5']])palette.append(button(name,()=>{data.accent=color;changed();draw()}));
+    const sound=data.audio||={track:'silent',volume:.5,loop:false};
+    const sounds=subsection(t('الصوت','Audio'),choice('track','مقطع صوتي','Audio track',[...soundLibrary.map(s=>[s.id,t(s.ar,s.en)]),['upload',t('رفع مقطع أملك حقوقه','Upload audio I own')]],{target:sound,after:draw}),
+      field('volume','مستوى الصوت','Volume','range',{target:sound,attrs:{min:0,max:1,step:.05}}),field('loop','تكرار المقطع','Loop audio','checkbox',{target:sound}),
+      info(t('لن يبدأ الصوت قبل ضغط الضيف على زر التشغيل.','Audio starts only after the guest presses Play.')));
+    if(sound.track==='upload') {
+      const audioInput=node('input',{type:'file',accept:'audio/mpeg,audio/wav,audio/ogg'});
+      audioInput.onchange=async()=>{const f=audioInput.files[0];if(!f)return;try{if(f.size>524288)throw Error(t('الحد الأعلى 512 كيلوبايت','Maximum 512 KB'));const mime=/\.mp3$/i.test(f.name)?'mpeg':/\.wav$/i.test(f.name)?'wav':/\.ogg$/i.test(f.name)?'ogg':null;if(!mime)throw Error('Use MP3, WAV or OGG');sound.src=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok('data:audio/'+mime+';base64,'+String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(f)});changed();announce(t('تم تجهيز الصوت','Audio ready'));}catch(e){announce(e.message,true)}};
+      sounds.append(audioInput,field('rightsConfirmed','أملك حق استخدام هذا المقطع','I have rights to use this audio','checkbox',{target:sound}));
+    }
+    fields.append(typography,sections,palette,sounds);
   }
   function publishing() {
     fields.append(choice('privacy','خصوصية الرابط','Link privacy',[
@@ -332,7 +373,7 @@ export async function renderEditor(root,template,initialId) {
     if(!user && revision && !blocked)saveLocal().catch(()=>{});
   };
   window.addEventListener('pagehide',leave,{once:true});
-  draw();refresh(false);announce(record?t('تم تحميل الدعوة','Invitation loaded'):pending?t('استُعيدت المسودة','Draft restored'):t('مسودة جديدة','New draft'));
+  draw();previousSnapshot=snapshot();refresh(false);announce(record?t('تم تحميل الدعوة','Invitation loaded'):pending?t('استُعيدت المسودة','Draft restored'):t('مسودة جديدة','New draft'));
   return leave;
 }
 

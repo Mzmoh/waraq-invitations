@@ -4,6 +4,7 @@ import {assets} from 'virtual:static';
 import {templates} from '../public/templates/index.js';
 import {portableAPI} from '../server/api-portable.mjs';
 import {createAuth} from '../server/auth.mjs';
+import {mailConfiguration} from '../server/account-recovery.mjs';
 import {HttpError,fail,plain} from '../server/validation.mjs';
 import {remoteDatabase} from './database.mjs';
 
@@ -13,13 +14,15 @@ const security={
   'Referrer-Policy':'strict-origin-when-cross-origin',
   'X-Frame-Options':'SAMEORIGIN',
   'Cache-Control':'no-store',
-  'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'"
+  'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'"
 };
 const validRoute=/^\/(?:$|occasions(?:\/[\w-]+)?$|(?:templates|create)\/[\w-]+$|dashboard(?:\/invitations\/[\w-]+)?$|auth$|login$|admin$)/;
 export default {
   async fetch(request,env) {
     const headers=new Headers(security);
+    const requestId=randomUUID();headers.set('X-Request-ID',requestId);
     const url=new URL(request.url);
+    if(/^\/(?:auth|login|register|dashboard|admin|create)(?:\/|$)/.test(url.pathname))headers.set('X-Robots-Tag','noindex, nofollow');
     let binary;
     const res={
       setHeader:(key,value)=>{
@@ -47,7 +50,7 @@ export default {
           if(existing && existing.role!=='admin')fail(503,'ADMIN_CONFIGURATION','بريد التهيئة مستخدم لحساب آخر.');
           if(!existing)await database.run("INSERT OR IGNORE INTO users(id,email,password,role) VALUES (?,?,?,'admin')",randomUUID(),email,await auth.hashPassword(env.ADMIN_PASSWORD));
         }
-        const api=portableAPI(database,auth);
+        const api=portableAPI(database,auth,mailConfiguration(env));
         const req={method:request.method,headers:Object.fromEntries(request.headers),socket:{remoteAddress:request.headers.get('cf-connecting-ip')||'unknown'}};
         if(path.startsWith('/api/')) {
           let body={};
@@ -99,7 +102,7 @@ export default {
       return new Response(request.method==='HEAD'?null:Buffer.from(asset.body,'base64'),{status:assets[path]||validRoute.test(path)?200:404,headers});
     }catch(error) {
       const known=error instanceof HttpError;
-      if(!known)console.error('Request failed',error.message);
+      if(!known)console.error('Request failed',requestId,error.name||'Error');
       let status=known?error.status:500,code=known?error.code:'SERVER_ERROR',message=known?error.message:'تعذر إكمال الطلب.';
       for(const [needle,errorCode,description] of [
         ['ASSET_QUOTA','ASSET_QUOTA','مساحة الصور ممتلئة.'],

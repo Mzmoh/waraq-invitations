@@ -1,19 +1,21 @@
 import {randomUUID,randomBytes} from 'node:crypto';
+import {recoveryHandler} from './account-recovery.mjs';
 import {validateData,validateSettings,raster,str,integer,invalid,fail} from './validation.mjs';
 
 const now=()=>new Date().toISOString();
 const nextVersion=row=>new Date(Math.max(Date.now(),Date.parse(row.updatedAt)+1)).toISOString();
 const absent=()=>fail(404,'NOT_FOUND','هذا المحتوى غير متوفر.');
-const invitationSQL='SELECT i.*, (SELECT COUNT(*) FROM responses r WHERE r.invitation=i.id) AS responseCount FROM invitations i';
+const invitationSQL='SELECT i.*, (SELECT COUNT(*) FROM responses r WHERE r.invitation=i.id) AS responseCount, (SELECT t.published*c.published FROM templates t JOIN categories c ON c.id=t.category WHERE t.id=i.templateId) AS linkActive FROM invitations i';
 function publicFields(row) {
   return {slug:row.slug,templateId:row.templateId,data:JSON.parse(row.data),settings:JSON.parse(row.settings)};
 }
 function ownerFields(row) {
   const invitation=publicFields(row);
   invitation.settings.hasPin=Boolean(row.pinHash);
-  return {...invitation,id:row.id,status:row.status,updatedAt:row.updatedAt,responseCount:row.responseCount};
+  return {...invitation,id:row.id,status:row.status,updatedAt:row.updatedAt,responseCount:row.responseCount,linkActive:row.status==='published' && Boolean(row.linkActive)};
 }
-export function portableAPI(db,auth) {
+export function portableAPI(db,auth,mail={}) {
+  const recover=recoveryHandler(db,auth,mail);
   const {one,all,run,batch}=db;
   const lookup=id=>one(invitationSQL+' WHERE i.id=?',id);
   const published=slug=>one("SELECT i.* FROM invitations i JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE slug=? AND status='published' AND t.published=1 AND c.published=1",slug);
@@ -27,8 +29,10 @@ export function portableAPI(db,auth) {
     const [,,base,id,action]=path.split('/');
     const method=req.method,ip=req.socket.remoteAddress||'local';
     const limit=(key,n,s)=>auth.limit(key+'|'+ip,n,s);
+    if(path==='/api/health' && method==='GET') {await one('SELECT 1 AS healthy');return {ok:true};}
     if(path==='/api/me' && method==='GET')return {user:await auth.user(req)||null};
     if(base==='auth' && method==='POST') {
+      const recovered=await recover(req,path,body);if(recovered)return recovered;
       if(id==='logout'){await auth.logout(req,res);return {ok:true}}
       if(!['register','login'].includes(id))absent();
       await limit('auth',35,900);
@@ -52,6 +56,11 @@ export function portableAPI(db,auth) {
       hiddenCategories:(await all('SELECT id FROM categories WHERE published=0')).map(c=>c.id)
     };
     if(base==='assets') {
+      if(!id && method==='DELETE') {
+        const user=await owner(req);if(body.confirm!=='unused')invalid('Confirm unused asset cleanup.');
+        await run('DELETE FROM assets WHERE owner=? AND NOT EXISTS (SELECT 1 FROM invitation_assets a WHERE a.asset=assets.id)',user.id);
+        return {ok:true};
+      }
       if(!id && method==='POST') {
         const user=await owner(req);
         await limit('assets:'+user.id,120,3600);
@@ -73,14 +82,43 @@ export function portableAPI(db,auth) {
     if(base==='invitations') {
       const user=await owner(req);
       if(!id && method==='GET') {
-        const rows=await all("SELECT i.id,i.slug,i.templateId,i.status,i.updatedAt,i.pinHash,i.settings,json_object('title',json_extract(i.data,'$.title')) AS data,(SELECT count(*) FROM responses r WHERE r.invitation=i.id) AS responseCount FROM invitations i WHERE owner=? ORDER BY updatedAt DESC",user.id);
+        const rows=await all("SELECT i.id,i.slug,i.templateId,i.status,i.updatedAt,i.pinHash,i.settings,(SELECT t.published*c.published FROM templates t JOIN categories c ON c.id=t.category WHERE t.id=i.templateId) AS linkActive,json_object('title',json_extract(i.data,'$.title')) AS data,(SELECT count(*) FROM responses r WHERE r.invitation=i.id) AS responseCount FROM invitations i WHERE owner=? ORDER BY updatedAt DESC",user.id);
         return {invitations:rows.map(ownerFields)};
       }
       const row=id?await lookup(id):null;
       if(id && (!row||row.owner!==user.id))absent();
       if(id && !action && method==='GET')return {invitation:ownerFields(row)};
+      if(action==='responses.csv' && method==='GET') {
+        const rows=await all('SELECT name,attending,count,comment,createdAt FROM responses WHERE invitation=? ORDER BY createdAt DESC',id);
+        const cell=v=>'"'+String(v??'').replace(/^[\s]*[=+@-]/,"'$&").replaceAll('"','""')+'"';
+        res.setHeader('Content-Type','text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition','attachment; filename="guest-responses.csv"');
+        res.end('\uFEFF'+[['Name','Attending','Count','Comment','Received at'],...rows.map(r=>[r.name,r.attending?'yes':'no',r.count,r.comment,r.createdAt])].map(r=>r.map(cell).join(',')).join('\r\n'));return;
+      }
+      if(id && !action && method==='DELETE') {
+        if(body.confirm!==id)invalid('Confirm the invitation ID before deleting.');
+        const bound=await all('SELECT asset FROM invitation_assets WHERE invitation=?',id);
+        await batch([
+          ['DELETE FROM reports WHERE invitation=?',id],
+          ['DELETE FROM invitations WHERE id=? AND owner=?',id,user.id],
+          ...bound.map(({asset})=>['DELETE FROM assets WHERE id=? AND owner=? AND id IN (SELECT asset FROM managed_assets) AND NOT EXISTS (SELECT 1 FROM invitation_assets a WHERE a.asset=assets.id)',asset,user.id])
+        ]);
+        return {ok:true};
+      }
+      if(action==='copy' && method==='POST') {
+        await limit('create:'+user.id,100,3600);
+        const copy=randomUUID(),data=JSON.parse(row.data);data.title=(data.title||'Invitation').slice(0,300)+' (copy)';
+        let copyPin='';
+        if(JSON.parse(row.settings).privacy==='pin') {
+          if(typeof body.pin!=='string'||!/^\d{4,12}$/.test(body.pin))invalid('Choose a new 4–12 digit PIN for this copy.');
+          copyPin=auth.protectPin(copy,body.pin);
+        }
+        await run('INSERT INTO invitations(id,owner,slug,templateId,data,settings,pinHash,updatedAt) VALUES (?,?,?,?,?,?,?,?)',copy,user.id,randomBytes(12).toString('base64url'),row.templateId,JSON.stringify(data),row.settings,copyPin,now());
+        return {invitation:ownerFields(await lookup(copy))};
+      }
       if(action==='responses' && method==='GET')return {responses:(await all('SELECT id,name,attending,count,comment,createdAt FROM responses WHERE invitation=? ORDER BY createdAt DESC',id)).map(r=>({...r,attending:!!r.attending}))};
       if(['publish','archive'].includes(action) && method==='POST') {
+        if(body.expectedUpdatedAt && body.expectedUpdatedAt!==row.updatedAt)fail(409,'EDIT_CONFLICT','Reload before changing publication status.');
         await limit('status:'+user.id,60,3600);
         if(action==='publish') {
           validateData(JSON.parse(row.data),true);
@@ -91,6 +129,7 @@ export function portableAPI(db,auth) {
         return {invitation:ownerFields(await lookup(id))};
       }
       if((!id && method==='POST') || (id && !action && method==='PATCH')) {
+        if(row && typeof body.expectedUpdatedAt!=='string')fail(428,'VERSION_REQUIRED','Reload the invitation before saving.');
         const recordId=id||randomUUID();
         if(!id)await limit('create:'+user.id,100,3600);
         const templateId=str(body.templateId??row?.templateId,150,1);
@@ -106,10 +145,11 @@ export function portableAPI(db,auth) {
         }
         if(settings.privacy==='pin' && !pinHash)invalid('أدخل رمز حماية للدعوة.');
         if(settings.privacy!=='pin')pinHash='';
-        const statements=[];
+        const statements=[],newAssets=[];
         for(const image of data.images||[]) {
           if(image.src.startsWith('data:')) {
             const {bytes,mime}=raster(image.src),asset=randomUUID();
+            newAssets.push(asset);
             statements.push(['INSERT INTO assets VALUES (?,?,?,?)',asset,user.id,mime,bytes],['INSERT INTO managed_assets VALUES (?)',asset]);
             image.src='/api/assets/'+asset;
           } else if(!await one('SELECT id FROM assets WHERE id=? AND owner=?',image.src.split('/').pop(),user.id)) {
@@ -123,7 +163,7 @@ export function portableAPI(db,auth) {
         }
         const results=await batch(statements);
         if(row && !results.at(-1).changes) {
-          await run('DELETE FROM assets WHERE id IN (SELECT asset FROM managed_assets) AND owner=? AND NOT EXISTS (SELECT 1 FROM invitation_assets a WHERE a.asset=assets.id)',user.id);
+          if(newAssets.length)await batch(newAssets.map(asset=>['DELETE FROM assets WHERE id=? AND owner=? AND NOT EXISTS (SELECT 1 FROM invitation_assets a WHERE a.asset=assets.id)',asset,user.id]));
           fail(409,'EDIT_CONFLICT','تغيرت الدعوة. أعد تحميلها.');
         }
         return {invitation:ownerFields(await lookup(recordId))};
@@ -145,11 +185,18 @@ export function portableAPI(db,auth) {
       if(!action && method==='GET')return {invitation:publicFields(row)};
       if(action==='rsvp' && method==='POST') {
         if(!settings.rsvpEnabled)absent();
+        if(body.website)invalid('Unable to accept this response.');
         const name=str(body.name,100,1),comment=str(body.comment??'',1000);
         if(typeof body.attending!=='boolean')invalid();
         const count=body.attending?integer(body.count??1,1,settings.maxGuests):0;
         await limit('rsvp:'+id,8,3600);
-        await run('INSERT INTO responses VALUES (?,?,?,?,?,?,?)',randomUUID(),row.id,name,+body.attending,count,comment,now());
+        if(body.submissionId!==undefined) {
+          const receipt=str(body.submissionId,64,16),key=row.id+'|'+receipt;
+          await batch([
+            ['INSERT INTO responses SELECT ?,?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM response_receipts WHERE receipt=?)',randomUUID(),row.id,name,+body.attending,count,comment,now(),key],
+            ['INSERT OR IGNORE INTO response_receipts(receipt,invitation) VALUES (?,?)',key,row.id]
+          ]);
+        } else await run('INSERT INTO responses VALUES (?,?,?,?,?,?,?)',randomUUID(),row.id,name,+body.attending,count,comment,now());
         return {ok:true};
       }
       if(action==='report' && method==='POST') {

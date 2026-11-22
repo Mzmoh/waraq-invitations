@@ -118,6 +118,24 @@ function labeled(text,input) {
 }
 export async function renderAuth(root) {
   const page=start(root);
+  const mode=new URLSearchParams(location.search).get('mode');
+  if(['forgot','reset','verify'].includes(mode)) {
+    const token=new URLSearchParams(location.hash.slice(1)).get('token');
+    if(token)history.replaceState(null,'',location.pathname+location.search);
+    const out=message(),form=el('form','db-form');
+    const input=el('input');input.required=true;
+    input.type=mode==='forgot'?'email':'password';input.autocomplete=mode==='forgot'?'email':'new-password';
+    if(mode==='reset'){input.minLength=8;input.maxLength=128;}
+    const submit=el('button','db-btn db-primary',t('متابعة','Continue'));submit.type='submit';
+    if(mode!=='verify')form.append(labeled(mode==='forgot'?t('البريد الإلكتروني','Email'):t('كلمة المرور الجديدة','New password'),input));
+    form.append(out,submit);
+    form.onsubmit=async e=>{e.preventDefault();submit.disabled=true;try{
+      const result=await api('/auth/'+mode,'POST',mode==='forgot'?{email:input.value.trim()}:{token,password:input.value});
+      out.textContent=mode==='forgot'?t('إذا كان الحساب موجودًا ستصلك رسالة بخطوات الاستعادة.','If the account exists, an email with recovery steps will arrive.'):t('تمت العملية. يمكنك تسجيل الدخول.','Completed. You can sign in.');
+      if(mode!=='forgot')input.disabled=true;
+    }catch(error){out.textContent=error.message;submit.disabled=false;}};
+    page.replaceChildren(heading(mode==='forgot'?t('استعادة كلمة المرور','Password recovery'):mode==='reset'?t('كلمة مرور جديدة','Set a new password'):t('تأكيد البريد','Verify email')),form,link(t('تسجيل الدخول','Sign in'),'/auth'));return;
+  }
   try {
     const {user}=await api('/me');
     if(user) { location.replace(nextDestination()); return; }
@@ -161,11 +179,18 @@ export async function renderAuth(root) {
     const art=el('div','db-auth-art');
     const cover=template('blush-floral-envelope')||templates[0];
     if(cover) {const img=el('img');img.src=cover.thumbnail;img.alt='';art.append(img);}
-    page.replaceChildren(box('db-auth',art,box('db-auth-main',h,help,form,toggler)));
+    page.replaceChildren(box('db-auth',art,box('db-auth-main',h,help,form,toggler,link(t('نسيت كلمة المرور؟','Forgot password?'),'/auth?mode=forgot','db-text-btn'))));
   } catch(error) {notice(page,error,()=>renderAuth(root));}
 }
 function accountBar(user,out) {
   const actions=box('db-actions');
+  actions.append(act(t('تنظيف الملفات غير المستخدمة','Clean unused uploads'),async()=>{
+    if(!window.confirm(t('إزالة الملفات غير المرتبطة بدعوات؟ قد تفقد إمكانية التراجع عن صور قديمة.','Remove uploads not linked to invitations? This may remove old images from Undo history.')))return;
+    await api('/assets','DELETE',{confirm:'unused'});out.textContent=t('تم تنظيف الملفات غير المستخدمة.','Unused uploads removed.');
+  },out,'db-text-btn'));
+  actions.append(act(t('تأكيد البريد الإلكتروني','Verify email'),async()=>{
+    await api('/auth/request-verification','POST',{});out.textContent=t('تم طلب إرسال رسالة تأكيد.','Verification email requested.');
+  },out,'db-text-btn'));
   if(user.role==='admin') actions.append(link(t('إدارة المنصة','Administration'),'/admin','db-text-btn'));
   actions.append(act(t('خروج','Sign out'),async()=>{
     await api('/auth/logout','POST'); location.assign('/');
@@ -259,6 +284,19 @@ async function displayDetail(root,page,inv,responses) {
     page.append(panel(el('h2','',t('مشاركة الدعوة','Share invitation')),actions,shareOut,q));
   }
   page.append(repliesPanel(responses));
+  page.append(panel(el('h2','',t('إدارة الدعوة','Manage invitation')),box('db-actions',
+    link(t('تصدير الردود CSV','Export responses CSV'),'/api/invitations/'+encodeURIComponent(inv.id)+'/responses.csv'),
+    act(t('نسخ الدعوة','Duplicate invitation'),async()=>{
+      const body={};
+      if(inv.settings?.privacy==='pin') {body.pin=window.prompt(t('رمز دخول جديد للنسخة، 4–12 رقمًا','New PIN for the copy, 4–12 digits'));if(body.pin===null)return;}
+      const result=await api('/invitations/'+encodeURIComponent(inv.id)+'/copy','POST',body);
+      location.assign(editPath(result.invitation));
+    },out),
+    act(t('حذف نهائي','Delete permanently'),async()=>{
+      if(!window.confirm(t('حذف الدعوة وردودها نهائيًا؟ لا يمكن التراجع.','Permanently delete this invitation and its replies? This cannot be undone.')))return;
+      await api('/invitations/'+encodeURIComponent(inv.id),'DELETE',{confirm:inv.id});location.assign('/dashboard');
+    },out)
+  )));
 }
 export async function renderDashboard(root,id) {
   const page=start(root);

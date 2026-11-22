@@ -96,7 +96,11 @@ function browse() {
   if (id && !category) return missing();
   if (!category) {
     app.innerHTML = `<div class="wrap studio-content"><h1>${t('المناسبات','Occasions')}</h1><p class="studio-lead">${t('اختر نوع المناسبة لتستعرض قوالبها.','Choose an occasion to explore its templates.')}</p>${occasionTiles()}</div>`;
-    return;
+    const section=document.createElement('section');section.className='wrap studio-section';
+    section.innerHTML=`<h2>${t('كل القوالب','All templates')}</h2><form class="studio-filter" role="search"><label>${t('ابحث عن قالب','Search templates')}<input name="query" type="search" autocomplete="off"></label><label>${t('المناسبة','Occasion')}<select name="category"><option value="">${t('جميع المناسبات','All occasions')}</option>${occasions.map(c=>`<option value="${c[0]}">${ctitle(c)}</option>`).join('')}</select></label></form><p role="status"></p><div class="template-grid"></div>`;
+    app.append(section);const form=section.querySelector('form');form.onsubmit=e=>e.preventDefault();
+    const update=()=>{const q=form.elements.query.value.trim().toLowerCase();const list=gallery.filter(x=>(!form.elements.category.value||x.category===form.elements.category.value)&&[x.titleAr,x.titleEn].some(s=>s.toLowerCase().includes(q)));section.querySelector('[role=status]').textContent=t(`عدد القوالب: ${list.length}`,`${list.length} templates`);section.querySelector('.template-grid').innerHTML=cards(list);};
+    form.addEventListener('input',update);form.addEventListener('change',update);update();return;
   }
   const options = gallery.filter(template=>template.category===id);
   const styles = [...new Set(options.map(template=>template.style))];
@@ -161,7 +165,21 @@ async function boot() {
     return renderEditor(app,existing);
   }
   await getCatalog();
-  if (!page) return home();
+  if (!page) {
+    home();
+    const extra=document.createElement('div');extra.className='wrap';
+    extra.innerHTML=`<section class="studio-section"><h2>${t('تفاصيل تليق بمناسبتك','Everything for your occasion')}</h2><div class="template-grid">${[
+      [t('معاينة متحركة','Animated preview'),t('جرّب القالب قبل الاختيار، وعدّل مع معاينة مباشرة.','Try the design before choosing and customize with a live preview.')],
+      [t('رابط وخصوصية','Sharing and privacy'),t('شارك الرابط أو QR، واختر حماية الدعوة برمز دخول.','Share a link or QR code and optionally protect the invitation with a PIN.')],
+      [t('ردود ضيوفك','Guest replies'),t('تابع تأكيدات الحضور وصدّرها من لوحة دعوتك.','Track attendance replies and export them from your invitation dashboard.')]
+    ].map(([title,body])=>`<article class="studio-feature"><h3>${title}</h3><p>${body}</p></article>`).join('')}</div></section><section class="studio-section studio-faq"><h2>${t('أسئلة شائعة','Frequently asked questions')}</h2>${[
+      [t('هل أحتاج حسابًا؟','Do I need an account?'),t('يمكنك تجربة المحرر بدون حساب. تحتاج حسابًا لحفظ الدعوة على السيرفر ونشرها.','You can try the editor without an account. Sign in to save to the server and publish.')],
+      [t('هل أستطيع التعديل بعد النشر؟','Can I edit after publishing?'),t('نعم، عدّل من دعواتي ثم أكد نشر التغييرات. يبقى رابط الدعوة نفسه.','Yes. Edit from My invitations and publish the changes. The guest link stays the same.')],
+      [t('هل يصل الصوت تلقائيًا؟','Does audio start automatically?'),t('يختار الضيف تشغيل الصوت بنفسه احترامًا لإعدادات المتصفح.','Guests choose to play audio themselves, respecting browser policies.')],
+      [t('هل الرابط المحلي يفتح عند الضيوف؟','Can guests open a local link?'),t('روابط localhost و127.0.0.1 للتجربة على جهازك. المشاركة عبر الإنترنت تتطلب موقعًا منشورًا على استضافة عامة.','localhost and 127.0.0.1 are for testing on your device. Internet sharing requires a deployed public host.')]
+    ].map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</section>`;
+    app.append(extra);return;
+  }
   if (page === 'occasions') return browse();
   const template = gallery.find(x=>x.id===id);
   if (!template) return missing();
