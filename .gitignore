@@ -2,6 +2,8 @@
 .env.local
 data/
 var/
+references/videos/
+references/codex_installed_skills.jpg
 node_modules/
 dist/
 test-results/
@@ -9,3 +11,4 @@ playwright-report/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+

@@ -1,0 +1,84 @@
+.db-page {
+  --db-ink:var(--ink,#302321);--db-muted:var(--muted,#685750);--db-border:var(--border,#ded2c8);--db-paper:var(--surface,#fffdf9);
+  --db-deep:var(--accent,#631e34);--db-tint:var(--paper,#f9f5ef);--db-accent:var(--accent,#631e34);
+  width:min(100% - 2rem,68rem);margin:clamp(2rem,6vw,5rem) auto;
+  color:var(--db-ink);font:inherit;
+}
+.db-page *, .db-page *::before,.db-page *::after {box-sizing:border-box}
+.db-page :is(h1,h2,h3,p,ul) {margin:0}
+.db-page h1 {font:inherit;font-family:inherit;font-size:clamp(1.95rem,5vw,3.5rem);font-weight:650;line-height:1.35}
+.db-page h2 {font-size:clamp(1.25rem,3vw,1.55rem);line-height:1.5}
+.db-page h3 {font-size:1rem;line-height:1.5}
+.db-sub,.db-load {color:var(--db-muted);line-height:1.75;overflow-wrap:anywhere}
+.db-page a {text-decoration:none}
+.db-page .db-btn,.db-page .db-text-btn,.db-page .db-filter {
+  font:inherit;font-weight:600;line-height:1.45;display:inline-flex;justify-content:center;
+  align-items:center;gap:.5rem;min-height:44px;cursor:pointer;max-width:100%;text-align:center;
+  transition:background-color .18s ease,color .18s ease,border-color .18s ease;
+}
+.db-page .db-btn {padding:.65rem 1.1rem;border:1px solid var(--db-border);border-radius:.65rem;background:var(--db-paper);color:var(--db-ink)}
+.db-page .db-primary {background:var(--db-deep);border-color:var(--db-deep);color:#fff}
+.db-page .db-text-btn {padding:.4rem .35rem;color:var(--db-accent);border:0;background:transparent;text-decoration:underline;text-underline-offset:.22em}
+.db-page .db-filter {border:1px solid var(--db-border);color:var(--db-muted);background:transparent;padding:.45rem .9rem;border-radius:2rem}
+.db-page .db-filter[aria-pressed=true] {background:var(--db-deep);border-color:var(--db-deep);color:white}
+@media (hover:hover) {
+  .db-page .db-btn:not(.db-primary):hover,.db-page .db-filter:not([aria-pressed=true]):hover {background:var(--db-tint);border-color:var(--db-accent)}
+  .db-page .db-primary:hover {background:var(--accent-hover,#4a1226)}
+  .db-page .db-text-btn:hover,.db-record-name:hover {color:#382822}
+}
+.db-page :is(input,a,button):focus-visible {outline:3px solid #906a30;outline-offset:3px}
+.db-page button:disabled {opacity:.65;cursor:wait}
+.db-top,.db-account,.db-split {display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.db-account {padding-block-end:.8rem;border-bottom:1px solid var(--db-border);color:var(--db-muted);margin-block-end:1.4rem}
+.db-account-email {direction:ltr;unicode-bidi:isolate;overflow-wrap:anywhere}
+.db-heading {display:grid;gap:.5rem;min-width:0;overflow-wrap:anywhere}
+.db-top {margin-block:1rem 1.5rem}
+.db-account,.db-sub,.db-state,.db-filter {font-size:.9375rem}
+.db-filters,.db-actions,.db-metrics {display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.db-filters {margin-block:1.3rem}
+.db-panel,.db-auth,.db-row,.db-admin-items:not(:empty) {background:var(--db-paper);border:1px solid var(--db-border);border-radius:1rem}
+.db-panel {padding:clamp(1.1rem,3.3vw,2rem);display:grid;justify-items:start;gap:.9rem;margin-block:1rem}
+.db-panel .db-line {width:100%}
+.db-line {display:flex;align-items:baseline;gap:.55rem;flex-wrap:wrap}
+.db-line strong {overflow-wrap:anywhere}
+.db-list {display:grid;gap:1rem}
+.db-row {display:flex;align-items:center;gap:clamp(.8rem,3vw,1.65rem);padding:clamp(.85rem,2vw,1.35rem);min-width:0}
+.db-thumb {display:block;width:clamp(5rem,17vw,11rem);aspect-ratio:1/1;object-fit:cover;border-radius:.65rem;border:1px solid var(--db-border)}
+.db-row-info {min-width:0;display:grid;justify-items:start;gap:.4rem}
+.db-record-name {font:inherit;font-size:clamp(1.1rem,2.5vw,1.4rem);font-weight:650;color:var(--db-ink);overflow-wrap:anywhere}
+.db-state {display:inline-flex;align-items:center;border:1px solid var(--db-border);border-radius:1.5rem;padding:.1rem .65rem;color:var(--db-muted);background:var(--db-tint);font-size:.85rem;line-height:1.8}
+.db-published {background:#edf4e9;color:#36532e;border-color:#c2d5b9}
+.db-archived {background:#f2f0ee;color:#5b5854}
+.db-message {color:var(--db-accent);font-weight:600;line-height:1.65;overflow-wrap:anywhere}
+.db-message:empty,.db-qr:empty,.db-form>.db-sub:empty {display:none}
+.db-message:not(:empty) {margin-block:.75rem}
+.db-qr svg {width:min(100%,12rem);height:auto;display:block;border-radius:.5rem}
+.db-metrics {gap:1rem 2rem;border-bottom:1px solid var(--db-border);padding-block:.5rem 1rem;width:100%}
+.db-replies {padding:0;list-style:none;width:100%}
+.db-replies li {padding-block:.8rem;overflow-wrap:anywhere}
+.db-replies li+li {border-block-start:1px solid var(--db-border)}
+.db-admin-row {display:flex;align-items:center;gap:1rem;flex-wrap:wrap;padding:1rem}
+.db-admin-row+.db-admin-row {border-block-start:1px solid var(--db-border)}
+.db-admin-caption {flex:1 1 10rem;min-width:0;overflow-wrap:anywhere}
+.db-auth {max-width:52rem;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);margin:0 auto;overflow:hidden;box-shadow:0 12px 45px #30271e0d}
+.db-auth-main {padding:clamp(1.3rem,4vw,2.7rem);display:grid;align-content:center;gap:.7rem}
+.db-auth-main h1 {font-size:clamp(1.65rem,4vw,2.6rem)}
+.db-auth-main>.db-text-btn {justify-self:center}
+.db-auth-art {display:grid;place-items:center;overflow:hidden;background:radial-gradient(at 20% 0%,#ecdac5,transparent 72%),#e4cbb7;min-height:19rem}
+.db-auth-art img {display:block;width:90%;height:auto;filter:drop-shadow(0 9px 15px #372b1b23)}
+.db-form,.db-field {display:grid;gap:.35rem;min-width:0}
+.db-form {gap:.8rem;margin-block:.8rem .2rem}
+.db-field {color:var(--db-ink);font-size:1rem;font-weight:600}
+.db-field input,.db-input {font:inherit;background:white;color:var(--db-ink);width:100%;min-height:46px;border-radius:.55rem;padding:.65rem .8rem;border:1px solid #a89b8b}
+.db-form .db-text-btn {justify-self:start;margin-block-start:-.6rem}
+@media(max-width:39rem) {
+ .db-page {width:min(100% - 1.5rem,68rem)}
+ .db-auth {grid-template-columns:1fr}
+ .db-auth-art {min-height:0;height:8.5rem}
+ .db-auth-art img {width:12rem}
+ .db-row {align-items:start}
+ .db-row .db-actions {gap:.35rem}
+ .db-row .db-btn {padding:.4rem .65rem}
+}
+@media (prefers-reduced-motion:reduce) {.db-page * {transition:none!important}}
+

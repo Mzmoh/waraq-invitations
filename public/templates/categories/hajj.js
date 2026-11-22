@@ -1,0 +1,13 @@
+export default [
+  {"titleEn":"Kaaba Elegance","titleAr":"كسوة وذهب","palette":"onyx","style":"فاخر","layout":"medal","description":"تكوين محوري للكعبة وشريط تطريز يرتفع خلفها","layers":[["kiswah",180,115,1.4,0,"lift"],["kaaba",180,147,1.66,0,"bloom"]]},
+  {"titleEn":"Arafat Dawn","titleAr":"فجر عرفات","palette":"sand","style":"هادئ","layout":"horizon","description":"ضوء الفجر يرتفع خلف الجبل وتتحرك طبقات الأفق","layers":[["sun",211,95,1.05,0,"lift"],["ridge",157,143,1.65,0,"left"],["dune",194,160,1.55,-5,"right"]]},
+  {"titleEn":"Kiswah Inspired","titleAr":"نسيج الكسوة","palette":"onyx","style":"تراثي","layout":"band","description":"شريطان مطرزان متعاكسان بينهما نجم هندسي","layers":[["kiswah",181,87,1.92,0,"lift"],["kiswah",179,168,1.73,180,"sink"],["rosette",176,130,0.85,0,"turn"]]},
+  {"titleEn":"White & Gold","titleAr":"بياض وذهب","palette":"pearl","style":"ناعم","layout":"folio","description":"صفحتان عاجيتان تتباعدان حول قوس مذهّب","layers":[["sheet",127,135,1.35,-45,"left"],["sheet",233,139,1.27,54,"right"],["arch",180,132,1.03,0,"rise"]]},
+  {"titleEn":"Hajj Mabroor Calligraphy","titleAr":"حج مبرور","palette":"sage","style":"كلاسيكي","layout":"margin","description":"حبر وريشة داخل ميدالية رقيقة تحمل التهنئة","layers":[["diamond",174,126,1.48,90,"turn"],["ink",172,132,1.18,-8,"draw"],["quill",239,108,0.8,15,"sweep"]]},
+  {"titleEn":"Makkah Silhouette","titleAr":"أفق مكة","palette":"slate","style":"هادئ","layout":"sky","description":"مئذنتان ترسمان أفق مكة على طبقتين متعاقبتين","layers":[["skyline",131,155,1.19,0,"left"],["skyline",225,135,1.52,0,"rise"],["moon",134,83,0.61,0,"turn"]]},
+  {"titleEn":"Zamzam Pearl","titleAr":"لؤلؤة زمزم","palette":"mint","style":"ناعم","layout":"oval","description":"قطرة ماء معلّقة فوق حلقات تموج متسعة","layers":[["drop",174,107,1.21,0,"sink"],["waves",181,172,1.22,0,"unfurl"],["bead",219,154,0.66,0,"glint"]]},
+  {"titleEn":"Golden Geometry","titleAr":"هندسة الذهب","palette":"gold","style":"فاخر","layout":"tiles","description":"نجمة ثمانية داخل شبكتين تتداخلان عند اللمس","layers":[["lattice",129,132,1.3,-12,"left"],["lattice",231,132,1.3,12,"right"],["rosette",181,132,1.04,0,"turn"]]},
+  {"titleEn":"Pilgrim Journey","titleAr":"درب الحاج","palette":"copper","style":"تراثي","layout":"diagonal","description":"خريطة منحنية فوق تلال ومنارة في نهاية الدرب","layers":[["dune",169,168,1.96,-3,"sink"],["map",174,123,1.54,-8,"flip"],["skyline",254,88,0.59,0,"rise"]]},
+  {"titleEn":"Sacred Minimal","titleAr":"سكينة","palette":"ivory","style":"هادئ","layout":"portal","description":"محراب رفيع بداخله نقطة ضوء وتحتها خطوط هادئة","layers":[["arch",178,127,1.36,0,"unfurl"],["spark",179,113,0.84,0,"glint"],["lines",178,161,0.44,0,"sweep"]]}
+];
+

@@ -1,0 +1,310 @@
+import { templates } from './templates/index.js';
+
+const lang = () => document.documentElement.lang.startsWith('en') ? 'en' : 'ar';
+const t = (ar, en) => lang() === 'en' ? en : ar;
+const categoryNames = {
+  general:['عام','General'], ramadan:['رمضان','Ramadan'], fitr:['عيد الفطر','Eid al-Fitr'],
+  hajj:['الحج','Hajj'], adha:['عيد الأضحى','Eid al-Adha'], wedding:['زواج','Wedding'],
+  baby:['مولود جديد','New baby'], graduation:['تخرج','Graduation']
+};
+const category = id => categoryNames[id] ? t(...categoryNames[id]) : id;
+const labels = {
+  draft:['مسودة','Draft'],published:['منشورة','Published'],archived:['مؤرشفة','Archived']
+};
+const template = id => templates.find(item => item.id === id);
+const templateName = item => item ? t(item.titleAr,item.titleEn) : '';
+const statusName = status => labels[status] ? t(...labels[status]) : status;
+const title = invitation => invitation.data?.title || templateName(template(invitation.templateId)) || t('دعوة','Invitation');
+const detailPath = id => '/dashboard/invitations/'+encodeURIComponent(id);
+const editPath = invitation => '/create/'+encodeURIComponent(invitation.templateId)+'?id='+encodeURIComponent(invitation.id);
+const guestLink = invitation => new URL('/i/'+encodeURIComponent(invitation.slug),location.origin).href;
+const authPath = () => '/auth?next='+encodeURIComponent(location.pathname+location.search);
+const n = number => new Intl.NumberFormat(lang()).format(number);
+function prettyDate(stamp) {
+  if (!stamp) return '';
+  const date = new Date(stamp);
+  return Number.isNaN(date.getTime()) ? '' : new Intl.DateTimeFormat(lang(), {dateStyle:'medium'}).format(date);
+}
+function el(tag,className,text) {
+  const node = document.createElement(tag);
+  if(className) node.className=className;
+  if(text!==undefined) node.textContent=text;
+  return node;
+}
+function box(className,...children) {
+  const node=el('div',className);
+  node.append(...children);
+  return node;
+}
+function link(text,href,cls='db-btn') {
+  const result=el('a',cls,text);
+  result.href=href;
+  return result;
+}
+function button(text,action,cls='db-btn') {
+  const b=el('button',cls,text); b.type='button';
+  b.addEventListener('click',action);
+  return b;
+}
+function message() {
+  const result=el('p','db-message');
+  result.setAttribute('role','status');
+  result.setAttribute('aria-live','polite');
+  return result;
+}
+function start(root) {
+  const section=el('section','db-page');
+  section.append(el('p','db-load',t('جارٍ التحميل…','Loading…')));
+  root.replaceChildren(section);
+  return section;
+}
+function panel(...children) { return box('db-panel',...children); }
+function heading(text, description='') {
+  return box('db-heading',el('h1','',text),...(description?[el('p','db-sub',description)]:[]));
+}
+function line(text,values) { return box('db-line',el('span','db-sub',text),el('strong','',values)); }
+function notice(page,error,retry) {
+  const texts={401:[t('سجّل الدخول لفتح دعواتك','Sign in to open your invitations'),t('متابعة','Continue'),authPath()],
+    403:[t('هذه الصفحة متاحة لمسؤولي المنصة','This page requires administrator access'),t('دعواتي','My invitations'),'/dashboard'],
+    404:[t('تعذّر العثور على الدعوة','Invitation unavailable'),t('دعواتي','My invitations'),'/dashboard']};
+  const choice=texts[error.status];
+  page.replaceChildren(panel(heading(choice?.[0] || t('تعذّر تحميل الصفحة','This page could not be loaded')),
+    choice ? link(choice[1],choice[2]) : button(t('إعادة المحاولة','Try again'),retry)));
+}
+async function api(path,method='GET',body) {
+  const options={method,credentials:'same-origin',cache:'no-store',headers:{Accept:'application/json'}};
+  if (method!=='GET') {
+    options.headers['Content-Type']='application/json';
+    options.body=JSON.stringify(body??{});
+  }
+  const response=await fetch('/api'+path,options);
+  const value=await response.json().catch(()=>({}));
+  const errorMessages={
+    BAD_CREDENTIALS:'Check your email and password.', EMAIL_IN_USE:'This email address cannot be used.',
+    INVALID_INPUT:'Check the details and try again.', NOT_FOUND:'This invitation is unavailable.',
+    FORBIDDEN:'Administrator access required.', AUTH_REQUIRED:'Sign in to continue.',
+    RATE_LIMIT:'Too many requests. Please try again later.', SERVER_ERROR:'The server could not complete your request.'
+  };
+  const englishError=lang()==='en' ? errorMessages[value.code] : '';
+  if(!response.ok) throw Object.assign(new Error(englishError||value.error||t('تعذّر تنفيذ الطلب. حاول مجددًا.','Request failed. Please try again.')),{status:response.status});
+  return value;
+}
+function act(text,action,out,cls) {
+  return button(text,async event=>{
+    const control=event.currentTarget;
+    control.disabled=true;
+    out.textContent='';
+    try {await action(control);}
+    catch(error) {out.textContent=error.message || t('تعذّر تنفيذ الطلب','Request failed');}
+    finally {control.disabled=false;}
+  },cls);
+}
+function guestState(invitation) {
+  return el('span','db-state db-'+invitation.status,statusName(invitation.status));
+}
+function nextDestination() {
+  const raw=new URLSearchParams(location.search).get('next');
+  if (!raw) return '/dashboard';
+  try {
+    const next=new URL(raw,location.origin);
+    if(next.origin===location.origin && /^\/(create\/[\w-]+|dashboard(?:\/invitations\/[\w-]+)?|admin)\/?$/.test(next.pathname)) return next.pathname+next.search+next.hash;
+  } catch {}
+  return '/dashboard';
+}
+function labeled(text,input) {
+  const label=el('label','db-field');
+  label.append(el('span','',text),input);
+  return label;
+}
+export async function renderAuth(root) {
+  const page=start(root);
+  try {
+    const {user}=await api('/me');
+    if(user) { location.replace(nextDestination()); return; }
+    const email=el('input'); email.type='email'; email.autocomplete='email'; email.maxLength=254; email.dir='ltr'; email.required=true; email.name='email';
+    const password=el('input'); password.required=true; password.type='password'; password.name='password'; password.dir='auto';
+    const passwordLabel=labeled(t('كلمة المرور','Password'),password);
+    const out=message();
+    const toggler=button('',()=>setMode(!signup),'db-text-btn');
+    const submit=el('button','db-btn db-primary'); submit.type='submit';
+    const h=el('h1');
+    const help=el('p','db-sub');
+    const hint=el('p','db-sub');
+    const form=el('form','db-form');
+    const show=button(t('إظهار كلمة المرور','Show password'),()=>{
+      const hidden=password.type==='password';
+      password.type=hidden?'text':'password';
+      show.textContent=hidden?t('إخفاء كلمة المرور','Hide password'):t('إظهار كلمة المرور','Show password');
+      show.setAttribute('aria-pressed',String(hidden));
+    },'db-text-btn');
+    form.append(labeled(t('البريد الإلكتروني','Email address'),email),passwordLabel,show,hint,out,submit);
+    let signup=new URLSearchParams(location.search).get('mode')==='register';
+    function setMode(mode) {
+      signup=mode; out.textContent='';
+      password.autocomplete=mode?'new-password':'current-password';
+      password.minLength=mode?8:1; password.maxLength=128;
+      hint.textContent=mode?t('اختر كلمة مرور من ٨ أحرف على الأقل.','Use a password with at least 8 characters.'):'';
+      h.textContent=mode?t('أنشئ حسابك','Create your account'):t('تسجيل الدخول','Sign in');
+      help.textContent=t('احفظ دعواتك وشاركها وتابع ردود ضيوفك.','Save invitations, share them and keep track of guest replies.');
+      submit.textContent=mode?t('إنشاء الحساب','Create account'):t('دخول','Sign in');
+      toggler.textContent=mode?t('عندي حساب بالفعل','I already have an account'):t('إنشاء حساب جديد','Create an account');
+    }
+    form.addEventListener('submit',async event=>{
+      event.preventDefault(); if(submit.disabled) return;
+      submit.disabled=true; toggler.disabled=true; out.textContent=t('جارٍ التحقق…','Please wait…');
+      try {
+        await api(signup?'/auth/register':'/auth/login','POST',{email:email.value.trim(),password:password.value});
+        location.replace(nextDestination());
+      } catch(error) {out.textContent=error.message; submit.disabled=false; toggler.disabled=false;}
+    });
+    setMode(signup);
+    const art=el('div','db-auth-art');
+    const cover=template('blush-floral-envelope')||templates[0];
+    if(cover) {const img=el('img');img.src=cover.thumbnail;img.alt='';art.append(img);}
+    page.replaceChildren(box('db-auth',art,box('db-auth-main',h,help,form,toggler)));
+  } catch(error) {notice(page,error,()=>renderAuth(root));}
+}
+function accountBar(user,out) {
+  const actions=box('db-actions');
+  if(user.role==='admin') actions.append(link(t('إدارة المنصة','Administration'),'/admin','db-text-btn'));
+  actions.append(act(t('خروج','Sign out'),async()=>{
+    await api('/auth/logout','POST'); location.assign('/');
+  },out,'db-text-btn'));
+  return box('db-account',el('span','db-account-email',user.email),actions);
+}
+function displayList(page,user,invitations) {
+  const out=message(), body=el('div','db-list'), filters=box('db-filters');
+  const filterNames=['all','draft','published','archived'];
+  function renderFilter(active) {
+    const filtered=invitations.filter(item=>active==='all'||item.status===active);
+    for(const item of filters.children) item.setAttribute('aria-pressed',String(item.dataset.status===active));
+    body.replaceChildren();
+    if(!filtered.length) {
+      const msg=invitations.length?t('لا توجد دعوات بهذه الحالة.','No invitations with this status.'):t('أنشئ دعوتك الأولى','Create your first invitation');
+      body.append(panel(el('h2','',msg),...(invitations.length?[]:[link(t('اختر مناسبة','Choose an occasion'),'/occasions','db-btn db-primary')])));
+    }
+    filtered.forEach(inv=>{
+      const design=template(inv.templateId);
+      const item=el('article','db-row'); 
+      if(design) {const cover=el('img','db-thumb');cover.alt='';cover.src=design.thumbnail;cover.loading='lazy';item.append(cover);}
+      const name=link(title(inv),detailPath(inv.id),'db-record-name');
+      const meta=[templateName(design),prettyDate(inv.updatedAt)].filter(Boolean).join(' · ');
+      const replyCount=t('الردود','Replies')+' '+n(inv.responseCount||0);
+      const actions=box('db-actions',link(t('تعديل','Edit'),editPath(inv)),link(t('التفاصيل والردود','Details and replies'),detailPath(inv.id)));
+      const row=box('db-row-info',guestState(inv),name,el('p','db-sub',meta),el('p','db-sub',replyCount),actions);
+      item.append(row);body.append(item);
+    });
+  }
+  for(const status of filterNames) {
+    const label=status==='all'?t('الكل','All'):statusName(status);
+    const count=status==='all'?invitations.length:invitations.filter(v=>v.status===status).length;
+    const b=button(label+' · '+n(count),()=>renderFilter(status),'db-filter');
+    b.dataset.status=status;filters.append(b);
+  }
+  page.replaceChildren(accountBar(user,out),box('db-top',heading(t('دعواتي','My invitations')),link(t('إنشاء دعوة','Create invitation'),'/occasions','db-btn db-primary')),out,filters,body);
+  renderFilter('all');
+}
+async function copyUrl(url,out) {
+  try {
+    if(!navigator.clipboard?.writeText) throw new Error();
+    await navigator.clipboard.writeText(url);
+    out.textContent=t('نُسخ رابط الدعوة.','Invitation link copied.');
+  } catch {
+    const input=el('input','db-input'); input.readOnly=true;input.dir='ltr';input.value=url;input.setAttribute('aria-label',t('رابط الدعوة','Invitation link'));
+    out.replaceChildren(document.createTextNode(t('انسخ الرابط المحدد.','Copy the selected link.')),input);input.focus();input.select();
+  }
+}
+function repliesPanel(responses) {
+  const people=responses.reduce((sum,r)=>sum+(r.attending?Number(r.count):0),0);
+  const declined=responses.filter(r=>!r.attending).length;
+  const rows=el('ul','db-replies');
+  responses.forEach(r=>{
+    const row=el('li');
+    row.append(box('db-split',el('strong','',r.name),el('span','db-sub',r.attending?t('حاضر','Attending')+' · '+n(r.count):t('معتذر','Declined'))));
+    if(r.comment) row.append(el('p','db-sub',r.comment));
+    if(r.createdAt) row.append(el('small','db-sub',prettyDate(r.createdAt)));
+    rows.append(row);
+  });
+  return panel(el('h2','',t('ردود الضيوف','Guest replies')),
+    box('db-metrics',line(t('الردود','Replies'),n(responses.length)),line(t('الحاضرون','Attendees'),n(people)),line(t('الاعتذارات','Declines'),n(declined))),
+    responses.length?rows:el('p','db-sub',t('تظهر ردود ضيوفك هنا بعد إرسالها.','Guest replies will appear here as they arrive.')));
+}
+async function displayDetail(root,page,inv,responses) {
+  const out=message(), design=template(inv.templateId);
+  const url=guestLink(inv), live=inv.status==='published', shareable=live && inv.linkActive!==false;
+  const top=box('db-top',heading(title(inv),templateName(design)),guestState(inv));
+  const edit=link(t('تعديل الدعوة والخصوصية','Edit invitation and privacy'),editPath(inv),'db-btn db-primary');
+  const changing=act(live?t('أرشفة وإيقاف الرابط','Archive and disable link'):t('نشر الدعوة','Publish invitation'),async()=>{
+    if(live && !window.confirm(t('سيُغلق رابط الضيوف حتى تعيد نشر الدعوة. متابعة؟','The guest link will close until you publish again. Continue?'))) return;
+    await api('/invitations/'+encodeURIComponent(inv.id)+(live?'/archive':'/publish'),'POST');
+    await renderDashboard(root,inv.id);
+  },out);
+  const manage=panel(el('h2','',t('إعدادات الدعوة','Invitation settings')),
+    line(t('حالة الرابط','Link status'),shareable?t('متاح للضيوف','Open to guests'):live?t('القالب موقوف من إدارة المنصة','Template disabled by an administrator'):t('متوقف','Inactive')),
+    line(t('الخصوصية','Privacy'),inv.settings?.privacy==='pin'?t('رمز دخول','PIN protected'):inv.settings?.privacy==='public'?t('عامة','Public'):t('غير مدرجة','Unlisted')),line(t('آخر تحديث','Last update'),prettyDate(inv.updatedAt)),box('db-actions',edit,changing));
+  page.replaceChildren(link(t('العودة إلى دعواتي','Back to my invitations'),'/dashboard','db-text-btn'),top,out,manage);
+  if(shareable) {
+    const shareOut=message(), q=el('div','db-qr');
+    const {showQR,downloadShareCard}=await import('./invitation-share.js');
+    const qrButton=button(t('إظهار رمز QR','Show QR code'),()=>{
+      if(q.childElementCount) {q.replaceChildren();qrButton.textContent=t('إظهار رمز QR','Show QR code');qrButton.setAttribute('aria-expanded','false');}
+      else {try{showQR(q,url);qrButton.textContent=t('إخفاء الرمز','Hide code');qrButton.setAttribute('aria-expanded','true');}catch(error){shareOut.textContent=error.message;}}
+    });
+    qrButton.setAttribute('aria-expanded','false');
+    const open=link(t('فتح رابط الضيوف','Open guest link'),url); open.target='_blank';open.rel='noopener noreferrer';
+    const whatsapp=link(t('مشاركة واتساب','Share on WhatsApp'),'https://wa.me/?text='+encodeURIComponent(title(inv)+'\n'+url));
+    whatsapp.target='_blank'; whatsapp.rel='noopener noreferrer';
+    const actions=box('db-actions',open,act(t('نسخ الرابط','Copy link'),()=>copyUrl(url,shareOut),shareOut),whatsapp,qrButton,
+      act(t('تحميل بطاقة المشاركة','Download share card'),()=>downloadShareCard({...inv.data,settings:inv.settings},url),shareOut));
+    page.append(panel(el('h2','',t('مشاركة الدعوة','Share invitation')),actions,shareOut,q));
+  }
+  page.append(repliesPanel(responses));
+}
+export async function renderDashboard(root,id) {
+  const page=start(root);
+  try {
+    const {user}=await api('/me'); if(!user){notice(page,{status:401});return;}
+    if(!id){const {invitations}=await api('/invitations');displayList(page,user,invitations);return;}
+    const path='/invitations/'+encodeURIComponent(id);
+    const [{invitation},{responses}]=await Promise.all([api(path),api(path+'/responses')]);
+    await displayDetail(root,page,invitation,responses);
+  } catch(error){notice(page,error,()=>renderDashboard(root,id));}
+}
+export async function renderAdmin(root) {
+  const page=start(root);
+  try {
+    const state=await api('/admin');
+    const out=message();
+    const headingBar=box('db-top',heading(t('إدارة المنصة','Administration')),link(t('دعواتي','My invitations'),'/dashboard'));
+    const tabs=box('db-filters'), content=el('div','db-admin-items');
+    function manage(active) {
+      for(const tab of tabs.children) tab.setAttribute('aria-pressed',String(tab.dataset.section===active));
+      content.replaceChildren();
+      const list=state[active] || [];
+      if(!list.length){content.append(panel(el('p','db-sub',t('لا توجد عناصر لعرضها.','Nothing to display.')))); return;}
+      list.forEach(item=>{
+        const isReport=active==='reports';
+        const h=active==='templates'?templateName(template(item.id))||item.id:active==='categories'?category(item.id):item.reason;
+        const current=isReport?item.status==='open':item.published;
+        const sub=isReport?item.slug+' · '+prettyDate(item.createdAt):item.id;
+        const status=isReport?(current?t('مفتوح','Open'):t('معالَج','Resolved')):(current?t('ظاهر','Visible'):t('مخفي','Hidden'));
+        const action=isReport?(current?t('تحديد كمعالَج','Resolve'):t('إعادة فتح','Reopen')):(current?t('إخفاء','Hide'):t('إظهار','Show'));
+        const row=box('db-admin-row',box('db-admin-caption',el('h3','',h),el('p','db-sub',sub)),el('span','db-state',status));
+        row.append(act(action,async()=>{
+          const value=isReport?{status:current?'resolved':'open'}:{published:!current};
+          await api('/admin/'+active+'/'+encodeURIComponent(item.id),'PATCH',value);
+          Object.assign(item,value);manage(active);out.textContent=t('حُفظ التغيير.','Changes saved.');
+        },out));
+        content.append(row);
+      });
+    }
+    for(const [key,ar,en] of [['categories','المناسبات','Occasions'],['templates','القوالب','Templates'],['reports','البلاغات','Reports']]) {
+      const b=button(t(ar,en)+' · '+n(state[key]?.length||0),()=>manage(key),'db-filter');
+      b.dataset.section=key;tabs.append(b);
+    }
+    page.replaceChildren(headingBar,out,tabs,content);manage('categories');
+  } catch(error) {notice(page,error,()=>renderAdmin(root));}
+}
+
+
+
