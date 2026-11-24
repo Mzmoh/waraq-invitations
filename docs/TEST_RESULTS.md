@@ -53,3 +53,11 @@ Observed failures fixed during this run: a non-specific photo-button test select
 - Docker CLI absent; Docker build/Compose/Caddy runtime not executed. Optional YAML parse attempt blocked by missing PyYAML; no successful config-validation claim.
 - Executor DNS: ENOTFOUND for github.com, git.chatgpt-team.site and api.resend.com. No production hostname/IP provided, so website-domain DNS and public-link operation remain untested.
 - No physical iPhone Safari/Android browser session available. Local font timings are not production LCP/INP or mobile-network measurements.
+
+
+## Development branch continuation — 2026-11-24
+
+Stage 1 command: node --test tests/backup.test.mjs tests/backup-race.test.mjs — 3 passed. Regression first failed on the previous implementation because a foreign-key-corrupt snapshot remained published. Intermediate pending WAL/SHM failure was corrected before continuing.
+
+Stage 2 command: node --test tests/encrypted-backup.test.mjs tests/backup.test.mjs tests/backup-race.test.mjs — 6 passed, 0 failed. The 32 MiB test validates content hashes and single-writer publication; it does not claim a production peak-RSS measurement.
+Full regression: npm test — 53 passed; npm run build — passed, 54 modules; tests/browser.mjs — 16 passed. Evidence: test-results/backup-hardening/browser-results.json. The application catalog, accounts, editor, image/audio and guest source files were not changed.

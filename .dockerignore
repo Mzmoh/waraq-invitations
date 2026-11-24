@@ -7,4 +7,5 @@
 !scripts/
 !scripts/backup.mjs
 !scripts/encrypted-backup.mjs
+!scripts/safe-output.mjs
 

@@ -75,3 +75,10 @@ Direct mail: set MAIL_PROVIDER=resend, RESEND_API_KEY, MAIL_FROM (a sender/domai
 Arabic fonts are now served locally from /fonts/: Amiri, Noto Naskh Arabic, Noto Kufi Arabic. Licenses and pinned source blob IDs are in public/fonts/. WOFF assets preserve upstream font tables; regeneration inputs are downloaded separately into ignored references/font-sources/. System fallback remains for English stacks.
 
 For encrypted external backups, first create the verified SQLite snapshot using scripts/backup.mjs; then set BACKUP_ENCRYPTION_KEY privately (32 bytes encoded as 64 hex characters) and run node scripts/encrypted-backup.mjs encrypt snapshot.sqlite snapshot.waraqbk. Upload only that encrypted snapshot to an owner-selected private external target. Restore by decrypting into a new path and performing the documented SQLite restore checks. Keep the encryption key in a separate secret store. No external account/upload or automatic scheduling has been configured. Backup commands are included in the app image under /app/scripts/.
+
+
+## Backup hardening on the development branch
+
+SQLite backups are validated in a private pending file, converted to a standalone DELETE journal snapshot, synced, and exclusively published at the requested new destination. A failed integrity/foreign-key check leaves no final backup. Target filesystems must support hard links; unsupported publication fails rather than falling back to an overwriting rename.
+
+Encrypted snapshots stream rather than loading the whole snapshot in memory. WARAQBK1 header/nonce/tag framing is unchanged and old encrypted files remain readable. Plaintext restore output is private and temporary until GCM authentication completes. The CLI syntax is unchanged. Programmatic callers must now await encryptSnapshot/decryptSnapshot; both return Promises. Concurrent writers may produce only one final destination; the other receives EEXIST.

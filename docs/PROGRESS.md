@@ -28,3 +28,11 @@
 ## Final production release gate — 2026-11-24
 
 Continued from GitHub c22e7d9/local 07f67ce without rebuilding completed features. Added fail-closed production configuration, isolated Compose/Caddy deployment, exact trusted-proxy identity and per-client rate-limit verification, direct Resend adapter, three licensed self-hosted Arabic WOFF fonts and encrypted snapshot tools. Existing template IDs/artwork retained; 80 contact-sheet compositions reviewed and 80 fresh narrow font-loaded reveals passed. Public deployment, actual mail delivery, external backup storage and physical-device acceptance remain blocked. RELEASE_READINESS.md is explicitly NOT_READY.
+
+
+## Development branch continuation — 2026-11-24
+
+Stage 1: reproduced rejected SQLite snapshots remaining at their final destination. Added verified temporary publication with exclusive hard-link no-overwrite semantics, DELETE journal mode for standalone snapshots and scoped cleanup. Three backup tests passed.
+
+Stage 2: encrypted snapshots now stream through AES-256-GCM and private pending files. Original WARAQBK1 framing remains compatible. Six focused backup tests passed, including 32 MiB roundtrip, old-format restore, concurrent exclusive publication and tamper cleanup.
+Stage 3 regression: npm test 53 passed, npm run build passed (54 modules, 80 covers), main browser suite 16 passed. Remote main was verified at b0bada68c096bf63d3b088c90213a6b320db06e4; branch engineering/20261124-backup-hardening only. No merge authorized.
