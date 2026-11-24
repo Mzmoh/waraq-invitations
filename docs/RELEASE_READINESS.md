@@ -58,3 +58,12 @@ No WARAQ production hostname or server public IP is configured. Therefore its A/
 Visual scope: the existing vector direction is retained; no photographic-equivalence claim or artistic quality score is inferred from hashes.
 
 **READY may be assigned only after these relevant external gates have real evidence.** This report deliberately does not claim public deployment, real provider delivery, a stable production disk or commercial launch readiness.
+
+
+## Development branch follow-up — 2026-11-24
+
+Branch: engineering/20261124-backup-hardening. Base: GitHub main b0bada68c096bf63d3b088c90213a6b320db06e4. Before editing, all 197 remote file blobs were compared to the local working snapshot and matched exactly; local history uses the corresponding 04a7e20 checkpoint.
+
+Reproduced and fixed rejected SQLite snapshots remaining under their final filename. Backups now publish only after verification and use exclusive hard-link publication. Streaming encrypted backup/restore retains WARAQBK1 compatibility and cleans up unauthenticated plaintext/pending output. The focused suite passes 6 tests, the full suite passes 53, the Node build passes and the existing browser suite passes 16 checks. Docker context includes the shared safe-output helper.
+
+Launch status remains NOT_READY for the existing external gates. No production deployment, real mail delivery, external backup service or physical-device test was performed. Changes are proposed only on the development branch and must not merge into main without owner approval.
