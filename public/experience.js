@@ -65,7 +65,7 @@ export function enhanceExperience(card,template,data,{preview=false}={}) {
   let audio;
   const sound=data.audio;
   const builtin=soundLibrary.find(s=>s.id===sound?.track);
-  const src=builtin?.src||(/^data:audio\/(mpeg|wav|ogg);base64,[a-z\d+/=]+$/i.test(sound?.src||'')?sound.src:'');
+  const src=builtin?.src||(/^data:audio\/(mpeg|wav|ogg);base64,[a-z\d+/=]+$/i.test(sound?.src||'')||/^\/api\/assets\/[a-f0-9-]{36}$/.test(sound?.src||'')?sound.src:'');
   if(src){
     audio=new Audio(src);audio.preload='none';audio.loop=!!sound.loop;audio.volume=Math.min(1,Math.max(0,sound.volume??.5));
     const controls=document.createElement('div');controls.className='inv-audio';

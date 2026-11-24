@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "node scripts/build-vercel.mjs",
+  "outputDirectory": "dist/vercel",
+  "functions": {"api/index.mjs": {"maxDuration": 30, "includeFiles": "public/index.html"}},
+  "headers": [{"source": "/(.*)", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow"}, {"key": "X-Content-Type-Options", "value": "nosniff"}, {"key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'"}]}],
+  "rewrites": [
+    {"source": "/api/:path*", "destination": "/api/index?waraq_path=/api/:path*"},
+    {"source": "/i/:slug", "destination": "/api/index?waraq_path=/i/:slug"},
+    {"source": "/robots.txt", "destination": "/api/index?waraq_path=/robots.txt"},
+    {"source": "/sitemap.xml", "destination": "/api/index?waraq_path=/sitemap.xml"},
+    {"source": "/", "destination": "/index.html"},
+    {"source": "/:page(occasions|templates|create|dashboard|auth|login|register|admin)", "destination": "/index.html"},
+    {"source": "/:page(occasions|templates|create|dashboard|auth)/:path*", "destination": "/index.html"}
+  ]
+}

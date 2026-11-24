@@ -1,3 +1,4 @@
+import {renderCinematicHome} from './home-cinematic.js';
 import { templates } from './templates/index.js';
 
 const categories = [
@@ -68,29 +69,7 @@ function cards(list) {
   </a></article>`).join('');
 }
 
-function home() {
-  const featured = ['royal-navy-wax-seal','golden-crescent','ivory-lace','graduation-cap-toss'].map(id=>gallery.find(x=>x.id===id)).filter(Boolean);
-  const demo = gallery.find(x=>x.id==='royal-navy-wax-seal') || gallery[0];
-  app.innerHTML = `<div class="wrap landing">
-    <section class="studio-hero" aria-labelledby="hero-title">
-      <div class="hero-copy"><div class="hero-rule" aria-hidden="true">✦</div>
-      <h1 id="hero-title">${t('لكلّ مناسبة<br>دعوة <em>تليق بها.</em>','Every occasion<br>deserves an <em>invitation.</em>')}</h1>
-      <p>${t('صمّم دعوة متحركة بتفاصيلك. شاركها برابط، ودع ضيوفك يفتحونها كما يفتحون ظرفًا حقيقيًا.','Design a moving invitation with your details. Share it by link and give guests an envelope they can open.')}</p>
-      <div class="hero-actions"><a class="studio-button" href="/occasions">${t('أنشئ دعوتك','Create invitation')}</a>
-      ${demo ? `<a class="studio-button secondary" href="/templates/${demo.id}">${icon('m9 5 11 7-11 7z',16)}${t('جرّب فتح دعوة','Open a sample')}</a>` : ''}</div></div>
-      <div class="hero-art">
-        <img src="/media/wax-stationery.webp" width="1400" height="933" fetchpriority="high" alt="${t('ظرف عاجي مختوم بالشمع فوق قماش خمري','Ivory envelope with a wax seal on burgundy velvet')}">
-        ${demo ? `<a class="hero-hotspot" href="/templates/${demo.id}">${icon('m9 5 11 7-11 7z',17)}${t('معاينة الدعوة','Preview invitation')}</a>` : ''}
-      </div>
-    </section>
-    <section class="studio-section"><div class="section-heading"><h2>${t('اختر مناسبتك','Choose your occasion')}</h2></div>${occasionTiles()}</section>
-    ${featured.length ? `<section class="studio-section"><div class="section-heading"><h2>${t('قوالب مختارة','Featured invitations')}</h2><a href="/occasions">${t('كل المناسبات','All occasions')}</a></div><div class="template-grid">${cards(featured)}</div></section>` : ''}
-    <section class="studio-section studio-steps"><h2>${t('من اختيار القالب إلى إرسال الدعوة','From template to guest link')}</h2>
-      <ol><li><strong>${t('اختر القالب','Choose')}</strong><p>${t('افتح معاينة حيّة قبل الاختيار.','Open a live preview before choosing.')}</p></li><li><strong>${t('أضف تفاصيلك','Customize')}</strong><p>${t('أضف النص والصور واضبط وقت المناسبة.','Add text, photos and your event time.')}</p></li><li><strong>${t('شارك الرابط','Share')}</strong><p>${t('يفتح الضيف الدعوة من هاتفه ويستطيع تأكيد حضوره.','Guests open your invitation on their phones and can RSVP.')}</p></li></ol>
-      <a class="studio-button" href="/occasions">${t('استكشف القوالب','Explore templates')}</a>
-    </section>
-  </div>`;
-}
+function home() { return renderCinematicHome(app,{gallery,t,icon,occasionTiles,cards}); }
 function browse() {
   const category = occasions.find(c=>c[0]===id);
   if (id && !category) return missing();

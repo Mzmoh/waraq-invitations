@@ -74,3 +74,9 @@ Launch status remains NOT_READY for the existing external gates. No production d
 Status: LOCAL_TESTS_PASS / SOURCE_UPLOAD_BLOCKED / NOT_DEPLOYED. The Vercel Hobby + Supabase Free design is development-only and requires no Next.js conversion. Local Node/SQLite regression (53) and PostgreSQL trial checks (17) passed; both builds passed. The adapter source is still uncommitted locally because sandbox initialization stopped accepting file/command access. This GitHub checkpoint contains reports only. Do not deploy this branch as though the adapter source had been uploaded.
 
 No public invitation URL or remote database/storage acceptance exists. Existing auth is retained; Supabase Auth migration is not assumed. Credentials, hosted tests, source upload and fresh browser acceptance remain gates. See VERCEL_SUPABASE_TRIAL.md. Commercial status remains NOT_READY; no main merge or production migration authorized.
+
+
+
+## Cinematic development follow-up — 2026-11-24
+
+Original cinematic interface and optional physical glass showcase pass the targeted local checks recorded in CINEMATIC_GLASS.md. All 80 invitation identities remain intact. The Windows executor works again and the existing trial adapter work was preserved. Main is unchanged; no commercial READY, hosted trial acceptance, live mail, production migration or public guest link is claimed.

@@ -68,3 +68,9 @@ Full regression: npm test — 53 passed; npm run build — passed, 54 modules; t
 npm test: 53 passed. Trial routes/migration/storage suites on actual PGlite PostgreSQL + pgcrypto: 17 passed, including all 80 template create/publish/guest routes, RLS ownership, PIN, media, RSVP receipts, admin, mocked recovery, read-only demo migration and failure rollback. npm run build:trial and npm run build passed, 61 modules checked. Evidence: local test-results/trial-latest.txt. Tests subsequently renamed to tests/trial/*.test.mjs without behavior changes.
 
 These results apply to the local implementation, not the documentation-only remote snapshot. No fresh trial browser run, hosted Supabase/Storage test, Vercel deployment, real mail, physical device or pg TLS/network driver verification is claimed. Local tools became unavailable because the executor received a Windows-invalid /workspace sandbox permission path. Full limitations and resume steps: VERCEL_SUPABASE_TRIAL.md.
+
+
+
+## Cinematic identity — 2026-11-24
+
+npm test: 56 passed, 0 failed. npm run test:trial: 17 passed on local PostgreSQL/PGlite, 0 failed. Existing tests/browser.mjs: 16 passed, including all 80 template reveals and full signup/publish/guest journey. tests/cinematic-browser.mjs: 7 passed, including actual WebGL material/bounds, editable scene and 9:16, stable final hold, no-Three reduced mode, no-WebGL/Save-Data fallbacks and English LTR. Node build and trial static build passed, 68 JS modules checked. Evidence: test-results/cinematic/results.json and cinematic-*.log. Desktop/390px fallback/portrait captures inspected. No physical-device, hosted Vercel/Supabase or production performance acceptance claimed.
