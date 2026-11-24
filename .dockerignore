@@ -4,4 +4,7 @@
 !public/**
 !server/
 !server/**
+!scripts/
+!scripts/backup.mjs
+!scripts/encrypted-backup.mjs
 

@@ -27,7 +27,7 @@ export function portableAPI(db,auth,mail={}) {
   }
   async function route(req,res,path,body) {
     const [,,base,id,action]=path.split('/');
-    const method=req.method,ip=req.socket.remoteAddress||'local';
+    const method=req.method,ip=req.clientAddress||req.socket.remoteAddress||'local';
     const limit=(key,n,s)=>auth.limit(key+'|'+ip,n,s);
     if(path==='/api/health' && method==='GET') {await one('SELECT 1 AS healthy');return {ok:true};}
     if(path==='/api/me' && method==='GET')return {user:await auth.user(req)||null};

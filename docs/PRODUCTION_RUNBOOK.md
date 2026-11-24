@@ -60,3 +60,18 @@ PATCH `/api/invitations/:id` requires `expectedUpdatedAt` from the most recent o
 - Production load/resource budgets, performance measurements and edge per-client limits.
 
 No public production URL has been verified in this finishing session.
+
+
+## Release-gate additions — 2026-11-24
+
+Use RELEASE_READINESS.md for the current launch decision. Docker is unavailable in this executor; Compose/Caddy have not been run. The optional YAML parser is unavailable too; no configuration-validation pass is claimed.
+
+The supplied compose.yaml keeps the app off host ports, persists all SQLite/image BLOB data in waraq_data and Caddy certificates in caddy_data. Set WARAQ_DOMAIN (hostname only) and ACME_EMAIL privately, point correct A/AAAA records at the server, then run docker compose config, docker compose build and docker compose up -d on the actual host. Confirm that the fixed 172.30.0.0/24 network does not overlap an existing host network. Configure the app and trusted proxy addresses together if changing that subnet. Never publish the app container port directly to untrusted networks with the proxy allowlist configured.
+
+Production startup now enforces canonical HTTPS PUBLIC_ORIGIN, COOKIE_SECURE=true and a persistent database outside public/. Caddy overwrites X-Waraq-Client-IP and Node trusts it only from configured exact TRUSTED_PROXY_IPS. X-Forwarded-For is ignored. This replaces the earlier shared-proxy-bucket limitation for the supplied deployment.
+
+Direct mail: set MAIL_PROVIDER=resend, RESEND_API_KEY, MAIL_FROM (a sender/domain verified in the provider) and PUBLIC_ORIGIN. See https://resend.com/docs/api-reference/emails/send-email for the provider contract. A generic MAIL_DELIVERY_URL webhook remains supported via MAIL_PROVIDER=webhook. No real provider receipt or inbox delivery was tested without credentials.
+
+Arabic fonts are now served locally from /fonts/: Amiri, Noto Naskh Arabic, Noto Kufi Arabic. Licenses and pinned source blob IDs are in public/fonts/. WOFF assets preserve upstream font tables; regeneration inputs are downloaded separately into ignored references/font-sources/. System fallback remains for English stacks.
+
+For encrypted external backups, first create the verified SQLite snapshot using scripts/backup.mjs; then set BACKUP_ENCRYPTION_KEY privately (32 bytes encoded as 64 hex characters) and run node scripts/encrypted-backup.mjs encrypt snapshot.sqlite snapshot.waraqbk. Upload only that encrypted snapshot to an owner-selected private external target. Restore by decrypting into a new path and performing the documented SQLite restore checks. Keep the encryption key in a separate secret store. No external account/upload or automatic scheduling has been configured. Backup commands are included in the app image under /app/scripts/.

@@ -1,0 +1,29 @@
+[
+  {
+    "family": "amiri",
+    "path": "ofl/amiri/Amiri-Regular.ttf",
+    "upstreamBlob": "14dfa0d6c80db50460d23daa306a7ac92e74676f",
+    "licenseBlob": "a6051797e5f1910347b586dc06d4c1130f00da28",
+    "source": "https://github.com/google/fonts/blob/main/ofl/amiri/Amiri-Regular.ttf",
+    "license": "SIL OFL 1.1",
+    "conversion": "Lossless table compression into WOFF; no subsetting or name changes"
+  },
+  {
+    "family": "notonaskharabic",
+    "path": "ofl/notonaskharabic/NotoNaskhArabic[wght].ttf",
+    "upstreamBlob": "a8d2867262dc7bb28492ad746de5d56235735c8b",
+    "licenseBlob": "d4e170557fc8bcf8d1dcb317d9f1accaf8acf223",
+    "source": "https://github.com/google/fonts/blob/main/ofl/notonaskharabic/NotoNaskhArabic[wght].ttf",
+    "license": "SIL OFL 1.1",
+    "conversion": "Lossless table compression into WOFF; no subsetting or name changes"
+  },
+  {
+    "family": "notokufiarabic",
+    "path": "ofl/notokufiarabic/NotoKufiArabic[wght].ttf",
+    "upstreamBlob": "9bb606f2ba004955109ea00a883cc23959b8d8e2",
+    "licenseBlob": "14c589f6384505ede3f8e52627d397513af3662d",
+    "source": "https://github.com/google/fonts/blob/main/ofl/notokufiarabic/NotoKufiArabic[wght].ttf",
+    "license": "SIL OFL 1.1",
+    "conversion": "Lossless table compression into WOFF; no subsetting or name changes"
+  }
+]

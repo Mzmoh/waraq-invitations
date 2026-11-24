@@ -18,7 +18,8 @@
     "test:e2e:finishing": "node tests/finishing-browser.mjs",
     "test:e2e:dashboard": "node tests/dashboard-browser.mjs",
     "review:templates": "node tests/template-visuals.mjs",
-    "backup": "node scripts/backup.mjs"
+    "backup": "node scripts/backup.mjs",
+    "test:e2e:release": "node tests/release-browser.mjs"
   },
   "devDependencies": {
     "esbuild": "0.27.0",

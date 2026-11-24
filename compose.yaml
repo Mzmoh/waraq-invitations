@@ -1,0 +1,45 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATABASE_PATH: /app/var/invitations.sqlite
+      PUBLIC_ORIGIN: https://${WARAQ_DOMAIN:?Set WARAQ_DOMAIN}
+      COOKIE_SECURE: 'true'
+      TRUSTED_PROXY_IPS: 172.30.0.2
+      MAIL_PROVIDER: ${MAIL_PROVIDER:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+    volumes:
+      - waraq_data:/app/var
+    networks:
+      edge:
+        ipv4_address: 172.30.0.3
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      WARAQ_DOMAIN: ${WARAQ_DOMAIN:?Set WARAQ_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      edge:
+        ipv4_address: 172.30.0.2
+networks:
+  edge:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+volumes:
+  waraq_data:
+  caddy_data:
+  caddy_config:

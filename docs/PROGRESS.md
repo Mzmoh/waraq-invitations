@@ -23,3 +23,8 @@
 
 - Phase F: 80 fresh opening compositions captured and eight contact sheets inspected; all 80 interactive openings passed. Matrix: TEMPLATE_REVIEW_MATRIX.md. Four reference videos sampled across their timelines and inspected; retained vector art direction and did not copy reference imagery.
 - Phase G: final 44 unit/API tests, Node build (49 modules), 16 main browser checks, 7 finishing journeys and dashboard integration pass. Backup/restore verified. Worker build remains blocked by unavailable esbuild/npm DNS. Source-host DNS still prevents Sites publication. Production runbook records exact hosting, mail, persistent storage, font and real-device release gates. No production URL claimed.
+
+
+## Final production release gate — 2026-11-24
+
+Continued from GitHub c22e7d9/local 07f67ce without rebuilding completed features. Added fail-closed production configuration, isolated Compose/Caddy deployment, exact trusted-proxy identity and per-client rate-limit verification, direct Resend adapter, three licensed self-hosted Arabic WOFF fonts and encrypted snapshot tools. Existing template IDs/artwork retained; 80 contact-sheet compositions reviewed and 80 fresh narrow font-loaded reveals passed. Public deployment, actual mail delivery, external backup storage and physical-device acceptance remain blocked. RELEASE_READINESS.md is explicitly NOT_READY.

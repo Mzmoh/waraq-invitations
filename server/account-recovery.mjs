@@ -1,11 +1,12 @@
 import {randomBytes,createHash} from 'node:crypto';
+import {resendConfiguration} from './mail-resend.mjs';
 import {fail,str,invalid} from './validation.mjs';
 const hash=value=>createHash('sha256').update(value).digest('hex');
 export function recoveryHandler(db,auth,{origin,deliver}={}) {
   return async(req,path,body)=>{
     const action=path.split('/').at(-1);
     if(!['forgot','reset','request-verification','verify'].includes(action))return null;
-    await auth.limit('account:'+action+'|'+req.socket.remoteAddress,10,900);
+    await auth.limit('account:'+action+'|'+(req.clientAddress||req.socket.remoteAddress),10,900);
     if(['forgot','request-verification'].includes(action)) {
       if(!deliver||!origin)fail(503,'MAIL_UNAVAILABLE','Email delivery is not configured. Contact the site administrator.');
       const purpose=action==='forgot'?'reset':'verify';
@@ -43,6 +44,8 @@ export function recoveryHandler(db,auth,{origin,deliver}={}) {
   };
 }
 export function mailConfiguration(env) {
+  if(env.MAIL_PROVIDER==='resend')return resendConfiguration(env);
+  if(env.MAIL_PROVIDER && env.MAIL_PROVIDER!=='webhook')throw Error('Unsupported MAIL_PROVIDER');
   if(!env.MAIL_DELIVERY_URL||!env.PUBLIC_ORIGIN)return {};
   const endpoint=new URL(env.MAIL_DELIVERY_URL),origin=new URL(env.PUBLIC_ORIGIN);
   if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password||origin.protocol!=='https:')throw Error('Invalid mail configuration');

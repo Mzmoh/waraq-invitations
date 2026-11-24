@@ -1,6 +1,6 @@
 // Progressive enhancement of the existing SVG/CSS invitation engine.
 export const typefaces={
-  classic:'Georgia, "Times New Roman", serif',modern:'Tahoma, Arial, sans-serif',
+  classic:'"Waraq Amiri", Georgia, "Times New Roman", serif',modern:'Tahoma, Arial, sans-serif',
   arabic:'"Noto Naskh Arabic", "Traditional Arabic", serif',kufi:'"Noto Kufi Arabic", Tahoma, sans-serif',
   editorial:'Palatino, "Book Antiqua", Georgia, serif'
 };

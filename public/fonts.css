@@ -1,0 +1,6 @@
+/* SIL OFL 1.1; exact upstream licenses and provenance in /fonts/. */
+@font-face{font-family:'Waraq Amiri';src:url('/fonts/amiri.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Noto Naskh Arabic';src:url('/fonts/notonaskharabic.woff') format('woff');font-weight:400 700;font-style:normal;font-display:swap}
+@font-face{font-family:'Noto Kufi Arabic';src:url('/fonts/notokufiarabic.woff') format('woff');font-weight:100 900;font-style:normal;font-display:swap}
+html[lang=ar] body{font-family:'Noto Naskh Arabic',Tahoma,sans-serif}
+.inv-card[lang=ar]{--inv-serif:'Waraq Amiri','Noto Naskh Arabic',serif;font-family:'Noto Naskh Arabic',Tahoma,sans-serif}

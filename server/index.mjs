@@ -1,3 +1,4 @@
+import {validateProduction,trustedProxies,clientAddress} from './production-config.mjs'
 import http from 'node:http'
 import {randomUUID} from 'node:crypto'
 import {readFile,stat,realpath} from 'node:fs/promises'
@@ -8,7 +9,7 @@ import {HttpError,fail,plain} from './validation.mjs'
 import {apiHandler} from './api.mjs'
 
 const root=fileURLToPath(new URL('../',import.meta.url))
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.avif':'image/avif','.woff2':'font/woff2','.ico':'image/x-icon','.txt':'text/plain; charset=utf-8','.mp4':'video/mp4','.wav':'audio/wav','.mp3':'audio/mpeg','.ogg':'audio/ogg'}
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.avif':'image/avif','.woff2':'font/woff2','.woff':'font/woff','.ttf':'font/ttf','.ico':'image/x-icon','.txt':'text/plain; charset=utf-8','.mp4':'video/mp4','.wav':'audio/wav','.mp3':'audio/mpeg','.ogg':'audio/ogg'}
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 async function readBody(req) {
   if (req.headers['content-type']?.split(';')[0]!=='application/json') fail(415,'JSON_REQUIRED','أرسل البيانات بصيغة JSON.')
@@ -24,13 +25,16 @@ async function readBody(req) {
   if (!plain(parsed)) fail(400,'INVALID_JSON','البيانات غير صالحة.')
   return parsed
 }
-export async function createApp({database=process.env.DATABASE_PATH||resolve(root,'var/invitations.sqlite'),templates,publicDir=resolve(root,'public'),origin=process.env.PUBLIC_ORIGIN}={}) {
+export async function createApp({database=process.env.DATABASE_PATH||resolve(root,'var/invitations.sqlite'),templates,publicDir=resolve(root,'public'),origin=process.env.PUBLIC_ORIGIN,mail}={}) {
+  validateProduction(process.env,{database,publicDir})
+  const proxies=trustedProxies(process.env.TRUSTED_PROXY_IPS)
   templates??=(await import('../public/templates/index.js')).templates
   const db=openStore(database,templates)
   await bootstrap(db)
-  const {route,published}=await apiHandler(db)
+  const {route,published}=await apiHandler(db,mail)
   const publicPath=await realpath(publicDir)
   const server=http.createServer({requestTimeout:30000,headersTimeout:15000},async(req,res)=>{
+    req.clientAddress=clientAddress(req,proxies)
     const requestId=randomUUID();res.setHeader('X-Request-ID',requestId)
     res.setHeader('X-Content-Type-Options','nosniff')
     res.setHeader('Referrer-Policy','strict-origin-when-cross-origin')

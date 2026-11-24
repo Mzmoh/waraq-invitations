@@ -41,3 +41,15 @@
 Fresh browser evidence: test-results/production-finish/, test-results/template-review/, test-results/reference-review/. Playwright/Sharp came from the available primary runtime; Chrome was already installed. All automated data writes used disposable databases. No real device Safari/Android test or real D1 deployment was performed.
 
 Observed failures fixed during this run: a non-specific photo-button test selector after adding a main-photo action; RTL page overflow from a negative-positioned honeypot; four-digit day wrapping; stale recovery invalidating a newer token; overly broad asset cleanup affecting other invitations Undo. Existing RSVP test now explicitly starts a new submission identity for the second simulated guest; retry of the same identity is separately tested as one saved response.
+
+
+## Release gate — 2026-11-24
+
+- npm test: 49 passed, 0 failed, including actual HTTP per-client RSVP isolation behind the exact trusted proxy.
+- npm run build: passed, 53 JavaScript modules and 80 covers.
+- Main browser runner: 16 passed. Finishing runner: 7 journeys passed. Dashboard integration passed.
+- Release browser runner: three local WOFF fonts decoded (local load samples 8/9/10 ms); full reset/verification UI with simulated Resend inbox; all 80 template reveals at 390 px without horizontal overflow. Evidence: test-results/release-gate/results.json and test-results/release/. No actual email was sent.
+- Snapshot tests: SQLite consistent backup/restore plus AES-256-GCM roundtrip, wrong-key/tamper rejection and no output on authentication failure. External storage not configured.
+- Docker CLI absent; Docker build/Compose/Caddy runtime not executed. Optional YAML parse attempt blocked by missing PyYAML; no successful config-validation claim.
+- Executor DNS: ENOTFOUND for github.com, git.chatgpt-team.site and api.resend.com. No production hostname/IP provided, so website-domain DNS and public-link operation remain untested.
+- No physical iPhone Safari/Android browser session available. Local font timings are not production LCP/INP or mobile-network measurements.

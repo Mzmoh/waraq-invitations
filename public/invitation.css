@@ -1,6 +1,4 @@
 /* Scoped guest stationery, shared with the live editor. */
-@font-face{font-family:'Noto Naskh Arabic';src:local('Noto Naskh Arabic');font-display:swap}
-@font-face{font-family:'Noto Kufi Arabic';src:local('Noto Kufi Arabic');font-display:swap}
 .inv-card .inv-stationery{text-align:var(--text-align,center);font-size:var(--body-size,16px);line-height:var(--body-leading,1.75);color:var(--text-color,#302622);letter-spacing:var(--type-spacing,normal)}
 .inv-card .inv-stationery h2{font-size:var(--title-size,32px);font-weight:var(--title-weight,400);color:var(--title-color,inherit)}
 .inv-card .inv-stage h1{font-weight:var(--title-weight,400);max-width:100%;overflow-wrap:anywhere}

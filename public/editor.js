@@ -277,12 +277,12 @@ export async function renderEditor(root,template,initialId) {
       order.append(row);
     });
     fields.append(album,field('accent','لون التمييز','Accent color','color',{value:data.accent || template.colorTokens?.accent || '#956643'}),
-      choice('font','نمط الخط','Typeface',[['serif',t('كلاسيكي','Classic')],['sans',t('عصري','Modern')]]),
+      choice('font','نمط الخط','Typeface',[['serif',t('كلاسيكي','Classic')],['sans',t('عصري','Modern')]],{set:value=>{data.font=value;data.appearance={...data.appearance,typeface:value==='sans'?'modern':'classic'}},after:draw}),
       choice('language','لغة الدعوة للضيف','Guest invitation language',[['ar','العربية'],['en','English']]),order);
-    const appearance=data.appearance||={typeface:'classic',titleSize:32,bodySize:16,weight:400,lineHeight:1.75,spacing:0,align:'center',titleColor:'#302622',textColor:'#302622'};
+    const appearance=data.appearance||={typeface:data.font==='sans'?'modern':'classic',titleSize:32,bodySize:16,weight:400,lineHeight:1.75,spacing:0,align:'center',titleColor:'#302622',textColor:'#302622'};
     const typography=subsection(t('الخطوط والنصوص','Typography'),
-      choice('typeface','عائلة الخط','Typeface',[['classic','Classic — Georgia'],['modern','Modern — Tahoma'],['arabic','Arabic — Naskh'],['kufi','Arabic — Kufi'],['editorial','Editorial — Palatino']],{target:appearance}),
-      info(t('تعتمد بعض الخطوط على توفرها بالجهاز؛ تستخدم بدائل آمنة عند غيابها.','Some fonts depend on device availability; safe fallbacks are used.')),
+      choice('typeface','عائلة الخط','Typeface',[['classic','Classic — Amiri'],['modern','Modern — Tahoma'],['arabic','Arabic — Naskh'],['kufi','Arabic — Kufi'],['editorial','Editorial — Palatino']],{target:appearance,set:value=>{appearance.typeface=value;data.font=value==='modern'?'sans':'serif'},after:draw}),
+      info(t('خطوط Amiri وNaskh وKufi مستضافة داخل الموقع؛ تبقى بدائل آمنة لخطوط الإنجليزية.','Amiri, Naskh and Kufi are hosted by Waraq; English system stacks retain safe fallbacks.')),
       choice('align','المحاذاة','Alignment',[['start',t('بداية السطر','Start')],['center',t('وسط','Center')],['end',t('نهاية السطر','End')]],{target:appearance}));
     for(const [k,ar,eng,min,max,step] of [['titleSize','حجم العنوان','Title size',20,72,1],['bodySize','حجم النص','Body size',14,26,1],['weight','وزن الخط','Font weight',300,800,100],['lineHeight','تباعد الأسطر','Line height',1.2,2.5,.05],['spacing','تباعد الحروف','Letter spacing',0,.15,.01]])typography.append(field(k,ar,eng,'range',{target:appearance,attrs:{min,max,step}}));
     typography.append(field('titleColor','لون العنوان','Title color','color',{target:appearance}),field('textColor','لون النص','Text color','color',{target:appearance}));

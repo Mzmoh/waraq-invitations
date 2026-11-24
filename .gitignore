@@ -1,8 +1,12 @@
 .env
 .env.local
+.env.*
+!.env.example
+.secrets/
 data/
 var/
 references/videos/
+references/font-sources/
 references/codex_installed_skills.jpg
 node_modules/
 dist/

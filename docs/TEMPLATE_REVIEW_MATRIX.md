@@ -1,6 +1,6 @@
 # Template review matrix
 
-Generated from the 80 existing definitions and fresh Chrome screenshots. IDs unchanged. Distinct recipes and image hashes are structural evidence, not a claim of universal artistic quality. All use the existing guest details engine; typography currently uses device font fallbacks.
+Generated from the 80 existing definitions and fresh Chrome screenshots. IDs unchanged. Distinct recipes and image hashes are structural evidence, not a claim of universal artistic quality. All use the existing guest details engine; Arabic typography now uses self-hosted OFL Amiri/Noto Naskh/Noto Kufi. Original artwork IDs and compositions are retained.
 
 | ID | Category | Layout | Palette | Motifs | Motion |
 |---|---|---|---|---|---|
