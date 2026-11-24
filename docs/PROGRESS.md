@@ -43,3 +43,9 @@ Stage 3 regression: npm test 53 passed, npm run build passed (54 modules, 80 cov
 Local implementation adds a Fetch function, PostgreSQL/RLS adapter, private image/audio storage and synthetic-only SQLite migration without Next.js conversion. Original Node/SQLite path is preserved. Local checks: 53 existing tests and 17 PostgreSQL trial tests passed; both builds passed. See VERCEL_SUPABASE_TRIAL.md for evidence and limits.
 
 Source remains uncommitted in the Windows workspace: after tests, executor sandbox initialization failed because a /workspace permission path was invalid on Windows. This remote commit preserves documentation only, not trial adapter code. Resume the same workspace, preserve local changes, finish browser/provider verification and upload source before deploying. No main merge, production migration or purchase.
+
+
+
+## Cinematic interface — 2026-11-24
+
+Preserved all pre-existing uncommitted trial work on engineering/20261124-cinematic-glass. Added original violet/coral/amber home identity, self-hosted Three.js r180 physical glass, deterministic single clock, editable 16:9/9:16 showcase, readable hold and reduced/low-device fallbacks. Existing templates and IDs were retained. Browser inspection proved real MeshPhysicalMaterial and exact requested slab bounds. Tests: 56 core checks, 17 trial checks, 16 existing browser checks and 7 cinematic checks passed; both builds passed (68 modules). Details/evidence: CINEMATIC_GLASS.md. No main merge or public deployment.

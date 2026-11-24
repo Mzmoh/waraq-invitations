@@ -128,6 +128,7 @@ export function validateData(input, publish = false) {
     data.audio={track:a.track,volume:a.volume,loop:a.loop};
     if(a.track==='upload') {
       if(a.rightsConfirmed!==true)invalid('Confirm audio usage rights.');
+      if(typeof a.src==='string' && /^\/api\/assets\/[a-f0-9-]{36}$/.test(a.src)){data.audio.src=a.src;data.audio.rightsConfirmed=true;return data;}
       const match=typeof a.src==='string' && /^data:audio\/(mpeg|wav|ogg);base64,([A-Za-z0-9+/]+={0,2})$/.exec(a.src);
       if(!match||a.src.length>700000)invalid('Audio must be MP3, WAV or OGG up to 512 KB.');
       const b=Buffer.from(match[2],'base64');if(b.length>524288||b.length<12)invalid();

@@ -18,7 +18,7 @@ export function portableAPI(db,auth,mail={}) {
   const recover=recoveryHandler(db,auth,mail);
   const {one,all,run,batch}=db;
   const lookup=id=>one(invitationSQL+' WHERE i.id=?',id);
-  const published=slug=>one("SELECT i.* FROM invitations i JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE slug=? AND status='published' AND t.published=1 AND c.published=1",slug);
+  const published=slug=>db.published?db.published(slug):one("SELECT i.* FROM invitations i JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE slug=? AND status='published' AND t.published=1 AND c.published=1",slug);
   const templateAllowed=id=>one('SELECT t.id FROM templates t JOIN categories c ON c.id=t.category WHERE t.id=? AND t.published=1 AND c.published=1',id);
   async function owner(req) {return await auth.user(req)||fail(401,'AUTH_REQUIRED','سجل الدخول للمتابعة.')}
   function publicAccess(req,row) {
@@ -69,14 +69,14 @@ export function portableAPI(db,auth,mail={}) {
         return {url:'/api/assets/'+asset};
       }
       if(id && method==='GET') {
-        const asset=await one('SELECT owner,mime,bytes FROM assets WHERE id=?',id);
+        const asset=await one('SELECT id,owner,mime,bytes FROM assets WHERE id=?',id);
         if(!asset)absent();
         if(asset.owner!==(await auth.user(req))?.id) {
           const bindings=await all("SELECT i.id,i.slug,i.pinHash,i.settings FROM invitation_assets a JOIN invitations i ON i.id=a.invitation JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE a.asset=? AND i.status='published' AND t.published=1 AND c.published=1",id);
           const allowed=bindings.some(row=>JSON.parse(row.settings).privacy!=='pin'||auth.hasGrant(req,row));
           if(!allowed)absent();
         }
-        res.setHeader('Content-Type',asset.mime);res.end(new Uint8Array(asset.bytes));return;
+        res.setHeader('Content-Type',asset.mime);res.end(db.assetBytes?await db.assetBytes(asset):new Uint8Array(asset.bytes));return;
       }
     }
     if(base==='invitations') {
@@ -156,6 +156,14 @@ export function portableAPI(db,auth,mail={}) {
             invalid('الصورة غير مملوكة لك.');
           }
         }
+        if(data.audio?.track==='upload') {
+          if(data.audio.src.startsWith('data:') && db.persistAudio) {
+            const [,format,encoded]=/^data:audio\/(mpeg|wav|ogg);base64,(.+)$/.exec(data.audio.src);
+            const asset=randomUUID();newAssets.push(asset);
+            statements.push(['INSERT INTO assets VALUES (?,?,?,?)',asset,user.id,'audio/'+format,Buffer.from(encoded,'base64')],['INSERT INTO managed_assets VALUES (?)',asset]);
+            data.audio.src='/api/assets/'+asset;
+          } else if(data.audio.src.startsWith('/api/assets/') && !await one("SELECT id FROM assets WHERE id=? AND owner=? AND mime LIKE 'audio/%'",data.audio.src.split('/').pop(),user.id))invalid('Audio does not belong to this account.');
+        }
         if(row) {
           statements.push(['UPDATE invitations SET templateId=?,data=?,settings=?,pinHash=?,updatedAt=? WHERE id=? AND updatedAt=?',templateId,JSON.stringify(data),JSON.stringify(settings),pinHash,nextVersion(row),id,row.updatedAt]);
         } else {
@@ -170,7 +178,7 @@ export function portableAPI(db,auth,mail={}) {
       }
     }
     if(base==='public' && id) {
-      const row=await published(id);
+      let row=await published(id);
       if(!row)absent();
       const settings=JSON.parse(row.settings);
       if(action==='unlock' && method==='POST') {
@@ -178,6 +186,7 @@ export function portableAPI(db,auth,mail={}) {
         if(settings.privacy==='pin') {
           if(row.pinHash!==auth.protectPin(row.id,str(body.pin,12,1)))fail(401,'PIN_REQUIRED','رمز الدعوة غير صحيح.');
           auth.unlock(res,row);
+          if(db.grantPin){db.grantPin(row);row=await published(id);}
         }
         return {invitation:publicFields(row)};
       }

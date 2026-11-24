@@ -102,3 +102,9 @@ No production source was touched. Retain the original SQLite database and its ve
 This is not dual write: data created only in the isolated PostgreSQL trial will not appear automatically in SQLite. Freeze trial writes and export a private trial-only archive if needed before discarding it. Reverse production migration is outside this preparation and requires separate review/approval.
 
 Final status: NOT_DEPLOYED, not commercial READY. No paid service, production migration or main merge performed.
+
+
+
+## Subsequent workspace recovery — 2026-11-24
+
+The Windows-compatible workspace environment restored local command/file access during the cinematic-interface task. The local adapter source was preserved, and its renamed tests were rerun successfully: 17 passed. Core suite now passes 56 checks after 3 cinematic clock tests; Node/trial builds and 16 existing/7 cinematic browser checks pass. This new development checkpoint includes the trial source along with the isolated visual enhancement; the earlier documentation-only limitation describes commit 3130fb2, not the new source checkpoint. No provider credentials, network PostgreSQL/Storage acceptance, production migration or deployed public URL was introduced.
