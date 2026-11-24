@@ -36,3 +36,10 @@ Stage 1: reproduced rejected SQLite snapshots remaining at their final destinati
 
 Stage 2: encrypted snapshots now stream through AES-256-GCM and private pending files. Original WARAQBK1 framing remains compatible. Six focused backup tests passed, including 32 MiB roundtrip, old-format restore, concurrent exclusive publication and tamper cleanup.
 Stage 3 regression: npm test 53 passed, npm run build passed (54 modules, 80 covers), main browser suite 16 passed. Remote main was verified at b0bada68c096bf63d3b088c90213a6b320db06e4; branch engineering/20261124-backup-hardening only. No merge authorized.
+
+
+## Vercel / Supabase trial checkpoint — 2026-11-24
+
+Local implementation adds a Fetch function, PostgreSQL/RLS adapter, private image/audio storage and synthetic-only SQLite migration without Next.js conversion. Original Node/SQLite path is preserved. Local checks: 53 existing tests and 17 PostgreSQL trial tests passed; both builds passed. See VERCEL_SUPABASE_TRIAL.md for evidence and limits.
+
+Source remains uncommitted in the Windows workspace: after tests, executor sandbox initialization failed because a /workspace permission path was invalid on Windows. This remote commit preserves documentation only, not trial adapter code. Resume the same workspace, preserve local changes, finish browser/provider verification and upload source before deploying. No main merge, production migration or purchase.

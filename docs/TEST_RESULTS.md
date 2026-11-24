@@ -61,3 +61,10 @@ Stage 1 command: node --test tests/backup.test.mjs tests/backup-race.test.mjs �
 
 Stage 2 command: node --test tests/encrypted-backup.test.mjs tests/backup.test.mjs tests/backup-race.test.mjs — 6 passed, 0 failed. The 32 MiB test validates content hashes and single-writer publication; it does not claim a production peak-RSS measurement.
 Full regression: npm test — 53 passed; npm run build — passed, 54 modules; tests/browser.mjs — 16 passed. Evidence: test-results/backup-hardening/browser-results.json. The application catalog, accounts, editor, image/audio and guest source files were not changed.
+
+
+## Vercel / Supabase trial — 2026-11-24 (local source not yet uploaded)
+
+npm test: 53 passed. Trial routes/migration/storage suites on actual PGlite PostgreSQL + pgcrypto: 17 passed, including all 80 template create/publish/guest routes, RLS ownership, PIN, media, RSVP receipts, admin, mocked recovery, read-only demo migration and failure rollback. npm run build:trial and npm run build passed, 61 modules checked. Evidence: local test-results/trial-latest.txt. Tests subsequently renamed to tests/trial/*.test.mjs without behavior changes.
+
+These results apply to the local implementation, not the documentation-only remote snapshot. No fresh trial browser run, hosted Supabase/Storage test, Vercel deployment, real mail, physical device or pg TLS/network driver verification is claimed. Local tools became unavailable because the executor received a Windows-invalid /workspace sandbox permission path. Full limitations and resume steps: VERCEL_SUPABASE_TRIAL.md.
