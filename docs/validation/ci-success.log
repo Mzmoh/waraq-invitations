@@ -1,0 +1,15 @@
+GitHub Actions PR run: https://github.com/Mzmoh/waraq-invitations/actions/runs/45798150487
+Branch run: https://github.com/Mzmoh/waraq-invitations/actions/runs/45798139932
+Both status completed / conclusion success.
+Code commit: 19fde5a07eb23905b2bab69f47d6b5d2bee6037f
+Job inspected: 139834048357; Ubuntu hosted runner.
+2026-11-26T10:06:21.5011855Z node: v24.22.3
+2026-11-26T10:06:28.4073823Z tests 58
+2026-11-26T10:06:28.4074698Z pass 58
+2026-11-26T10:06:28.4074955Z fail 0
+2026-11-26T10:06:40.8592796Z tests 18
+2026-11-26T10:06:40.8593296Z pass 18
+2026-11-26T10:06:40.8593547Z fail 0
+2026-11-26T10:06:42.7364219Z Syntax validated for 77 JavaScript modules.
+2026-11-26T10:06:42.7477254Z Vercel static build ready; API and private configuration are excluded.
+No deployed website, real Storage/pooler/HTTPS, physical-device or live mail acceptance inferred.

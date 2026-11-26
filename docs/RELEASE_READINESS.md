@@ -2,6 +2,8 @@
 
 ## Current decision — 2026-11-26
 
+GitHub PR #3 is open as a draft: https://github.com/Mzmoh/waraq-invitations/pull/3. After fixing the pgcrypto test-helper export, actual Ubuntu/Node 24.22.3 provider runs 45798150487 and 45798139932 passed 58 core checks, 18 trial checks and the Vercel static build on code commit 19fde5a. Evidence: validation/ci-success.log. These CI results do not establish a public deployment, real Supabase access or commercial readiness.
+
 **NOT_DEPLOYED / NOT_READY for commercial launch.** Current development work preserves original Node/SQLite and custom auth, plus isolated Vercel/Supabase trial preparation. GitHub main remains b0bada68c096bf63d3b088c90213a6b320db06e4; source upload of the earlier trial adapter was completed in cinematic commit 7ff6986. Earlier SOURCE_UPLOAD_BLOCKED statements below describe historical checkpoints, not the current source tree.
 
 Latest local evidence: 58 core + 18 PostgreSQL trial tests, main browser 16, finishing 8, cinematic 7, dashboard integration, three focused performance groups, 80 opening/opened captures before and after; Node and Vercel static builds pass. EXPLAIN and Slow 4G/4× CPU observations are recorded in PERFORMANCE_AUDIT.md. No critical vulnerability was established by these targeted tests; this is not proof of absence. Production database stability is unassessed because no production database exists here.
