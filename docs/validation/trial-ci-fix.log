@@ -1,0 +1,37 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> waraq-invitation-studio@1.0.0 test:trial
+> node --test tests/trial/*.test.mjs
+
+Γ£ö read-only synthetic SQLite migration, auth preservation and rollback (3010.5947ms)
+Γ£ö failed media migration rolls PostgreSQL back and removes newly uploaded objects (1484.4813ms)
+Γ£ö PostgreSQL responsive binding, constant ownership SELECT and bounded concurrent uploads (2702.9729ms)
+Γû╢ PostgreSQL trial routes and RLS
+  Γ£ö health, me, catalogue, auth and secure cookies (197.1324ms)
+  Γ£ö create, reopen and privately store image and audio (82.8707ms)
+  Γ£ö ownership at API and PostgreSQL policy level (18.8606ms)
+  Γ£ö publish, PIN unlock, cookie grant and metadata privacy (77.1408ms)
+  Γ£ö RSVP receipts, CSV, reports and admin controls (58.2791ms)
+  Γ£ö mail reset and verification preserve original scrypt auth (216.7456ms)
+  Γ£ö admin visibility toggles and report resolution are audited (80.6595ms)
+  Γ£ö all 80 stable templates create, publish and serve through trial API (3226.1577ms)
+  Γ£ö standalone upload, failed attachment and cleanup leave no private orphan (28.4515ms)
+  Γ£ö edit CAS, PIN rotation, copy, archive, republish and delete (94.558ms)
+  Γ£ö CSRF, invalid payload, HEAD, unknown route and persistent limits (2419.2869ms)
+  Γ£ö logout revokes the existing custom session (4.4285ms)
+Γ£ö PostgreSQL trial routes and RLS (9203.7843ms)
+Γ£ö private Storage HTTP contract, integrity and fail closed (10.0575ms)
+Γ£ö Supabase storage policy denies browser roles and private auth schema (2561.9317ms)
+Γä╣ tests 18
+Γä╣ suites 0
+Γä╣ pass 18
+Γä╣ fail 0
+Γä╣ cancelled 0
+Γä╣ skipped 0
+Γä╣ todo 0
+Γä╣ duration_ms 9396.7025
+npm notice
+npm notice New major version of npm available! 11.20.0 -> 12.2.3
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.3
+npm notice To update run: npm install -g npm@12.2.3
+npm notice

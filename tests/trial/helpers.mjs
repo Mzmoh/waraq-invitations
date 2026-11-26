@@ -1,11 +1,16 @@
 import {createRequire} from 'node:module';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
+import {dirname,resolve} from 'node:path';
 import {templates} from '../../public/templates/index.js';
 export async function trialDatabase({performanceMigration=true}={}){
  const require=createRequire(import.meta.url);
  const pkg=process.env.PGLITE_MODULE||'@electric-sql/pglite';
- const {PGlite}=require(pkg);const {pgcrypto}=require(pkg+'/dist/contrib/pgcrypto.cjs');
+ const {PGlite}=require(pkg);
+ // Installed packages enforce exports; use their public extension entry point.
+ // A runtime-supplied absolute package directory needs its resolved sibling file.
+ const extension=process.env.PGLITE_MODULE?resolve(dirname(require.resolve(pkg)),'contrib/pgcrypto.cjs'):pkg+'/contrib/pgcrypto';
+ const {pgcrypto}=require(extension);
  const pg=new PGlite({extensions:{pgcrypto}});
  await pg.exec(await readFile(new URL('../../supabase/migrations/0001_trial.sql',import.meta.url),'utf8'));
  if(performanceMigration)await pg.exec(await readFile(new URL('../../supabase/migrations/0004_performance.sql',import.meta.url),'utf8'));

@@ -51,6 +51,8 @@ Source remains uncommitted in the Windows workspace: after tests, executor sandb
 Preserved all pre-existing uncommitted trial work on engineering/20261124-cinematic-glass. Added original violet/coral/amber home identity, self-hosted Three.js r180 physical glass, deterministic single clock, editable 16:9/9:16 showcase, readable hold and reduced/low-device fallbacks. Existing templates and IDs were retained. Browser inspection proved real MeshPhysicalMaterial and exact requested slab bounds. Tests: 56 core checks, 17 trial checks, 16 existing browser checks and 7 cinematic checks passed; both builds passed (68 modules). Details/evidence: CINEMATIC_GLASS.md. No main merge or public deployment.
 # Continuation — performance and design review, 2026-11-26
 
+PR #3 created: https://github.com/Mzmoh/waraq-invitations/pull/3. All 81 initial changed file blobs match local Git hashes. The first Ubuntu/Node 24 provider check exposed an unsupported pgcrypto test-helper import; corrected to the package's public export, with evidence retained. Main remains untouched; provider rerun is tracked separately from local tests.
+
 Development branch: engineering/20261124-performance-audit, based on the preserved cinematic/trial work. GitHub main rechecked at b0bada68c096bf63d3b088c90213a6b320db06e4; no merge or production migration.
 
 - Data stage: EXPLAIN-driven PostgreSQL indexes/RLS, set-based ownership/cleanup, explicit list fields, stable cursor pagination and summaries; SQLite rollback retained. Core 58 and trial 18 pass on disposable databases.
