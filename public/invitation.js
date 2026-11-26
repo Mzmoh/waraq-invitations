@@ -37,6 +37,11 @@ function formatDate(instant, zone, en, hijri=false) {
   try { return new Intl.DateTimeFormat(locale,options).format(new Date(instant)); }
   catch { return new Intl.DateTimeFormat(locale,{...options,timeZone:'UTC'}).format(new Date(instant)); }
 }
+function responsivePhoto(image){
+  const variants=(Array.isArray(image.variants)?image.variants:[]).filter(v=>safePhoto(v)&&Number.isInteger(v.width)&&v.width>0&&v.width<=1400);
+  if(!variants.length||!Number.isInteger(image.width))return '';
+  return ' srcset="'+esc([...variants,{src:safePhoto(image),width:image.width}].map(v=>v.src+' '+v.width+'w').join(', '))+'" sizes="(max-width: 600px) 100vw, 600px"';
+}
 function safePhoto(image) {
   const url = String(image?.src || '');
   return /^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=\s]+$/i.test(url) || /^\/api\/assets\/[\w/-]+$/.test(url) ? url : '';
@@ -77,7 +82,7 @@ function sections(data,options,t) {
   const photos=list(data.images).filter(im=>im.role!=='background').filter(safePhoto);
   if(photos.length) blocks.gallery=section(t('ألبوم الصور','Photo album'),'<div class="inv-photos">'+photos.map(image=>{
     const x=bound(image.x,0,100,50),y=bound(image.y,0,100,50),zoom=bound(image.zoom,1,3,1);
-    return '<figure><img loading="lazy" decoding="async" alt="'+esc(image.alt || t('صورة المناسبة','Event photograph'))+'" style="object-position:'+x+'% '+y+'%;transform-origin:'+x+'% '+y+'%;transform:scale('+zoom+') rotate('+bound(image.rotation,-180,180,0)+'deg)" src="'+esc(safePhoto(image))+'"></figure>';
+    return '<figure><img loading="lazy" decoding="async" alt="'+esc(image.alt || t('صورة المناسبة','Event photograph'))+'" style="object-position:'+x+'% '+y+'%;transform-origin:'+x+'% '+y+'%;transform:scale('+zoom+') rotate('+bound(image.rotation,-180,180,0)+'deg)" src="'+esc(safePhoto(image))+'"'+responsivePhoto(image)+'></figure>';
   }).join('')+'</div>','gallery');
   if(data.rsvpEnabled) {
     const limit=bound(data.maxGuests,1,100,1);
@@ -127,7 +132,7 @@ export function renderInvitation(root, template, data={}, options={}) {
     (envelope?'<button class="inv-seal-target" type="button" data-open aria-label="'+t('افتح ختم الدعوة','Open the invitation seal')+'"></button>':'')+
     '<div class="inv-stage-foot"><button type="button" class="inv-open" data-open>'+icon('open')+t('افتح الدعوة','Open invitation')+'</button></div></header>'+
     '<div class="inv-body" '+(options.opened?'':'hidden')+'><div class="inv-stationery">'+
-    (portraitLead?'<figure class="inv-portrait"><img decoding="async" loading="lazy" src="'+esc(safePhoto(portrait))+'" alt="'+esc(portrait.alt||t('صورة المناسبة','Event portrait'))+'" style="object-position:'+bound(portrait.x,0,100,50)+'% '+bound(portrait.y,0,100,50)+'%;transform-origin:'+bound(portrait.x,0,100,50)+'% '+bound(portrait.y,0,100,50)+'%;transform:scale('+bound(portrait.zoom,1,3,1)+') rotate('+bound(portrait.rotation,-180,180,0)+'deg)"></figure>':'')+
+    (portraitLead?'<figure class="inv-portrait"><img decoding="async" loading="eager" fetchpriority="high" src="'+esc(safePhoto(portrait))+'"'+responsivePhoto(portrait)+' alt="'+esc(portrait.alt||t('صورة المناسبة','Event portrait'))+'" style="object-position:'+bound(portrait.x,0,100,50)+'% '+bound(portrait.y,0,100,50)+'%;transform-origin:'+bound(portrait.x,0,100,50)+'% '+bound(portrait.y,0,100,50)+'%;transform:scale('+bound(portrait.zoom,1,3,1)+') rotate('+bound(portrait.rotation,-180,180,0)+'deg)"></figure>':'')+
     '<div class="inv-diamond" aria-hidden="true">'+esc(initials || '✧')+'</div>'+
     '<h2 tabindex="-1">'+esc(hostNames?heading:primary)+'</h2>'+(hostNames?'<h3 class="inv-names">'+esc(hostNames)+'</h3>':'')+
     (data.hosts?'<p class="inv-hosts">'+esc(data.hosts)+'</p>':'')+(data.message?'<p class="inv-message">'+esc(data.message)+'</p>':'')+

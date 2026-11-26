@@ -1,5 +1,23 @@
 # WARAQ — final production release gate
 
+## Current decision — 2026-11-26
+
+**NOT_DEPLOYED / NOT_READY for commercial launch.** Current development work preserves original Node/SQLite and custom auth, plus isolated Vercel/Supabase trial preparation. GitHub main remains b0bada68c096bf63d3b088c90213a6b320db06e4; source upload of the earlier trial adapter was completed in cinematic commit 7ff6986. Earlier SOURCE_UPLOAD_BLOCKED statements below describe historical checkpoints, not the current source tree.
+
+Latest local evidence: 58 core + 18 PostgreSQL trial tests, main browser 16, finishing 8, cinematic 7, dashboard integration, three focused performance groups, 80 opening/opened captures before and after; Node and Vercel static builds pass. EXPLAIN and Slow 4G/4× CPU observations are recorded in PERFORMANCE_AUDIT.md. No critical vulnerability was established by these targeted tests; this is not proof of absence. Production database stability is unassessed because no production database exists here.
+
+Private photos/audio and variants remain owner/guest authorized and no-store. PostgreSQL RLS/role boundary tests pass in PGlite with storage stand-ins. Real Supabase Storage, pooler/TLS, Vercel edge/private caching, HTTPS sessions, live email and external restore remain unverified. Cold home interaction/frame gaps and photo encode latency remain open performance regressions. Legacy optional Worker build is blocked by missing esbuild. Physical mobile devices were unavailable.
+
+### Exact inputs needed to proceed with the free trial
+
+1. Connect/import this GitHub repository into the owner's Vercel Hobby account and choose the reviewed development branch (no main merge). Framework Other; Node 24; repository root; build npm run build:trial; output dist/vercel. Provide the project/preview URL and access to its deployment results. No custom domain/DNS is required for the vercel.app trial alias.
+2. Create/select a separate **empty Supabase Free trial project**. Apply supabase/migrations/0001 through 0006 in numeric order; keep waraq_private unexposed to the Data API and the bucket private. No production import is authorized.
+3. Enter DATABASE_URL (verified transaction-pooler URL, port 6543), SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY privately in Vercel environment settings. Also WARAQ_TRIAL_ONLY=true, COOKIE_SECURE=true and PUBLIC_ORIGIN equal to the stable HTTPS trial alias. Use WARAQ_TRIAL_PROJECT_REF only for guarded synthetic import. Do not paste secrets into chat or commit them.
+4. For real mail acceptance, configure the existing Resend adapter with a verified MAIL_FROM and server-only RESEND_API_KEY (MAIL_PROVIDER=resend where required), plus an approved test inbox. Current delivery tests are simulated; no deliverability claim.
+5. After deployment, test the anonymous guest URL from a separate network, including preview protection, PIN, private images/audio, signup/session, owner isolation, date/reopen, RSVP/CSV, reset and verification. Record deployed SHA/provider results. Only then assess public trial acceptance. Commercial availability remains a separate gate.
+
+No public invitation link has been verified; real users/commercial launch are not accepted by this report. Original SQLite backup and rollback entry point remain intact. No paid services, production migration or main merge were performed. Current screenshots and review are in DESIGN_REVIEW.md; license/security decisions in EXTERNAL_RESOURCES_REVIEW.md.
+
 Date: 2026-11-24. Local checks used Node v26.13.0; the existing Dockerfile targets Node 24, whose actual container runtime remains unverified. **Status: NOT_READY — external release gates remain blocked.**
 
 Continued from verified GitHub main `c22e7d97c4992cb0a39d7e01d076400afeb5a6b7` (confirmed unchanged at start), corresponding local implementation checkpoint `07f67ce`. Existing audits, catalog, features, IDs and user databases were retained. This is a release-gate continuation, not a fresh project audit.

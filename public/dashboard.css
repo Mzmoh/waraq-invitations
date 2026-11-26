@@ -82,3 +82,5 @@
 }
 @media (prefers-reduced-motion:reduce) {.db-page * {transition:none!important}}
 
+
+.perf-skeleton{display:grid;gap:14px;margin-block:20px}.perf-skeleton-row{height:80px;border-radius:12px;background:linear-gradient(100deg,#a89b8b16,#a89b8b32,#a89b8b16);background-size:200% 100%;animation:perf-loading 1.4s linear infinite}@keyframes perf-loading{to{background-position:-200% 0}}@media(prefers-reduced-motion:reduce){.perf-skeleton-row{animation:none}}

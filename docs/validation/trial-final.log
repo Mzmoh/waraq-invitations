@@ -1,0 +1,32 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> waraq-invitation-studio@1.0.0 test:trial
+> node --test tests/trial/*.test.mjs
+
+Γ£ö read-only synthetic SQLite migration, auth preservation and rollback (4193.1452ms)
+Γ£ö failed media migration rolls PostgreSQL back and removes newly uploaded objects (1915.6739ms)
+Γ£ö PostgreSQL responsive binding, constant ownership SELECT and bounded concurrent uploads (4047.8488ms)
+Γû╢ PostgreSQL trial routes and RLS
+  Γ£ö health, me, catalogue, auth and secure cookies (200.0153ms)
+  Γ£ö create, reopen and privately store image and audio (140.0129ms)
+  Γ£ö ownership at API and PostgreSQL policy level (23.2344ms)
+  Γ£ö publish, PIN unlock, cookie grant and metadata privacy (99.5695ms)
+  Γ£ö RSVP receipts, CSV, reports and admin controls (98.9856ms)
+  Γ£ö mail reset and verification preserve original scrypt auth (233.8896ms)
+  Γ£ö admin visibility toggles and report resolution are audited (73.8282ms)
+  Γ£ö all 80 stable templates create, publish and serve through trial API (4770.4525ms)
+  Γ£ö standalone upload, failed attachment and cleanup leave no private orphan (31.3001ms)
+  Γ£ö edit CAS, PIN rotation, copy, archive, republish and delete (105.4803ms)
+  Γ£ö CSRF, invalid payload, HEAD, unknown route and persistent limits (2698.1944ms)
+  Γ£ö logout revokes the existing custom session (5.214ms)
+Γ£ö PostgreSQL trial routes and RLS (12661.4275ms)
+Γ£ö private Storage HTTP contract, integrity and fail closed (6.7512ms)
+Γ£ö Supabase storage policy denies browser roles and private auth schema (3841.5567ms)
+Γä╣ tests 18
+Γä╣ suites 0
+Γä╣ pass 18
+Γä╣ fail 0
+Γä╣ cancelled 0
+Γä╣ skipped 0
+Γä╣ todo 0
+Γä╣ duration_ms 12913.5942

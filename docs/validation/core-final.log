@@ -1,0 +1,73 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> waraq-invitation-studio@1.0.0 test
+> node --test tests/*.test.mjs server/tests/*.test.mjs
+
+Γû╢ persistent invitation service
+  Γ£ö registration, session and authenticated routes (482.683ms)
+  Γ£ö upload raster, protect unreferenced file, reject other owner attachment (45.4356ms)
+  Γ£ö draft does not appear to guests, enforce owner isolation (42.7176ms)
+  Γ£ö publish at stable slug, guest can read only public fields (31.3881ms)
+  Γ£ö rsvp, guest limit, decline, private list and persistent throttle (170.1938ms)
+  Γ£ö report and server-authorized admin controls (239.5164ms)
+  Γ£ö PIN protects data and photos, previous PIN grant invalidated upon rotation (29.782ms)
+  Γ£ö restart keeps invitations, owner session and RSVP records (62.037ms)
+  Γ£ö invalid dates, URLs and inline upload format rejected; logout revokes session (14.6584ms)
+Γ£ö persistent invitation service (1495.3037ms)
+Γû╢ HTTP ownership, privacy, assets, concurrency and administration
+  Γ£ö drafts require authentication and save image references (118.5515ms)
+  Γ£ö cross-owner access, edit and responses are denied (13.1671ms)
+  Γ£ö publication allows anonymous reads and rate-limited RSVP (86.2937ms)
+  Γ£ö PIN protects metadata, API and image, and changes revoke old grants (24.3141ms)
+  Γ£ö concurrent edits allow one winning version (11.9568ms)
+  Γ£ö cross-site writes and invalid assets or URLs are rejected (6.0204ms)
+  Γ£ö admin authorization and archive revoke published reads (8.4656ms)
+Γ£ö HTTP ownership, privacy, assets, concurrency and administration (626.8918ms)
+Γ£ö competing snapshots publish one verified destination and clean temporary files (614.5977ms)
+Γ£ö a snapshot with foreign-key corruption never appears as a usable backup (570.1102ms)
+Γ£ö online SQLite backup restores rows and secrets without overwriting existing files (662.1578ms)
+Γ£ö 80 unique identities, compositions and motion recipes (1.5069ms)
+Γ£ö general has ten complete, reproducible vector covers and animated previews (25.9477ms)
+Γ£ö ramadan has ten complete, reproducible vector covers and animated previews (11.6414ms)
+Γ£ö fitr has ten complete, reproducible vector covers and animated previews (14.1873ms)
+Γ£ö hajj has ten complete, reproducible vector covers and animated previews (11.7689ms)
+Γ£ö adha has ten complete, reproducible vector covers and animated previews (13.531ms)
+Γ£ö wedding has ten complete, reproducible vector covers and animated previews (12.2971ms)
+Γ£ö baby has ten complete, reproducible vector covers and animated previews (13.8064ms)
+Γ£ö graduation has ten complete, reproducible vector covers and animated previews (14.7312ms)
+Γ£ö custom styling/media reject injection, invalid numbers and unlicensed uploads (100.8757ms)
+Γ£ö fabricated header-only PNG is rejected before storage (1.1226ms)
+Γ£ö Baghdad wall time preserves seconds and round-trips (49.8107ms)
+Γ£ö daylight saving gap and overlap remain distinguishable (0.6985ms)
+Γ£ö invalid or absent local dates yield no event (0.2577ms)
+Γ£ö all eight occasions have specific editable field groups (0.2961ms)
+Γ£ö map links restrict provider, scheme, path and credentials (0.4065ms)
+Γ£ö encrypted snapshot restores exactly and rejects tampering/wrong key without creating output (75.6962ms)
+Γ£ö streaming decrypt retains compatibility with the original WARAQBK1 format (21.8603ms)
+Γ£ö large snapshots stream roundtrip and concurrent publishers never overwrite (1164.0521ms)
+Γ£ö cinematic optical defaults and final 25 percent readable hold (11.4716ms)
+Γ£ö reduced motion, lightweight device gates and deterministic capture (0.4436ms)
+Γ£ö one clock preserves phase across pause, offscreen resume and seek (0.2497ms)
+Γ£ö countdown preserves days, hours, minutes and seconds (1.4773ms)
+Γ£ö started and invalid instants have no negative countdown (0.2312ms)
+Γ£ö calendar uses UTC seconds, escapes commas and newlines, and folds UTF-8 safely (14.953ms)
+Γ£ö QR grows for longer URLs and has three complete finder patterns (21.5828ms)
+Γ£ö stable keyset pages, private responsive media and cache isolation (535.2388ms)
+Γ£ö gzip negotiation and optimistic rollback keep safe semantics (1.4171ms)
+Γ£ö reject impossible calendar dates without normalizing the event (23.5533ms)
+Γ£ö copy/delete/export ownership and guest submission idempotency (399.3612ms)
+Γ£ö recovery tokens are hashed, expire, are single-use and revoke sessions (404.6123ms)
+Γ£ö mail absence is explicit and does not issue recovery tokens (9.0025ms)
+Γ£ö an obsolete in-flight reset cannot consume a newer recovery link (432.139ms)
+Γ£ö proxy identity trusts exact upstream only and ignores forged forwarded headers (15.306ms)
+Γ£ö production refuses insecure origins/cookies and public or memory databases (0.769ms)
+Γ£ö real Resend API adapter constructs safe bilingual mail and checks provider receipts (10.4525ms)
+Γ£ö RSVP limits stay per client behind the configured proxy (353.8123ms)
+Γä╣ tests 58
+Γä╣ suites 0
+Γä╣ pass 58
+Γä╣ fail 0
+Γä╣ cancelled 0
+Γä╣ skipped 0
+Γä╣ todo 0
+Γä╣ duration_ms 1721.7397

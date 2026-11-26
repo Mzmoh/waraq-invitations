@@ -104,6 +104,9 @@ export function validateData(input, publish = false) {
       if (!plain(im) || typeof im.src !== 'string') invalid()
       if (!/^\/api\/assets\/[a-f0-9-]{36}$/.test(im.src)) raster(im.src)
       const image = {src:im.src,alt:str(im.alt??'',320)}
+      if(im.width!==undefined)image.width=integer(im.width,1,1400);
+      if(im.variants!==undefined){if(!Array.isArray(im.variants)||im.variants.length>2)invalid();image.variants=im.variants.map(v=>{if(!plain(v)||typeof v.src!=='string')invalid();if(!/^\/api\/assets\/[a-f0-9-]{36}$/.test(v.src))raster(v.src);return {src:v.src,width:integer(v.width,1,1400)};});}
+
       if(im.role!==undefined) {if(!['photo','background'].includes(im.role))invalid();image.role=im.role}
       if(im.primary!==undefined) {if(typeof im.primary!=='boolean')invalid();image.primary=im.primary}
       for (const [k,min,max,fallback] of [['x',0,100,50],['y',0,100,50],['zoom',1,5,1],['rotation',-180,180,0]]) {

@@ -51,7 +51,7 @@ export default {
           if(!existing)await database.run("INSERT OR IGNORE INTO users(id,email,password,role) VALUES (?,?,?,'admin')",randomUUID(),email,await auth.hashPassword(env.ADMIN_PASSWORD));
         }
         const api=portableAPI(database,auth,mailConfiguration(env));
-        const req={method:request.method,headers:Object.fromEntries(request.headers),socket:{remoteAddress:request.headers.get('cf-connecting-ip')||'unknown'}};
+        const req={url:request.url,method:request.method,headers:Object.fromEntries(request.headers),socket:{remoteAddress:request.headers.get('cf-connecting-ip')||'unknown'}};
         if(path.startsWith('/api/')) {
           let body={};
           if(!['GET','HEAD'].includes(request.method)) {

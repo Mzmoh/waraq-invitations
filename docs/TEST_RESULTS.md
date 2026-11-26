@@ -74,3 +74,26 @@ These results apply to the local implementation, not the documentation-only remo
 ## Cinematic identity — 2026-11-24
 
 npm test: 56 passed, 0 failed. npm run test:trial: 17 passed on local PostgreSQL/PGlite, 0 failed. Existing tests/browser.mjs: 16 passed, including all 80 template reveals and full signup/publish/guest journey. tests/cinematic-browser.mjs: 7 passed, including actual WebGL material/bounds, editable scene and 9:16, stable final hold, no-Three reduced mode, no-WebGL/Save-Data fallbacks and English LTR. Node build and trial static build passed, 68 JS modules checked. Evidence: test-results/cinematic/results.json and cinematic-*.log. Desktop/390px fallback/portrait captures inspected. No physical-device, hosted Vercel/Supabase or production performance acceptance claimed.
+# Latest continuation — 2026-11-26
+
+Environment: Node v26.13.0, Windows, installed Chrome 158; PostgreSQL 18.7 via PGlite 0.5.17/WASM. Synthetic users/data only. Main remains b0bada68; development changes are unmerged. Original reports below remain historical evidence.
+
+| Executed check | Final result / evidence |
+|---|---|
+| npm test | 58 pass, 0 fail; test-results/performance/core-final.log |
+| npm run test:trial | 18 pass, 0 fail; trial-final.log; actual WASM PostgreSQL/RLS, mocked object service |
+| Node build / Vercel static build | Both pass; 77 modules validated, 80 covers retained; build-final.log / build-trial-final.log |
+| Main browser suite | 16 pass, 0 fail; browser-final.log; all 80 previews/reveals, signup, photo replacement/removal, date/time, publish, guest, RSVP, mobile |
+| Finishing browser suite | 8 journeys, 0 uncaught errors; finishing-final.log; saved date edited and reloaded at seconds precision, Baghdad/New York conversion, persisted typography/rotation/background/audio, undo/redo, copy/CSV/delete, reduced motion and missing-mail error |
+| Dashboard browser | Integration pass; dashboard-final.log; PIN, guest, RSVP, admin denial, archive/republish and five widths |
+| Cinematic browser | 7 groups pass, no uncaught errors; cinematic-final.log; clock/controls, WebGL/fallback, RTL/LTR and reduced motion |
+| Focused performance UX | 3 groups pass; ux-final.log; optimistic rollback on 503, delayed skeleton without fast flash, parallel auth/list, private 480px source denied before PIN |
+| Template capture | Before AND after: 80 openings + 80 opened at 390×780, no browser exceptions; design-review-before.log / design-review-after.log; committed sheets/manifest under docs/design |
+| Pagination/security regression | Included in core/trial counts: 71 tied timestamps without duplicates, bounded/invalid cursors, cross-owner media attachment/read denial, protected cache headers, RLS/GC/bounded parallel-upload cleanup |
+| Optional legacy Worker build | BLOCKED / failed: missing esbuild module. test-results/performance/worker-build.log. Worker source/mock updated but fresh bundle acceptance is not claimed. |
+| Vercel/Supabase network / public invitation | NOT RUN: no connected hosting/project credentials. Local RLS/storage stand-ins do not prove provider access, CDN or pg TLS. |
+| Physical iPhone Safari / Android Chrome | NOT RUN: no usable attached device session. Viewport emulation is not physical acceptance. |
+
+Timing evidence: docs/performance/measurements.json and three full PostgreSQL EXPLAIN artifacts; methodology and before/after tables in PERFORMANCE_AUDIT.md. Slow 4G/4× CPU browser benchmarks ran separately before this final concurrent functional-check batch. No field INP, hosted TTFB or estimated metric is substituted.
+
+Intermediate failures: an unfiltered-empty-state expectation exposed an actual filtered-list message bug, which was corrected; visible-tile selector updated after intentional DOM reuse. An excessive preload experiment worsened LCP and was rejected. The new saved-date regression initially checked an async poll too early; an explicit successful PATCH response is now awaited before reload, and the full eight-journey suite passes. No application date change was needed. Failed run logs are retained locally. Image encode latency and home cold interaction/frame gaps are measured regressions still open.

@@ -1,6 +1,6 @@
 # Template review matrix
 
-Generated from the 80 existing definitions and fresh Chrome screenshots. IDs unchanged. Distinct recipes and image hashes are structural evidence, not a claim of universal artistic quality. All use the existing guest details engine; Arabic typography now uses self-hosted OFL Amiri/Noto Naskh/Noto Kufi. Original artwork IDs and compositions are retained.
+Generated from the 80 existing definitions and fresh Chrome screenshots. IDs unchanged. Distinct recipes and image hashes are structural evidence, not a claim of universal artistic quality. All use the existing guest details engine; typography uses the existing licensed self-hosted Arabic fonts. Fresh opening and opened mobile captures were saved; artistic findings are recorded in DESIGN_REVIEW.md.
 
 | ID | Category | Layout | Palette | Motifs | Motion |
 |---|---|---|---|---|---|
@@ -9,7 +9,7 @@ Generated from the 80 existing definitions and fresh Chrome screenshots. IDs unc
 | midnight-glass | general | diagonal | navy | glass, glass, orbit, spark | left, right, turn, glint |
 | art-deco | general | steps | onyx | fan, fan, diamond, spark | fan, counter, bloom, glint |
 | vintage-postcard | general | postal | sepia | postcard, waves, quill | flip, sweep, left |
-| paper-cut | general | contour | peach | sheet, sheet, sheet, leaf | lift, rise, sink, sway |
+| paper-cut | general | contour | peach | sheet, sheet, sheet, leaf, spark | lift, rise, sink, sway, glint |
 | botanical-scroll | general | margin | sage | sheet, branch, branch, blossom | unfurl, fan, counter, bloom |
 | modern-neon | general | grid | violet | neon, neon, orbit | sweep, left, turn |
 | cinema-frames | general | theatre | inkblue | film, film, starfield | left, right, glint |

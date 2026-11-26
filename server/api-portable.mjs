@@ -1,3 +1,4 @@
+import {pageRequest,pageResult,invitationList,responseList} from './pagination.mjs';
 import {randomUUID,randomBytes} from 'node:crypto';
 import {recoveryHandler} from './account-recovery.mjs';
 import {validateData,validateSettings,raster,str,integer,invalid,fail} from './validation.mjs';
@@ -17,8 +18,9 @@ function ownerFields(row) {
 export function portableAPI(db,auth,mail={}) {
   const recover=recoveryHandler(db,auth,mail);
   const {one,all,run,batch}=db;
-  const lookup=id=>one(invitationSQL+' WHERE i.id=?',id);
-  const published=slug=>db.published?db.published(slug):one("SELECT i.* FROM invitations i JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE slug=? AND status='published' AND t.published=1 AND c.published=1",slug);
+  const reads=statements=>db.readMany?db.readMany(statements):Promise.all(statements.map(([sql,...args])=>all(sql,...args)));
+  const lookup=(id,full=true)=>one((full?invitationSQL:'SELECT i.id,i.owner,i.slug,i.updatedAt FROM invitations i')+' WHERE i.id=?',id);
+  const published=slug=>db.published?db.published(slug):one("SELECT i.id,i.slug,i.templateId,i.pinHash,i.data,i.settings FROM invitations i JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE slug=? AND status='published' AND t.published=1 AND c.published=1",slug);
   const templateAllowed=id=>one('SELECT t.id FROM templates t JOIN categories c ON c.id=t.category WHERE t.id=? AND t.published=1 AND c.published=1',id);
   async function owner(req) {return await auth.user(req)||fail(401,'AUTH_REQUIRED','سجل الدخول للمتابعة.')}
   function publicAccess(req,row) {
@@ -51,10 +53,10 @@ export function portableAPI(db,auth,mail={}) {
       await auth.session(req,res,account.id);
       return {user:{id:account.id,email:account.email,role:account.role}};
     }
-    if(path==='/api/catalog' && method==='GET')return {
-      hiddenTemplates:(await all('SELECT id FROM templates WHERE published=0')).map(t=>t.id),
-      hiddenCategories:(await all('SELECT id FROM categories WHERE published=0')).map(c=>c.id)
-    };
+    if(path==='/api/catalog' && method==='GET'){
+      const [hiddenTemplates,hiddenCategories]=await reads([['SELECT id FROM templates WHERE published=0'],['SELECT id FROM categories WHERE published=0']]);
+      return {hiddenTemplates:hiddenTemplates.map(t=>t.id),hiddenCategories:hiddenCategories.map(c=>c.id)};
+    }
     if(base==='assets') {
       if(!id && method==='DELETE') {
         const user=await owner(req);if(body.confirm!=='unused')invalid('Confirm unused asset cleanup.');
@@ -82,10 +84,12 @@ export function portableAPI(db,auth,mail={}) {
     if(base==='invitations') {
       const user=await owner(req);
       if(!id && method==='GET') {
-        const rows=await all("SELECT i.id,i.slug,i.templateId,i.status,i.updatedAt,i.pinHash,i.settings,(SELECT t.published*c.published FROM templates t JOIN categories c ON c.id=t.category WHERE t.id=i.templateId) AS linkActive,json_object('title',json_extract(i.data,'$.title')) AS data,(SELECT count(*) FROM responses r WHERE r.invitation=i.id) AS responseCount FROM invitations i WHERE owner=? ORDER BY updatedAt DESC",user.id);
-        return {invitations:rows.map(ownerFields)};
+        const paging=pageRequest(req);
+        const [rows,totals]=await reads([invitationList(user.id,paging),['SELECT status,count(*) AS count FROM invitations WHERE owner=? GROUP BY status',user.id]]);
+        const page=pageResult(rows,paging,'updatedAt');
+        return {invitations:page.items.map(ownerFields),pagination:page.pagination,totals:Object.fromEntries(totals.map(r=>[r.status,Number(r.count)]))};
       }
-      const row=id?await lookup(id):null;
+      const row=id?await lookup(id,!['responses','responses.csv','archive'].includes(action)&&method!=='DELETE'):null;
       if(id && (!row||row.owner!==user.id))absent();
       if(id && !action && method==='GET')return {invitation:ownerFields(row)};
       if(action==='responses.csv' && method==='GET') {
@@ -101,7 +105,7 @@ export function portableAPI(db,auth,mail={}) {
         await batch([
           ['DELETE FROM reports WHERE invitation=?',id],
           ['DELETE FROM invitations WHERE id=? AND owner=?',id,user.id],
-          ...bound.map(({asset})=>['DELETE FROM assets WHERE id=? AND owner=? AND id IN (SELECT asset FROM managed_assets) AND NOT EXISTS (SELECT 1 FROM invitation_assets a WHERE a.asset=assets.id)',asset,user.id])
+          ...(bound.length?[['DELETE FROM assets WHERE owner=? AND id IN ('+bound.map(()=>'?').join(',')+') AND id IN (SELECT asset FROM managed_assets) AND NOT EXISTS (SELECT 1 FROM invitation_assets a WHERE a.asset=assets.id)',user.id,...bound.map(r=>r.asset)]]:[])
         ]);
         return {ok:true};
       }
@@ -116,7 +120,10 @@ export function portableAPI(db,auth,mail={}) {
         await run('INSERT INTO invitations(id,owner,slug,templateId,data,settings,pinHash,updatedAt) VALUES (?,?,?,?,?,?,?,?)',copy,user.id,randomBytes(12).toString('base64url'),row.templateId,JSON.stringify(data),row.settings,copyPin,now());
         return {invitation:ownerFields(await lookup(copy))};
       }
-      if(action==='responses' && method==='GET')return {responses:(await all('SELECT id,name,attending,count,comment,createdAt FROM responses WHERE invitation=? ORDER BY createdAt DESC',id)).map(r=>({...r,attending:!!r.attending}))};
+      if(action==='responses' && method==='GET'){
+        const paging=pageRequest(req,50);const [rows,summary]=await reads([responseList(id,paging),['SELECT count(*) AS total,COALESCE(sum(count),0) AS people,COALESCE(sum(CASE WHEN attending=0 THEN 1 ELSE 0 END),0) AS declined FROM responses WHERE invitation=?',id]]);
+        const page=pageResult(rows,paging,'createdAt');return {responses:page.items.map(r=>({...r,attending:!!r.attending})),pagination:page.pagination,summary:summary[0]};
+      }
       if(['publish','archive'].includes(action) && method==='POST') {
         if(body.expectedUpdatedAt && body.expectedUpdatedAt!==row.updatedAt)fail(409,'EDIT_CONFLICT','Reload before changing publication status.');
         await limit('status:'+user.id,60,3600);
@@ -146,13 +153,17 @@ export function portableAPI(db,auth,mail={}) {
         if(settings.privacy==='pin' && !pinHash)invalid('أدخل رمز حماية للدعوة.');
         if(settings.privacy!=='pin')pinHash='';
         const statements=[],newAssets=[];
-        for(const image of data.images||[]) {
+        const photos=(data.images||[]).flatMap(im=>[im,...(im.variants||[])]);
+        const existing=photos.filter(im=>im.src.startsWith('/api/assets/')).map(im=>im.src.split('/').pop());
+        if(data.audio?.src?.startsWith('/api/assets/'))existing.push(data.audio.src.split('/').pop());
+        const owned=existing.length?new Map((await all('SELECT id,mime FROM assets WHERE owner=? AND id IN ('+existing.map(()=>'?').join(',')+')',user.id,...existing)).map(a=>[a.id,a.mime])):new Map();
+        for(const image of photos) {
           if(image.src.startsWith('data:')) {
             const {bytes,mime}=raster(image.src),asset=randomUUID();
             newAssets.push(asset);
             statements.push(['INSERT INTO assets VALUES (?,?,?,?)',asset,user.id,mime,bytes],['INSERT INTO managed_assets VALUES (?)',asset]);
             image.src='/api/assets/'+asset;
-          } else if(!await one('SELECT id FROM assets WHERE id=? AND owner=?',image.src.split('/').pop(),user.id)) {
+          } else if(!owned.get(image.src.split('/').pop())?.startsWith('image/')) {
             invalid('الصورة غير مملوكة لك.');
           }
         }
@@ -162,7 +173,7 @@ export function portableAPI(db,auth,mail={}) {
             const asset=randomUUID();newAssets.push(asset);
             statements.push(['INSERT INTO assets VALUES (?,?,?,?)',asset,user.id,'audio/'+format,Buffer.from(encoded,'base64')],['INSERT INTO managed_assets VALUES (?)',asset]);
             data.audio.src='/api/assets/'+asset;
-          } else if(data.audio.src.startsWith('/api/assets/') && !await one("SELECT id FROM assets WHERE id=? AND owner=? AND mime LIKE 'audio/%'",data.audio.src.split('/').pop(),user.id))invalid('Audio does not belong to this account.');
+          } else if(data.audio.src.startsWith('/api/assets/') && !owned.get(data.audio.src.split('/').pop())?.startsWith('audio/'))invalid('Audio does not belong to this account.');
         }
         if(row) {
           statements.push(['UPDATE invitations SET templateId=?,data=?,settings=?,pinHash=?,updatedAt=? WHERE id=? AND updatedAt=?',templateId,JSON.stringify(data),JSON.stringify(settings),pinHash,nextVersion(row),id,row.updatedAt]);
@@ -219,8 +230,10 @@ export function portableAPI(db,auth,mail={}) {
       const user=await owner(req);
       if(user.role!=='admin')fail(403,'FORBIDDEN','هذه الصفحة لمسؤول المنصة.');
       if(!id && method==='GET') {
-        const list=async table=>(await all('SELECT id,published FROM '+table)).map(r=>({...r,published:!!r.published}));
-        return {templates:await list('templates'),categories:await list('categories'),reports:await all('SELECT r.id,i.slug,r.reason,r.status,r.createdAt FROM reports r JOIN invitations i ON i.id=r.invitation ORDER BY r.createdAt DESC')};
+        const paging=pageRequest(req,50),cursor=paging.cursor;
+        const reportQuery=db.adminReportSQL?db.adminReportSQL(paging):['SELECT r.id,i.slug,r.reason,r.status,r.createdAt FROM reports r JOIN invitations i ON i.id=r.invitation'+(cursor?' WHERE (r.createdAt<? OR (r.createdAt=? AND r.id<?))':'')+' ORDER BY r.createdAt DESC,r.id DESC LIMIT ?',...(cursor?[cursor[0],cursor[0],cursor[1]]:[]),paging.limit+1];
+        const [templates,categories,rows]=await reads([['SELECT id,published FROM templates'],['SELECT id,published FROM categories'],reportQuery]);const page=pageResult(rows,paging,'createdAt');
+        return {templates:templates.map(r=>({...r,published:!!r.published})),categories:categories.map(r=>({...r,published:!!r.published})),reports:page.items,pagination:page.pagination};
       }
       if(action && method==='PATCH' && ['categories','templates','reports'].includes(id)) {
         if(!await one('SELECT id FROM '+id+' WHERE id=?',action))absent();

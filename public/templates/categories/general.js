@@ -33,7 +33,7 @@ export default [
     titleEn: "Paper Cut", titleAr: "طبقات الورق",
     palette: "peach", style: "ناعم", layout: "contour",
     description: "جيوب ورقية متموجة ترتفع بالتتابع من أسفل التكوين",
-    layers: [["sheet",170,102,2.2,-7,"lift"],["sheet",186,135,2.1,6,"rise"],["sheet",169,164,2.1,-5,"sink"],["leaf",229,91,1.4,25,"sway"]]
+    layers: [["sheet",166,99,1.66,-7,"lift"],["sheet",187,133,1.62,6,"rise"],["sheet",170,166,1.64,-5,"sink"],["leaf",226,90,1.05,25,"sway"],["spark",112,159,0.42,0,"glint"]]
   },
   {
     titleEn: "Botanical Scroll", titleAr: "لفافة الأعشاب",

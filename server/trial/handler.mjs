@@ -27,14 +27,14 @@ export function createTrialHandler({pool,storage,env=process.env,mail,htmlLoader
  const origin=trialConfiguration(env);
  mail??=env.RESEND_API_KEY?resendConfiguration(env):{};
  return async request=>{
-  const headers=new Headers({'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','X-Frame-Options':'SAMEORIGIN','Referrer-Policy':'strict-origin-when-cross-origin','Content-Security-Policy':CSP,'X-Request-ID':randomUUID(),'X-Robots-Tag':'noindex, nofollow'});
+  const headers=new Headers({'Cache-Control':'private, no-store','CDN-Cache-Control':'no-store','Vercel-CDN-Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Frame-Options':'SAMEORIGIN','Referrer-Policy':'strict-origin-when-cross-origin','Content-Security-Policy':CSP,'X-Request-ID':randomUUID(),'X-Robots-Tag':'noindex, nofollow'});
   let client;let status=200;let output;let ended=false;
   const res={statusCode:200,getHeader:name=>name.toLowerCase()==='set-cookie'?headers.getSetCookie():headers.get(name),setHeader(name,value){headers.delete(name);for(const v of [].concat(value))headers.append(name,String(v));},end(value){output=value;ended=true;},get writableEnded(){return ended;}};
   try{
    const url=new URL(request.url);let path;
    try{path=decodeURIComponent(url.pathname==='/api/index'?(url.searchParams.get('waraq_path')||url.pathname):url.pathname);}catch{fail(400,'BAD_PATH','Invalid path.');}
    if(!path.startsWith('/')||path.includes('\\')||path.includes('\0')||path.split('/').includes('..'))fail(400,'BAD_PATH','Invalid path.');
-   const req={method:request.method==='HEAD'?'GET':request.method,headers:Object.fromEntries(request.headers),socket:{remoteAddress:'unknown'},clientAddress:env.VERCEL==='1'?(normalizeIP(request.headers.get('x-vercel-forwarded-for'))||'unknown'):'unknown'};
+   const req={url:request.url,method:request.method==='HEAD'?'GET':request.method,headers:Object.fromEntries(request.headers),socket:{remoteAddress:'unknown'},clientAddress:env.VERCEL==='1'?(normalizeIP(request.headers.get('x-vercel-forwarded-for'))||'unknown'):'unknown'};
    let body={};
    if(path.startsWith('/api/')&&!['GET','HEAD'].includes(request.method)){
     if(request.headers.get('sec-fetch-site')==='cross-site'||(request.headers.has('origin')&&request.headers.get('origin')!==origin))fail(403,'BAD_ORIGIN','Invalid origin.');
