@@ -23,7 +23,8 @@
     "build:trial": "node scripts/build-vercel.mjs",
     "test:trial": "node --test tests/trial/*.test.mjs",
     "test:e2e:cinematic": "node tests/cinematic-browser.mjs",
-    "test:e2e:performance": "node tests/performance-browser.mjs"
+    "test:e2e:performance": "node tests/performance-browser.mjs",
+    "test:e2e:photos": "node tests/photo-browser.mjs"
   },
   "devDependencies": {
     "esbuild": "0.27.0",

@@ -2,6 +2,10 @@
 
 ## Current decision — 2026-11-26
 
+The owner confirmed Vercel/Supabase trial projects have not yet been created. [Arabic account/project setup guide](FREE_TRIAL_SETUP_AR.md) is provided; only project-page URLs should be shared, with secrets entered privately in the hosting settings. This blocks hosted deployment, not the completed independent code/test work.
+
+Worker follow-up retains NOT_DEPLOYED / NOT_READY. New image Worker and tested browser fallback reduce the measured photo wall median and avoid observed main-thread long tasks in three samples, but cold home interaction remains open. Existing suites and six new photo groups pass locally; 80 modules build. Real account/API/session/Storage/HTTPS acceptance on Vercel/Supabase still needs the owner setup below. No Vercel/Supabase connection tools, relevant environment variables or configured .env were present at this continuation; secrets were neither displayed nor requested in chat.
+
 GitHub PR #3 is open as a draft: https://github.com/Mzmoh/waraq-invitations/pull/3. After fixing the pgcrypto test-helper export, actual Ubuntu/Node 24.22.3 provider runs 45798150487 and 45798139932 passed 58 core checks, 18 trial checks and the Vercel static build on code commit 19fde5a. Evidence: validation/ci-success.log. These CI results do not establish a public deployment, real Supabase access or commercial readiness.
 
 **NOT_DEPLOYED / NOT_READY for commercial launch.** Current development work preserves original Node/SQLite and custom auth, plus isolated Vercel/Supabase trial preparation. GitHub main remains b0bada68c096bf63d3b088c90213a6b320db06e4; source upload of the earlier trial adapter was completed in cinematic commit 7ff6986. Earlier SOURCE_UPLOAD_BLOCKED statements below describe historical checkpoints, not the current source tree.

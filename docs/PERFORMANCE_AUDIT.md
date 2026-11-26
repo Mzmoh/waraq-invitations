@@ -1,5 +1,30 @@
 # Performance audit — measured development checkpoint
 
+## Worker follow-up — 2026-11-26
+
+Continuing on the same development branch/PR #3. Photo decoding, resizing and encoding now run in a short-lived same-origin module Worker using ImageBitmap/OffscreenCanvas where supported. A shared encoder tries WebP once and falls back to JPEG if unsupported, avoiding two encodings per size. Browser canvas fallback retains the same budgets, white matte, dimensions and edit defaults. Worker failure falls back safely; timeout is bounded at 45 seconds. Bitmap/canvas/Worker and fallback object URLs are released. No external code/service, uploaded data transfer or new dependency is introduced.
+
+Same existing 1400×933 fixture, Chrome 158, CPU 4×, three samples, measured immediately before this change and after; no concurrent browser suite during measurement. Prior encoder was imported from a data URL with CSP bypass as in the earlier runner; candidate uses the actual same-origin module and enforced CSP, including Worker startup/fetch in encode time. This transport difference is recorded rather than hidden. [Full follow-up observations](performance/followup.json).
+
+| Observation | Before Worker | Worker |
+|---|---:|---:|
+| Encode wall samples, ms | 574.4 / 266.9 / 287.4 | 381.6 / 171.6 / 177.1 |
+| Encode wall median, ms | 287.4 | 177.1 |
+| Main-thread long-task durations during samples, ms | 345 / 95 / 95 | none observed / none observed / none observed |
+| Main image bytes | 146,966 | 146,918 |
+| 480px variant bytes | 28,066 | 27,372 |
+| JSON characters | 233,517 | 232,525 |
+
+Three real /photo-worker.js workers were observed. These results do not prove zero stalls for all images/devices. Candidate wall time remains above the original JPEG-only historical 125.6 ms median, while payload/responsiveness tradeoffs differ. No AVIF output claim. Six photo browser groups verify actual CSP/Worker, decoded sizes/pixels/white matte, unsupported Worker, failed Worker request, unsupported WebP/JPEG fallback, limits/invalid decode and URL cleanup. Other browser suites verify persisted private image selection, PIN and uploads.
+
+Glass rendering now skips identical visual poses during the final readable hold and repeated same-size ResizeObserver events; it retains the complete clock/duration/optics. An actual WebGL assertion proves seeking between equivalent hold poses adds no draw and produces identical screenshots. This does **not** resolve the cold home interaction outlier.
+
+Two experiments were measured and rejected: compileAsync left the cold interaction at 440 ms and warm median rose 40→56 ms; custom range/color-control painting worsened cold interaction to 616 ms (median 72 ms). Both changes were fully reverted; their observations are retained in followup.json. A diagnostic [Chrome trace summary](performance/glass-trace-summary.json) records a 632 ms details-opening sample overlapping a 578 ms CrGpuMain raster/flush task, with click processing about 0.6 ms. This supports investigating the raster/presentation path, not blaming the click handler or definitively attributing it to application shaders. Tracing adds overhead: these numbers are diagnostic, not comparable benchmark results. Raw trace stays local at test-results/performance/glass-trace.json; reproduce using scripts/trace-glass.mjs. Physical hardware/browser comparison remains necessary before declaring the outlier resolved.
+
+Fresh same Slow 4G/4× CPU/390px browser run, three samples per route: home LCP 3008/2828/2804 ms (median 2828), lab interaction 440/40/40 ms, maximum frame gap 635.4 ms; gallery LCP 3900/3768/3932 (median 3900), lab interaction 88/40/48 ms. CLS unchanged at 0.03163 / 0.00233; transfer medians 604,719 / 448,106 bytes. These small LCP differences from the previous pass are not a proven improvement. Home worst interaction is still open (424→440 ms across passes), with low handler processing/input delay and high total presentation latency in the cold sample; no root cause is asserted without a detailed trace. Raw Event Timing and frame statistics remain in followup.json.
+
+Validation after change: 58 core, 18 trial, 16 main browser, 8 finishing, 7 cinematic and 3 focused UX groups pass; 6 additional photo groups pass. Node/Vercel builds validate 80 modules. Hosting, Safari/Android physical devices and field metrics remain unverified. Earlier sections below retain their original measurement history.
+
 Report: 2026-11-26. Baseline: local `b10f352`, content corresponding to remote cinematic commit `7ff6986ba626fefdff6ca0c87bf1dbd94e93665f`. Measurements were collected during the continuing development session; original artifact timestamps and per-run observations are retained in [measurements.json](performance/measurements.json). This is not hosted production acceptance.
 
 ## Browser conditions and observations

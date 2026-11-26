@@ -7,14 +7,16 @@ export async function mountGlassScene(host,input={}){
  const canvas=host.querySelector('canvas'),copy=host.querySelector('.glass-copy');
  const status=host.querySelector('[data-glass-status]');
  function state(value){host.dataset.renderer=value;if(status)status.textContent=value==='webgl'?(document.documentElement.lang==='ar'?'زجاج ثلاثي الأبعاد':'Refractive glass'):(document.documentElement.lang==='ar'?'عرض هادئ وخفيف':'Quiet, lightweight view');}
- function drawAt(time){
+ function drawAt(time,force=false){
   const f=glassFrame(time,options,reduced.matches||options.motion===0);host.dataset.holding=String(f.holding);
+  const pose=[f.rotation,f.drift,f.cameraX,f.formRotation,f.reveal].join('|');
+  if(resources&&!force&&resources.pose===pose)return f;
   copy?.style.setProperty('--glass-reveal',f.reveal);
   if(resources){const {scene,camera,renderer,slab,forms}=resources;
    slab.rotation.set(-.09*options.motion,f.rotation*.7,f.rotation);slab.position.y=f.drift;
    camera.position.x=f.cameraX;camera.lookAt(0,0,0);
    forms.forEach((form,i)=>{form.rotation.z=f.formRotation*(i%2?1:-1);form.position.y=form.userData.y+f.drift*(i+1);});
-   renderer.render(scene,camera);
+   renderer.render(scene,camera);resources.pose=pose;resources.renders=(resources.renders||0)+1;
   }return f;
  }
  function cancel(){cancelAnimationFrame(frame);frame=0;}
@@ -32,8 +34,8 @@ export async function mountGlassScene(host,input={}){
   r.scene.traverse(object=>{object.geometry?.dispose();for(const material of [].concat(object.material||[]))material.dispose();});
   r.environment?.dispose();r.renderer.dispose();
  }
- function resize(){if(!resources)return;const {renderer,camera}=resources;const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);renderer.setSize(w,h,false);camera.aspect=w/h;
-  const angle=options.fov*Math.PI/360;camera.fov=options.fov;camera.position.z=Math.max(options.height*1.32/(2*Math.tan(angle)),options.width*1.36/(2*Math.tan(angle)*camera.aspect));camera.updateProjectionMatrix();drawAt(Math.min(clock.time(),options.duration));
+ function resize(){if(!resources)return;const {renderer,camera}=resources;const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);if(resources.width===w&&resources.height===h)return;resources.width=w;resources.height=h;renderer.setSize(w,h,false);camera.aspect=w/h;
+  const angle=options.fov*Math.PI/360;camera.fov=options.fov;camera.position.z=Math.max(options.height*1.32/(2*Math.tan(angle)),options.width*1.36/(2*Math.tan(angle)*camera.aspect));camera.updateProjectionMatrix();drawAt(Math.min(clock.time(),options.duration),true);
  }
  async function initialize(){
   const ticket=++generation;release();finished=false;samples=0;totalCost=0;
@@ -84,7 +86,7 @@ export async function mountGlassScene(host,input={}){
  applyPalette();await initialize();
  return {
   get options(){return options;},get time(){return Math.min(clock.time(),options.duration);},
-  inspect(){if(!resources)return {renderer:host.dataset.renderer};const {slab,renderer}=resources;slab.geometry.computeBoundingBox();return {renderer:'webgl',engine:three.REVISION,material:slab.material.type,transmission:slab.material.transmission,ior:slab.material.ior,thickness:slab.material.thickness,roughness:slab.material.roughness,clearcoat:slab.material.clearcoat,bounds:slab.geometry.boundingBox.getSize(new three.Vector3()).toArray(),calls:renderer.info.render.calls};},
+  inspect(){if(!resources)return {renderer:host.dataset.renderer};const {slab,renderer}=resources;slab.geometry.computeBoundingBox();return {renderer:'webgl',engine:three.REVISION,material:slab.material.type,transmission:slab.material.transmission,ior:slab.material.ior,thickness:slab.material.thickness,roughness:slab.material.roughness,clearcoat:slab.material.clearcoat,bounds:slab.geometry.boundingBox.getSize(new three.Vector3()).toArray(),calls:renderer.info.render.calls,renders:resources.renders};},
   replay(){finished=false;userPaused=false;clock.seek(0);drawAt(reduced.matches||!resources?options.duration:0);resume();},
   pause(){userPaused=true;pause();},play(){userPaused=false;resume();},
   seek(seconds){pause();userPaused=true;clock.seek(Math.min(options.duration,Math.max(0,seconds)));drawAt(clock.time());},

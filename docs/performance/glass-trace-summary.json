@@ -1,0 +1,1029 @@
+{
+  "chrome": "158.0.8127.37",
+  "profile": "Slow 4G / 4x CPU / 390x844 / fresh process; tracing overhead, diagnostic only",
+  "interactions": [
+    {
+      "type": "pointerdown",
+      "target": "<summary>خصّص هذا المشهد</summary>",
+      "start": 8937,
+      "duration": 632,
+      "inputDelay": 11.900000000023283,
+      "processing": 2.099999999976717
+    },
+    {
+      "type": "pointerup",
+      "target": "<summary>خصّص هذا المشهد</summary>",
+      "start": 8937.099999999977,
+      "duration": 632,
+      "inputDelay": 20.400000000023283,
+      "processing": 0.7999999999301508
+    },
+    {
+      "type": "click",
+      "target": "<summary>خصّص هذا المشهد</summary>",
+      "start": 8937.099999999977,
+      "duration": 632,
+      "inputDelay": 21.599999999976717,
+      "processing": 0.5999999999767169
+    },
+    {
+      "type": "pointerdown",
+      "target": "<button type=\"button\" data-glass-pause=\"\" aria-pressed=\"false\">إيقاف الحركة</button>",
+      "start": 9540.599999999977,
+      "duration": 56,
+      "inputDelay": 2.5,
+      "processing": 1
+    },
+    {
+      "type": "pointerup",
+      "target": "<button type=\"button\" data-glass-pause=\"\" aria-pressed=\"false\">إيقاف الحركة</button>",
+      "start": 9540.599999999977,
+      "duration": 56,
+      "inputDelay": 4.5,
+      "processing": 0.40000000002328306
+    },
+    {
+      "type": "click",
+      "target": "<button type=\"button\" data-glass-pause=\"\" aria-pressed=\"false\">إيقاف الحركة</button>",
+      "start": 9540.599999999977,
+      "duration": 56,
+      "inputDelay": 5.300000000046566,
+      "processing": 1
+    },
+    {
+      "type": "pointerdown",
+      "target": "<button type=\"button\" data-glass-pause=\"\" aria-pressed=\"false\">إيقاف الحركة</button>",
+      "start": 9576.900000000023,
+      "duration": 24,
+      "inputDelay": 2.199999999953434,
+      "processing": 2.400000000023283
+    },
+    {
+      "type": "pointerup",
+      "target": "<button type=\"button\" data-glass-pause=\"\" aria-pressed=\"false\">إيقاف الحركة</button>",
+      "start": 9577.099999999977,
+      "duration": 24,
+      "inputDelay": 5.199999999953434,
+      "processing": 0.2000000000698492
+    },
+    {
+      "type": "click",
+      "target": "<button type=\"button\" data-glass-pause=\"\" aria-pressed=\"false\">إيقاف الحركة</button>",
+      "start": 9577.099999999977,
+      "duration": 24,
+      "inputDelay": 5.699999999953434,
+      "processing": 0.7000000000698492
+    }
+  ],
+  "long": [
+    {
+      "thread": "CrRendererMain",
+      "name": "RunTask",
+      "ms": 925.479,
+      "ts": 704278642,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "BlinkScheduler_PerformMicrotaskCheckpoint",
+      "ms": 893.527,
+      "ts": 704310368,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "RunTask",
+      "ms": 578.274,
+      "ts": 707324284,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "ThreadControllerImpl::RunTask",
+      "ms": 578.271,
+      "ts": 707324285,
+      "args": {
+        "src_file": "gpu/command_buffer/service/scheduler.cc",
+        "src_func": "TryScheduleSequence",
+        "src_line": 439
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "Scheduler::RunTask",
+      "ms": 578.266,
+      "ts": 707324287,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "GpuChannel::ExecuteDeferredRequest",
+      "ms": 578.264,
+      "ts": 707324288,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "GPUTask",
+      "ms": 578.259,
+      "ts": 707324291,
+      "args": {
+        "data": {
+          "renderer_pid": 12712,
+          "used_bytes": 5109968
+        }
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "RendererRasterWorker",
+      "ms": 578.249,
+      "ts": 707324298,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "CommandBuffer::Flush",
+      "ms": 578.248,
+      "ts": 707324299,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "CommandBufferStub::OnAsyncFlush",
+      "ms": 578.247,
+      "ts": 707324300,
+      "args": {
+        "put_offset": 1042
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "CommandBufferService:PutChanged",
+      "ms": 578.242,
+      "ts": 707324303,
+      "args": {
+        "handler": ".RendererRasterWorker-0x3e8c00656d00",
+        "put_offset": 1042
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+      "ms": 576.96,
+      "ts": 707325563,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+      "ms": 576.937,
+      "ts": 707325565,
+      "args": {}
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 567.387,
+      "ts": 703706319,
+      "args": {
+        "src_file": "third_party/blink/renderer/bindings/core/v8/script_streamer.cc",
+        "src_func": "TryStartStreamingTask",
+        "src_line": 2263
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "BackgroundJSStreamManager::RunScriptStreamingTask",
+      "ms": 567.373,
+      "ts": 703706332,
+      "args": {
+        "url": "http://127.0.0.1:65526/vendor/three/three.core.min.js"
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "v8.parseOnBackground",
+      "ms": 567.362,
+      "ts": 703706335,
+      "args": {
+        "data": {
+          "requestId": "12712.57",
+          "url": "http://127.0.0.1:65526/vendor/three/three.core.min.js"
+        }
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 521.781,
+      "ts": 707378729,
+      "args": {
+        "src_file": "gpu/command_buffer/service/dawn_platform.cc",
+        "src_func": "PostWorkerTask",
+        "src_line": 106
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "DawnPlatformImpl::RunWorkerTask",
+      "ms": 521.751,
+      "ts": 707378751,
+      "args": {}
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 504.204,
+      "ts": 702580156,
+      "args": {
+        "src_file": "third_party/blink/renderer/bindings/core/v8/script_streamer.cc",
+        "src_func": "TryStartStreamingTask",
+        "src_line": 2263
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "BackgroundJSStreamManager::RunScriptStreamingTask",
+      "ms": 504.183,
+      "ts": 702580175,
+      "args": {
+        "url": "http://127.0.0.1:65526/vendor/three/three.module.min.js"
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "v8.parseOnBackground",
+      "ms": 504.172,
+      "ts": 702580180,
+      "args": {
+        "data": {
+          "requestId": "12712.55",
+          "url": "http://127.0.0.1:65526/vendor/three/three.module.min.js"
+        }
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 458.169,
+      "ts": 707388292,
+      "args": {
+        "src_file": "gpu/command_buffer/service/dawn_platform.cc",
+        "src_func": "PostWorkerTask",
+        "src_line": 106
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "DawnPlatformImpl::RunWorkerTask",
+      "ms": 458.136,
+      "ts": 707388316,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "RunTask",
+      "ms": 450.784,
+      "ts": 700918049,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "ThreadControllerImpl::RunTask",
+      "ms": 435.726,
+      "ts": 700918051,
+      "args": {
+        "src_file": "cc/trees/proxy_impl.cc",
+        "src_func": "ScheduledActionSendBeginMainFrame",
+        "src_line": 854
+      }
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "ProxyMain::BeginMainFrame",
+      "ms": 435.722,
+      "ts": 700918054,
+      "args": {
+        "begin_frame_id": 153,
+        "main_frame_pipeline": {
+          "main_frame_id": 4833905679919798000,
+          "step": "BEGIN_MAIN_FRAME"
+        }
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 393.089,
+      "ts": 707369684,
+      "args": {
+        "src_file": "gpu/command_buffer/service/dawn_platform.cc",
+        "src_func": "PostWorkerTask",
+        "src_line": 106
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "DawnPlatformImpl::RunWorkerTask",
+      "ms": 393.061,
+      "ts": 707369701,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "Layout",
+      "ms": 366.066,
+      "ts": 700944738,
+      "args": {
+        "beginData": {
+          "dirtyObjects": 289,
+          "frame": "42483D6E5B6F14F1FAEB97FF16F6F85B",
+          "partialLayout": false,
+          "totalObjects": 319
+        },
+        "endData": {
+          "layoutRoots": [
+            {
+              "depth": 1,
+              "nodeId": 5,
+              "nodeName": "#document",
+              "quads": [
+                [
+                  0,
+                  0,
+                  390,
+                  0,
+                  390,
+                  844,
+                  0,
+                  844
+                ]
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 361.451,
+      "ts": 707359545,
+      "args": {
+        "src_file": "gpu/command_buffer/service/dawn_platform.cc",
+        "src_func": "PostWorkerTask",
+        "src_line": 106
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "DawnPlatformImpl::RunWorkerTask",
+      "ms": 361.422,
+      "ts": 707359564,
+      "args": {}
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 350.27,
+      "ts": 707443486,
+      "args": {
+        "src_file": "gpu/command_buffer/service/dawn_platform.cc",
+        "src_func": "PostWorkerTask",
+        "src_line": 106
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "DawnPlatformImpl::RunWorkerTask",
+      "ms": 350.258,
+      "ts": 707443488,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "RunTask",
+      "ms": 344.108,
+      "ts": 701584090,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "BlinkScheduler_PerformMicrotaskCheckpoint",
+      "ms": 343.252,
+      "ts": 701584479,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "GLES2Implementation::GetProgramiv",
+      "ms": 308.382,
+      "ts": 704884657,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "ImplementationBase::WaitForCmd",
+      "ms": 308.376,
+      "ts": 704884661,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "CommandBufferHelper::Finish",
+      "ms": 308.375,
+      "ts": 704884662,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "CommandBufferProxyImpl::WaitForGetOffset",
+      "ms": 308.326,
+      "ts": 704884683,
+      "args": {
+        "end": 6752,
+        "start": 6752
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "RunTask",
+      "ms": 308.033,
+      "ts": 704884769,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "ThreadControllerImpl::RunTask",
+      "ms": 308.03,
+      "ts": 704884771,
+      "args": {
+        "src_file": "gpu/command_buffer/service/scheduler.cc",
+        "src_func": "TryScheduleSequence",
+        "src_line": 439
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "Scheduler::RunTask",
+      "ms": 308.022,
+      "ts": 704884774,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "GpuChannel::ExecuteDeferredRequest",
+      "ms": 308.016,
+      "ts": 704884775,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "GPUTask",
+      "ms": 308.01,
+      "ts": 704884780,
+      "args": {
+        "data": {
+          "renderer_pid": 12712,
+          "used_bytes": 4543216
+        }
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "WebGL",
+      "ms": 307.943,
+      "ts": 704884799,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "CommandBuffer::Flush",
+      "ms": 307.941,
+      "ts": 704884800,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "CommandBufferStub::OnAsyncFlush",
+      "ms": 307.941,
+      "ts": 704884800,
+      "args": {
+        "put_offset": 6752
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "CommandBufferService:PutChanged",
+      "ms": 307.91,
+      "ts": 704884805,
+      "args": {
+        "handler": ".WebGL-0x3e8c00c77600",
+        "put_offset": 6752
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 297.327,
+      "ts": 704893962,
+      "args": {
+        "src_file": "ui/gl/angle_platform_impl.cc",
+        "src_func": "ANGLEPlatformImpl_postWorkerTask",
+        "src_line": 102
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ANGLEPlatformImpl::RunWorkerTask",
+      "ms": 297.307,
+      "ts": 704893964,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "RunTask",
+      "ms": 283.361,
+      "ts": 701628247,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "ThreadControllerImpl::RunTask",
+      "ms": 283.36,
+      "ts": 701628247,
+      "args": {
+        "src_file": "gpu/command_buffer/service/scheduler.cc",
+        "src_func": "RunNextTask",
+        "src_line": 654
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "Scheduler::RunTask",
+      "ms": 283.355,
+      "ts": 701628248,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "GpuChannel::ExecuteDeferredRequest",
+      "ms": 283.352,
+      "ts": 701628249,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "GPUTask",
+      "ms": 283.348,
+      "ts": 701628250,
+      "args": {
+        "data": {
+          "renderer_pid": 12712,
+          "used_bytes": 3407872
+        }
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "RendererRasterWorker",
+      "ms": 283.343,
+      "ts": 701628252,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "CommandBuffer::Flush",
+      "ms": 283.343,
+      "ts": 701628252,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "CommandBufferStub::OnAsyncFlush",
+      "ms": 283.342,
+      "ts": 701628253,
+      "args": {
+        "put_offset": 357
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "CommandBufferService:PutChanged",
+      "ms": 283.338,
+      "ts": 701628254,
+      "args": {
+        "handler": ".RendererRasterWorker-0x3e8c00656d00",
+        "put_offset": 357
+      }
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "GLES2Implementation::GetRequestableExtensionsCHROMIUM()",
+      "ms": 282.683,
+      "ts": 701629266,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "ImplementationBase::GetBucketContents",
+      "ms": 282.678,
+      "ts": 701629268,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "RasterDecoderImpl::DoEndRasterCHROMIUM",
+      "ms": 282.565,
+      "ts": 701628931,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+      "ms": 282.538,
+      "ts": 701628932,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "ImplementationBase::WaitForCmd",
+      "ms": 282.438,
+      "ts": 701629506,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "CommandBufferHelper::Finish",
+      "ms": 282.437,
+      "ts": 701629507,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "RunTask",
+      "ms": 282.398,
+      "ts": 702144651,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "CommandBufferProxyImpl::WaitForGetOffset",
+      "ms": 282.248,
+      "ts": 701629693,
+      "args": {
+        "end": 61,
+        "start": 61
+      }
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "ThreadControllerImpl::RunTask",
+      "ms": 282.19,
+      "ts": 702144651,
+      "args": {
+        "src_file": "cc/trees/proxy_impl.cc",
+        "src_func": "ScheduledActionSendBeginMainFrame",
+        "src_line": 854
+      }
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "ProxyMain::BeginMainFrame",
+      "ms": 282.186,
+      "ts": 702144653,
+      "args": {
+        "begin_frame_id": 228,
+        "main_frame_pipeline": {
+          "main_frame_id": 4833905679919796000,
+          "step": "BEGIN_MAIN_FRAME"
+        }
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 278.043,
+      "ts": 707349237,
+      "args": {
+        "src_file": "gpu/command_buffer/service/dawn_platform.cc",
+        "src_func": "PostWorkerTask",
+        "src_line": 106
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "DawnPlatformImpl::RunWorkerTask",
+      "ms": 278.017,
+      "ts": 707349255,
+      "args": {}
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 270.845,
+      "ts": 701640570,
+      "args": {
+        "src_file": "gpu/command_buffer/service/dawn_platform.cc",
+        "src_func": "PostWorkerTask",
+        "src_line": 106
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "DawnPlatformImpl::RunWorkerTask",
+      "ms": 270.812,
+      "ts": 701640574,
+      "args": {}
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 267.897,
+      "ts": 707394675,
+      "args": {
+        "src_file": "gpu/command_buffer/service/dawn_platform.cc",
+        "src_func": "PostWorkerTask",
+        "src_line": 106
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "DawnPlatformImpl::RunWorkerTask",
+      "ms": 267.882,
+      "ts": 707394677,
+      "args": {}
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 239.942,
+      "ts": 707344002,
+      "args": {
+        "src_file": "gpu/command_buffer/service/dawn_platform.cc",
+        "src_func": "PostWorkerTask",
+        "src_line": 106
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "DawnPlatformImpl::RunWorkerTask",
+      "ms": 239.928,
+      "ts": 707344006,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "Layout",
+      "ms": 223.975,
+      "ts": 702149845,
+      "args": {
+        "beginData": {
+          "dirtyObjects": 316,
+          "frame": "42483D6E5B6F14F1FAEB97FF16F6F85B",
+          "partialLayout": false,
+          "totalObjects": 319
+        },
+        "endData": {
+          "layoutRoots": [
+            {
+              "depth": 1,
+              "nodeId": 5,
+              "nodeName": "#document",
+              "quads": [
+                [
+                  0,
+                  0,
+                  390,
+                  0,
+                  390,
+                  844,
+                  0,
+                  844
+                ]
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 214.021,
+      "ts": 707331750,
+      "args": {
+        "src_file": "gpu/command_buffer/service/dawn_platform.cc",
+        "src_func": "PostWorkerTask",
+        "src_line": 106
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "DawnPlatformImpl::RunWorkerTask",
+      "ms": 214.01,
+      "ts": 707331755,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "RunTask",
+      "ms": 211.979,
+      "ts": 707323514,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "ThreadControllerImpl::RunTask",
+      "ms": 211.738,
+      "ts": 707323515,
+      "args": {
+        "src_file": "third_party/blink/renderer/platform/widget/input/main_thread_event_queue.cc",
+        "src_func": "PostTaskToMainThread",
+        "src_line": 788
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "ThreadPool_RunTask",
+      "ms": 194.724,
+      "ts": 707350535,
+      "args": {
+        "src_file": "gpu/command_buffer/service/dawn_platform.cc",
+        "src_func": "PostWorkerTask",
+        "src_line": 106
+      }
+    },
+    {
+      "thread": "ThreadPoolForegroundWorker",
+      "name": "DawnPlatformImpl::RunWorkerTask",
+      "ms": 194.7,
+      "ts": 707350552,
+      "args": {}
+    },
+    {
+      "thread": "CrRendererMain",
+      "name": "Layout",
+      "ms": 186.456,
+      "ts": 707344123,
+      "args": {
+        "beginData": {
+          "dirtyObjects": 89,
+          "frame": "42483D6E5B6F14F1FAEB97FF16F6F85B",
+          "partialLayout": false,
+          "totalObjects": 390
+        },
+        "endData": {
+          "layoutRoots": [
+            {
+              "depth": 1,
+              "nodeId": 5,
+              "nodeName": "#document",
+              "quads": [
+                [
+                  0,
+                  0,
+                  390,
+                  0,
+                  390,
+                  844,
+                  0,
+                  844
+                ]
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "RunTask",
+      "ms": 172.79,
+      "ts": 700496623,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "ThreadControllerImpl::RunTask",
+      "ms": 172.787,
+      "ts": 700496624,
+      "args": {
+        "src_file": "gpu/command_buffer/service/scheduler.cc",
+        "src_func": "RunNextTask",
+        "src_line": 654
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "Scheduler::RunTask",
+      "ms": 172.782,
+      "ts": 700496626,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "GpuChannel::ExecuteDeferredRequest",
+      "ms": 172.751,
+      "ts": 700496626,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "GPUTask",
+      "ms": 172.719,
+      "ts": 700496658,
+      "args": {
+        "data": {
+          "renderer_pid": 12880,
+          "used_bytes": 1736704
+        }
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "BrowserRasterWorker",
+      "ms": 172.711,
+      "ts": 700496663,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "CommandBuffer::Flush",
+      "ms": 172.703,
+      "ts": 700496670,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "CommandBufferStub::OnAsyncFlush",
+      "ms": 172.701,
+      "ts": 700496672,
+      "args": {
+        "put_offset": 2146
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "CommandBufferService:PutChanged",
+      "ms": 172.694,
+      "ts": 700496674,
+      "args": {
+        "handler": ".BrowserRasterWorker-0x773401471400",
+        "put_offset": 2146
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "RunTask",
+      "ms": 170.837,
+      "ts": 705579703,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "ThreadControllerImpl::RunTask",
+      "ms": 170.834,
+      "ts": 705579704,
+      "args": {
+        "src_file": "gpu/command_buffer/service/scheduler.cc",
+        "src_func": "TryScheduleSequence",
+        "src_line": 439
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "Scheduler::RunTask",
+      "ms": 170.83,
+      "ts": 705579706,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "GpuChannel::ExecuteDeferredRequest",
+      "ms": 170.828,
+      "ts": 705579707,
+      "args": {}
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "GPUTask",
+      "ms": 170.823,
+      "ts": 705579709,
+      "args": {
+        "data": {
+          "renderer_pid": 12712,
+          "used_bytes": 5109968
+        }
+      }
+    },
+    {
+      "thread": "CrGpuMain",
+      "name": "RendererRasterWorker",
+      "ms": 170.816,
+      "ts": 705579714,
+      "args": {}
+    }
+  ]
+}
