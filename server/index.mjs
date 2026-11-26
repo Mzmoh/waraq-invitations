@@ -1,3 +1,4 @@
+import {publicRepresentation} from './static-performance.mjs';
 import {validateProduction,trustedProxies,clientAddress} from './production-config.mjs'
 import http from 'node:http'
 import {randomUUID} from 'node:crypto'
@@ -49,6 +50,7 @@ export async function createApp({database=process.env.DATABASE_PATH||resolve(roo
       try {path=decodeURIComponent(url.pathname)} catch {fail(400,'BAD_PATH','رابط غير صالح.')}
       if (path.includes('\\') || path.includes('\0') || path.split('/').includes('..')) fail(400,'BAD_PATH','رابط غير صالح.')
       if (path.startsWith('/api/')) {
+        res.setHeader('Cache-Control','private, no-store');res.setHeader('CDN-Cache-Control','no-store');res.setHeader('Vercel-CDN-Cache-Control','no-store');
         let body={}
         if (!['GET','HEAD'].includes(req.method)) {
           if (req.headers['sec-fetch-site']==='cross-site' || (req.headers.origin && req.headers.origin!==appOrigin)) fail(403,'BAD_ORIGIN','الطلب مرفوض.')
@@ -70,8 +72,11 @@ export async function createApp({database=process.env.DATABASE_PATH||resolve(roo
         const f=resolve(publicPath,'.'+path)
         const actual=await realpath(f).catch(()=>null)
         if (!actual || !actual.startsWith(publicPath+sep) || !(await stat(actual)).isFile()) fail(404,'NOT_FOUND','الملف غير متاح.')
-        res.setHeader('Cache-Control','public, max-age=60')
-        return send(mime[extname(actual).toLowerCase()]||'application/octet-stream',await readFile(actual))
+        const asset=publicRepresentation(actual,await readFile(actual),req.headers['accept-encoding']||'');
+        res.setHeader('Cache-Control',asset.cacheControl);res.setHeader('ETag',asset.etag);res.setHeader('Vary','Accept-Encoding');
+        if(req.headers['if-none-match']===asset.etag){res.statusCode=304;return res.end();}
+        if(asset.encoding)res.setHeader('Content-Encoding',asset.encoding);res.setHeader('Content-Length',asset.body.length);
+        return send(mime[extname(actual).toLowerCase()]||'application/octet-stream',asset.body)
       }
       let html=await readFile(resolve(publicPath,'index.html'),'utf8')
       if (guest) {

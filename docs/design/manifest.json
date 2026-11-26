@@ -1,0 +1,805 @@
+{
+  "rows": [
+    {
+      "id": "minimal-signature",
+      "category": "general",
+      "layout": "folio",
+      "layers": "sheet, signature, quill, spark",
+      "motion": "rise, draw, sweep, glint",
+      "palette": "ivory",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "45ebe8489f8d13984f6b168ab4de373fb81f991dda879ed1716b2d2435d217af"
+    },
+    {
+      "id": "luxury-monogram",
+      "category": "general",
+      "layout": "oval",
+      "layers": "branch, branch, stamp, ribbon",
+      "motion": "left, right, seal, unfurl",
+      "palette": "claret",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "ba0df5ca85d52af47489130ea23bdf19cb31f163efae1336f57a1a5dee3c3c56"
+    },
+    {
+      "id": "midnight-glass",
+      "category": "general",
+      "layout": "diagonal",
+      "layers": "glass, glass, orbit, spark",
+      "motion": "left, right, turn, glint",
+      "palette": "navy",
+      "typography": "Tahoma, Arial, sans-serif",
+      "sha256": "21e4564f99afd44a324efa1a209ecb94d51d3bf2b81281e93deb2a09d6ee4f9e"
+    },
+    {
+      "id": "art-deco",
+      "category": "general",
+      "layout": "steps",
+      "layers": "fan, fan, diamond, spark",
+      "motion": "fan, counter, bloom, glint",
+      "palette": "onyx",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "55709580a8891aa9623572b7c0e5fb6139848e7f8074a36090c1e772e5899400"
+    },
+    {
+      "id": "vintage-postcard",
+      "category": "general",
+      "layout": "postal",
+      "layers": "postcard, waves, quill",
+      "motion": "flip, sweep, left",
+      "palette": "sepia",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "533e135fba07bc3d369d4937af0cb65019eec5e5b04913f149511827785e2baf"
+    },
+    {
+      "id": "paper-cut",
+      "category": "general",
+      "layout": "contour",
+      "layers": "sheet, sheet, sheet, leaf, spark",
+      "motion": "lift, rise, sink, sway, glint",
+      "palette": "peach",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "bf3897071135455f93c1edbaecdba86a4c653a71a31980557b7eb4818467f95d"
+    },
+    {
+      "id": "botanical-scroll",
+      "category": "general",
+      "layout": "margin",
+      "layers": "sheet, branch, branch, blossom",
+      "motion": "unfurl, fan, counter, bloom",
+      "palette": "sage",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "394398dd5f92d00f589c90f8ada8f4ccc29d7c63d9ea016d1ab6cb2d1ac2831e"
+    },
+    {
+      "id": "modern-neon",
+      "category": "general",
+      "layout": "grid",
+      "layers": "neon, neon, orbit",
+      "motion": "sweep, left, turn",
+      "palette": "violet",
+      "typography": "Tahoma, Arial, sans-serif",
+      "sha256": "287e5b02ace93e47c9ec93ae4adcfcc959a09bb66b6e7c9c66373e7454783d23"
+    },
+    {
+      "id": "cinema-frames",
+      "category": "general",
+      "layout": "theatre",
+      "layers": "film, film, starfield",
+      "motion": "left, right, glint",
+      "palette": "inkblue",
+      "typography": "Tahoma, Arial, sans-serif",
+      "sha256": "c89f98acc9cea6dcf40c06f3ab45e9e469edfe713e0c0e34cb84c51b2c97fe81"
+    },
+    {
+      "id": "premium-ticket",
+      "category": "general",
+      "layout": "band",
+      "layers": "ticket, ticket, stamp",
+      "motion": "left, flip, seal",
+      "palette": "terracotta",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "68fce86eadbeec7960b50d7eec4b8bf960736b4ea24a67c89041c6e5e6601ba8"
+    },
+    {
+      "id": "golden-crescent",
+      "category": "ramadan",
+      "layout": "oval",
+      "layers": "moon, starfield, skyline",
+      "motion": "turn, glint, rise",
+      "palette": "midgreen",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "f030e39c37e575b5cc57ec576e251af8ab0cf96c8eeac2641d9695cbf3a2ab6a"
+    },
+    {
+      "id": "lantern-nights",
+      "category": "ramadan",
+      "layout": "canopy",
+      "layers": "lantern, lantern, lantern, moon",
+      "motion": "sway, lift, counter, turn",
+      "palette": "indigo",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "e93c399fe2c609915e3a9a9526a31c5ba98482988ea3f43bd5808eb91438cfec"
+    },
+    {
+      "id": "starry-sky",
+      "category": "ramadan",
+      "layout": "orbit",
+      "layers": "starfield, starfield, skyline",
+      "motion": "glint, bloom, rise",
+      "palette": "navy",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "3e60c6aeb37bfdb45c2c2913a5d9cf92842b1a28ae69df604e467bf61daca572"
+    },
+    {
+      "id": "mashrabiya-gate",
+      "category": "ramadan",
+      "layout": "portal",
+      "layers": "moon, gate, gate",
+      "motion": "bloom, left, right",
+      "palette": "walnut",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "90730aacd84981a41a89bbd72b0e35c0f67bdb324b5ce61c78f6a496df68def3"
+    },
+    {
+      "id": "emerald-velvet",
+      "category": "ramadan",
+      "layout": "curtain",
+      "layers": "sheet, sheet, rosette, bead",
+      "motion": "left, right, turn, glint",
+      "palette": "emerald",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "756d2f2a435fd2cfab3c6124b8580395f009f8d19d64da0737565dcf8f66d939"
+    },
+    {
+      "id": "moon-phases",
+      "category": "ramadan",
+      "layout": "horizon",
+      "layers": "phases, moon, waves",
+      "motion": "sweep, turn, unfurl",
+      "palette": "slate",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "c24f6415e0c85a80466c25fd5860291d656fb6167ad6ac4d73006c781c4d191c"
+    },
+    {
+      "id": "blue-arabesque",
+      "category": "ramadan",
+      "layout": "tiles",
+      "layers": "rosette, lattice, rosette",
+      "motion": "counter, turn, bloom",
+      "palette": "cobalt",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "7d5878815fd9b994f052e40ba714d33a37abd5927fc371491655294420a50293"
+    },
+    {
+      "id": "iftar-gathering",
+      "category": "ramadan",
+      "layout": "still",
+      "layers": "table, lantern, branch",
+      "motion": "rise, sway, fan",
+      "palette": "copper",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "3baff030e0e14f929a608c32932954802d48ebfde8cd06662fe08b80759bf29d"
+    },
+    {
+      "id": "pearl-ramadan",
+      "category": "ramadan",
+      "layout": "medal",
+      "layers": "moon, bead, bead, bead, spark",
+      "motion": "turn, left, sink, rise, glint",
+      "palette": "pearl",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "a8f2773e01f2599e56470954b5e02002744fa88c160625ac87857f34a4c227c5"
+    },
+    {
+      "id": "calligraphy-reveal",
+      "category": "ramadan",
+      "layout": "margin",
+      "layers": "ink, quill, rosette",
+      "motion": "draw, sweep, fan",
+      "palette": "sand",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "b6986e6d916d8e04f0adbba70d0a0d76c6ddb8d17ac9d06c43d44accf30138c1"
+    },
+    {
+      "id": "golden-eid",
+      "category": "fitr",
+      "layout": "sunburst",
+      "layers": "fan, sun, starfield",
+      "motion": "fan, turn, glint",
+      "palette": "gold",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "687d6df69970b14e6f8238570f990a2ac357f908e41bd6f0f5dc12fb5b9f1e79"
+    },
+    {
+      "id": "eidiyah-envelope",
+      "category": "fitr",
+      "layout": "postal",
+      "layers": "card, pocket, flap, stamp",
+      "motion": "lift, sink, hinge, seal",
+      "palette": "mint",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "424e7b14e6067ead0887896da0f3767c6114e13039c24b5e4f817b370b0b9b90"
+    },
+    {
+      "id": "festive-arch",
+      "category": "fitr",
+      "layout": "portal",
+      "layers": "arch, arch, arch, lantern",
+      "motion": "bloom, rise, lift, sway",
+      "palette": "ochre",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "3e1b0fb188875bd17dddba460493b9abd8ffa500955ad15d676847421468eb42"
+    },
+    {
+      "id": "blush-crescent",
+      "category": "fitr",
+      "layout": "halo",
+      "layers": "moon, rose, blossom",
+      "motion": "turn, bloom, sway",
+      "palette": "blush",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "3f1108c37c618bfbc83b314aba6d96c665abdc1d666004e64f0188f095b272ba"
+    },
+    {
+      "id": "eid-confetti",
+      "category": "fitr",
+      "layout": "diagonal",
+      "layers": "confetti, ribbon, ribbon",
+      "motion": "scatter, left, right",
+      "palette": "apricot",
+      "typography": "Tahoma, Arial, sans-serif",
+      "sha256": "234436b88de2720eee97cd32fa4b8fc13bf46516ff15d95f937a175e64568d91"
+    },
+    {
+      "id": "pearl-lantern",
+      "category": "fitr",
+      "layout": "canopy",
+      "layers": "lantern, bead, bead, branch",
+      "motion": "sway, sink, glint, fan",
+      "palette": "pearl",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "fa186d81070b1c27f76d619d274c7ddcfe42c995ac58cd863f7944d13d53c6af"
+    },
+    {
+      "id": "pastel-balloons",
+      "category": "fitr",
+      "layout": "air",
+      "layers": "balloon, balloon, balloon, bow",
+      "motion": "left, lift, right, unfurl",
+      "palette": "lilac",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "957e11d1938c878a94569746a6cad27d5a281aa451a69920f1afce8b307d4f28"
+    },
+    {
+      "id": "garden-blossoms",
+      "category": "fitr",
+      "layout": "garden",
+      "layers": "branch, branch, blossom, rose, blossom",
+      "motion": "fan, counter, bloom, lift, sway",
+      "palette": "sage",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "346cc54ba17390ce58d7202769231b96da1aeb2ac4a30f4f884b56b9032fce9c"
+    },
+    {
+      "id": "family-greeting",
+      "category": "fitr",
+      "layout": "folio",
+      "layers": "book, blossom, signature",
+      "motion": "flip, bloom, draw",
+      "palette": "coral",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "b2da990dfda4e270f90e51d374caf82c3db9b1b938483816ca6120c453bcbd55"
+    },
+    {
+      "id": "midnight-eid",
+      "category": "fitr",
+      "layout": "sky",
+      "layers": "dome, moon, starfield",
+      "motion": "rise, turn, glint",
+      "palette": "indigo",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "df87495177eb3a6abee3d3f1cbc86a166bb742e4b4747fb6d664e097e83cdc2f"
+    },
+    {
+      "id": "kaaba-elegance",
+      "category": "hajj",
+      "layout": "medal",
+      "layers": "kiswah, kaaba",
+      "motion": "lift, bloom",
+      "palette": "onyx",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "c6b8ff4b12432a937086ea7577c39dad6ce4c8ff4ef13970be01230abbac45ac"
+    },
+    {
+      "id": "arafat-dawn",
+      "category": "hajj",
+      "layout": "horizon",
+      "layers": "sun, ridge, dune",
+      "motion": "lift, left, right",
+      "palette": "sand",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "6be5ecf45fd714239377e95d1b93b765be538dc908c518f1a8cb677facd8e0a0"
+    },
+    {
+      "id": "kiswah-inspired",
+      "category": "hajj",
+      "layout": "band",
+      "layers": "kiswah, kiswah, rosette",
+      "motion": "lift, sink, turn",
+      "palette": "onyx",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "c5f036d105bf34cb827ae210d8aa875a2abdf73523318b6aa0e8bda70a10265a"
+    },
+    {
+      "id": "white-and-gold",
+      "category": "hajj",
+      "layout": "folio",
+      "layers": "sheet, sheet, arch",
+      "motion": "left, right, rise",
+      "palette": "pearl",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "06e20367db2829392eb3561cdd306c892c20e02872379b9794c2f4d34403ff14"
+    },
+    {
+      "id": "hajj-mabroor-calligraphy",
+      "category": "hajj",
+      "layout": "margin",
+      "layers": "diamond, ink, quill",
+      "motion": "turn, draw, sweep",
+      "palette": "sage",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "88064e25b4c1b37b79c4e16d5e3e5d1b109a6a072f05a935768c59f7a6d9bbae"
+    },
+    {
+      "id": "makkah-silhouette",
+      "category": "hajj",
+      "layout": "sky",
+      "layers": "skyline, skyline, moon",
+      "motion": "left, rise, turn",
+      "palette": "slate",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "74c7ef08eef37197979ada6021906e7bd40650523809ff33376e954a667b7522"
+    },
+    {
+      "id": "zamzam-pearl",
+      "category": "hajj",
+      "layout": "oval",
+      "layers": "drop, waves, bead",
+      "motion": "sink, unfurl, glint",
+      "palette": "mint",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "66eeec06488335d1ea41cb52cd23000286e0bf585e5db8ed758e48dbf88d627f"
+    },
+    {
+      "id": "golden-geometry",
+      "category": "hajj",
+      "layout": "tiles",
+      "layers": "lattice, lattice, rosette",
+      "motion": "left, right, turn",
+      "palette": "gold",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "bd078f31562b65bb2e4dfdb9043ce618e6e71bfe6c1174cabdbf28fd534ccab4"
+    },
+    {
+      "id": "pilgrim-journey",
+      "category": "hajj",
+      "layout": "diagonal",
+      "layers": "dune, map, skyline",
+      "motion": "sink, flip, rise",
+      "palette": "copper",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "54f2ddd7050722996a10092a53efcaedf25d26cc43c6b24ed1a04e0ac7f4c561"
+    },
+    {
+      "id": "sacred-minimal",
+      "category": "hajj",
+      "layout": "portal",
+      "layers": "arch, spark, lines",
+      "motion": "unfurl, glint, sweep",
+      "palette": "ivory",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "5b39c284c412bf9c9242ebff10aa88d17e75cd9fcbae02729fb7c4b3e8ee3ce4"
+    },
+    {
+      "id": "golden-takbeer",
+      "category": "adha",
+      "layout": "sunburst",
+      "layers": "sun, dome, ink",
+      "motion": "turn, rise, draw",
+      "palette": "ochre",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "349fddc975c1f535b3962f5d07c1b318d96c65ba8ce801d27af5b964c0a03455"
+    },
+    {
+      "id": "desert-morning",
+      "category": "adha",
+      "layout": "horizon",
+      "layers": "sun, dune, palms",
+      "motion": "lift, right, sway",
+      "palette": "apricot",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "943d17330b005e837b2ecf05a52123b9d31142b3ed3dde826bd27ae6ba67ac98"
+    },
+    {
+      "id": "emerald-eid",
+      "category": "adha",
+      "layout": "medal",
+      "layers": "diamond, diamond, rosette",
+      "motion": "turn, counter, bloom",
+      "palette": "emerald",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "aa544b901616b85408c11def4f242e2a906b7f516770b3ee661c205147409ac8"
+    },
+    {
+      "id": "baghdad-tradition",
+      "category": "adha",
+      "layout": "portal",
+      "layers": "arch, window, window, lantern",
+      "motion": "rise, left, right, sway",
+      "palette": "walnut",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "f916a9ad31a359f7da1eb2611e214b2df9f2eeac9c86c263c2febba8736462ab"
+    },
+    {
+      "id": "family-celebration",
+      "category": "adha",
+      "layout": "still",
+      "layers": "table, cup, blossom",
+      "motion": "rise, sway, bloom",
+      "palette": "coral",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "5fdf6e8dc4d4ad440fbeb1839c8d3f0807147208b8491eba3df6b8fa6252745f"
+    },
+    {
+      "id": "henna-geometry",
+      "category": "adha",
+      "layout": "margin",
+      "layers": "rosette, branch, leaf",
+      "motion": "turn, fan, counter",
+      "palette": "terracotta",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "9d583164ce1b77b5260af931cd3474d43087d976c78ed7decb1df35ed207d92f"
+    },
+    {
+      "id": "moonlit-gathering",
+      "category": "adha",
+      "layout": "sky",
+      "layers": "moon, sheet, cup, starfield",
+      "motion": "turn, unfurl, rise, glint",
+      "palette": "navy",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "ed20c7455cb583bf451a09d4d2fd8ca5c5ec29f0cb33f8f8c399865c34fc633a"
+    },
+    {
+      "id": "ivory-lanterns",
+      "category": "adha",
+      "layout": "canopy",
+      "layers": "lantern, lantern, bead",
+      "motion": "sway, counter, glint",
+      "palette": "ivory",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "2616ef501ad69ecebb96c5b5aee7e5448939cc60922b8ff31ab07ac29f6deb88"
+    },
+    {
+      "id": "joyful-eid",
+      "category": "adha",
+      "layout": "air",
+      "layers": "confetti, card, bow, star",
+      "motion": "scatter, lift, unfurl, turn",
+      "palette": "mint",
+      "typography": "Tahoma, Arial, sans-serif",
+      "sha256": "6471896b15227608bff8825ff81c3bd2b65223a581dc138c20440796076f20d1"
+    },
+    {
+      "id": "royal-arabesque",
+      "category": "adha",
+      "layout": "curtain",
+      "layers": "arch, rosette, rosette, fan",
+      "motion": "rise, left, right, fan",
+      "palette": "claret",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "8db670d6e1ebdefdbe3179cd511e86cb1ccc961bc3782e79b608e05bc0b438d0"
+    },
+    {
+      "id": "royal-navy-wax-seal",
+      "category": "wedding",
+      "layout": "folio",
+      "layers": "card, pocket, flap, stamp",
+      "motion": "lift, sink, hinge, seal",
+      "palette": "navy",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "dc0f2b2d91e66ff29e40be703be5e94bda954891e65b290491b6eb63a6196fec"
+    },
+    {
+      "id": "blush-floral-envelope",
+      "category": "wedding",
+      "layout": "garden",
+      "layers": "branch, branch, card, pocket, flap, rose",
+      "motion": "fan, counter, lift, sink, hinge, seal",
+      "palette": "blush",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "af0355bce6fd0287f4fa2da993aebf707e3f091f103a6afbaec59c0f45f9faf1"
+    },
+    {
+      "id": "sepia-ballroom",
+      "category": "wedding",
+      "layout": "theatre",
+      "layers": "pillar, pillar, chandelier, fan",
+      "motion": "left, right, sway, fan",
+      "palette": "sepia",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "4af21266af6ede8a55432eb28823a27c08d673b7dcd48883c33812f93858908f"
+    },
+    {
+      "id": "ivory-lace",
+      "category": "wedding",
+      "layout": "margin",
+      "layers": "card, scallop, scallop, ring, ring",
+      "motion": "rise, lift, sink, turn, counter",
+      "palette": "pearl",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "b94b01169e4ef20a411596ea8e107758c42ba16cfcf66f023cd94c1df4b6ebd6"
+    },
+    {
+      "id": "botanical-wedding",
+      "category": "wedding",
+      "layout": "garden",
+      "layers": "branch, branch, rose, blossom",
+      "motion": "fan, counter, bloom, lift",
+      "palette": "sage",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "b2064aeeb632a82fcfe25c9b71d26083797827d3d92ea47debcfae19743bbdfb"
+    },
+    {
+      "id": "midnight-and-gold",
+      "category": "wedding",
+      "layout": "orbit",
+      "layers": "orbit, ring, ring, spark",
+      "motion": "turn, left, right, glint",
+      "palette": "onyx",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "37efaaa55d9888e9a04a34381bb3ec9a710408fd27d476ef893d3ff2b9fb5e06"
+    },
+    {
+      "id": "modern-editorial",
+      "category": "wedding",
+      "layout": "diptych",
+      "layers": "frame, signature, lines",
+      "motion": "flip, draw, sweep",
+      "palette": "ivory",
+      "typography": "Tahoma, Arial, sans-serif",
+      "sha256": "dcff9c91d3531fd5c6f7e46a0e31e0f1883269913a57e2a300b497e90d9ddb7e"
+    },
+    {
+      "id": "pearl-and-ribbon",
+      "category": "wedding",
+      "layout": "band",
+      "layers": "card, ribbon, bow, bead",
+      "motion": "lift, unfurl, seal, right",
+      "palette": "lilac",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "218d9a532847fba645c7dbf442a4a798689f4bf059f2057c4348981dbdcc6477"
+    },
+    {
+      "id": "cinematic-monogram",
+      "category": "wedding",
+      "layout": "theatre",
+      "layers": "fan, fan, stamp, signature",
+      "motion": "left, right, turn, draw",
+      "palette": "claret",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "66ae33a364d08ad5b75cc2692670bae4dcaecb5876ce5a05b8631d63e8d18e63"
+    },
+    {
+      "id": "destination-wedding",
+      "category": "wedding",
+      "layout": "postal",
+      "layers": "map, branch, blossom",
+      "motion": "flip, sway, bloom",
+      "palette": "mint",
+      "typography": "Tahoma, Arial, sans-serif",
+      "sha256": "e40e50e3b2d068f4f332c7185b65efdec0b310cd3afe01ed547a03496e797a2c"
+    },
+    {
+      "id": "clouds-and-stars",
+      "category": "baby",
+      "layout": "sky",
+      "layers": "starfield, cloud, cloud, star",
+      "motion": "glint, left, right, sway",
+      "palette": "inkblue",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "213286d26c9e249ab6493739bd8e645967a86eb5bb320527b8fad0a567fb56fc"
+    },
+    {
+      "id": "baby-blue-lullaby",
+      "category": "baby",
+      "layout": "canopy",
+      "layers": "cloud, star, star, cradle",
+      "motion": "sway, counter, sway, rise",
+      "palette": "mist",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "d4e4617d54651ffb282e3ea15c55905dfad9a6107346fc2a5a731d2e6de3b7c3"
+    },
+    {
+      "id": "rose-petals",
+      "category": "baby",
+      "layout": "air",
+      "layers": "rose, leaf, leaf, leaf",
+      "motion": "bloom, counter, sink, sway",
+      "palette": "blush",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "d395e6d896af0fcd670ac9eaa2197dd18ac412c97b1ddd0d3d3b3266f314a455"
+    },
+    {
+      "id": "tiny-footsteps",
+      "category": "baby",
+      "layout": "diagonal",
+      "layers": "footprint, footprint, footprint, footprint",
+      "motion": "rise, lift, bloom, sway",
+      "palette": "sand",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "9987fdcaec6fbaa101f18fd5244319c65b0c1e459422c7d6ac72fee946cbd8d3"
+    },
+    {
+      "id": "little-safari",
+      "category": "baby",
+      "layout": "garden",
+      "layers": "dune, palms, giraffe, branch",
+      "motion": "sink, left, rise, right",
+      "palette": "sage",
+      "typography": "Tahoma, Arial, sans-serif",
+      "sha256": "f3a18564dede6076c7bf1c378fb896015806b06a516b33a5f61483c229a7c7bc"
+    },
+    {
+      "id": "moon-and-cradle",
+      "category": "baby",
+      "layout": "oval",
+      "layers": "moon, cradle, spark",
+      "motion": "turn, sway, glint",
+      "palette": "indigo",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "4a2c26355c54c962831dfaf173d827906c7bfdb8b661283858087e96a7742dfc"
+    },
+    {
+      "id": "watercolor-animals",
+      "category": "baby",
+      "layout": "still",
+      "layers": "sheet, bear, giraffe, leaf",
+      "motion": "sink, left, right, fan",
+      "palette": "peach",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "1ca2ccad14afc392534753ad5e63a70a363af48ff310f8cc5966a3bb613f0f1b"
+    },
+    {
+      "id": "pastel-rainbow",
+      "category": "baby",
+      "layout": "portal",
+      "layers": "rainbow, cloud, cloud",
+      "motion": "bloom, left, right",
+      "palette": "lilac",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "3e5bffa085d39b830a26097ad655fccdfdf7fb9bf07014d647c905cfd781659e"
+    },
+    {
+      "id": "elegant-birth-announcement",
+      "category": "baby",
+      "layout": "medal",
+      "layers": "diamond, bow, signature, lines",
+      "motion": "turn, unfurl, draw, sweep",
+      "palette": "ivory",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "f91b89933ca7cf119f93fb5d4b6fd48439c918ea64e6627b05b08eea4b0576c1"
+    },
+    {
+      "id": "baby-photo-album",
+      "category": "baby",
+      "layout": "diptych",
+      "layers": "frame, frame, bow",
+      "motion": "left, flip, unfurl",
+      "palette": "coral",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "b1a2b97235a7b9c1a0c8cdfbb6395c234c2f7213db7dea4f17654276185afba5"
+    },
+    {
+      "id": "graduation-cap-toss",
+      "category": "graduation",
+      "layout": "air",
+      "layers": "confetti, cap, cap, cap",
+      "motion": "scatter, left, lift, right",
+      "palette": "inkblue",
+      "typography": "Tahoma, Arial, sans-serif",
+      "sha256": "1ecca17adbe04d1b85d5aac5b555080296460978e27a3813c0d93d3e053fb2d2"
+    },
+    {
+      "id": "golden-diploma",
+      "category": "graduation",
+      "layout": "folio",
+      "layers": "diploma, laurelSeal",
+      "motion": "unfurl, seal",
+      "palette": "gold",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "435a2f74abb17910fb78ab4f9c91a6a5e8f466f9abc4bb04176fcb4738e7ead2"
+    },
+    {
+      "id": "midnight-academy",
+      "category": "graduation",
+      "layout": "sky",
+      "layers": "book, moon, laurelSeal",
+      "motion": "flip, turn, seal",
+      "palette": "navy",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "456bb601be0bb75f93912a806d94ecf0a68d4305619366647ce230dcb39e1b44"
+    },
+    {
+      "id": "confetti-walk",
+      "category": "graduation",
+      "layout": "diagonal",
+      "layers": "steps, cap, confetti",
+      "motion": "rise, lift, scatter",
+      "palette": "apricot",
+      "typography": "Tahoma, Arial, sans-serif",
+      "sha256": "df3c3cd6808ded5c8846faac17d469b4f03728bf308020e8476f79b654fcf8b9"
+    },
+    {
+      "id": "classic-university",
+      "category": "graduation",
+      "layout": "portal",
+      "layers": "pillar, pillar, pillar, fan",
+      "motion": "left, rise, right, fan",
+      "palette": "sepia",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "e640ef6c3e81ef2b031153e2adbda7c0ed90d8039ebe4da907b7618f8694a10a"
+    },
+    {
+      "id": "photo-timeline",
+      "category": "graduation",
+      "layout": "horizon",
+      "layers": "frame, frame, frame",
+      "motion": "left, lift, right",
+      "palette": "sand",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "96f16dd8037d8b9a235aaa6f56692dc4a7b33fbfb77008473dd96c64dd57016f"
+    },
+    {
+      "id": "luxury-black-and-gold",
+      "category": "graduation",
+      "layout": "medal",
+      "layers": "branch, branch, laurelSeal, cap",
+      "motion": "fan, counter, seal, lift",
+      "palette": "onyx",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "76727f86f928c790f0bc6d8d702afc44c0158475c3449a5cc37f459618c66da8"
+    },
+    {
+      "id": "neon-future",
+      "category": "graduation",
+      "layout": "grid",
+      "layers": "neon, orbit, cap",
+      "motion": "sweep, turn, lift",
+      "palette": "violet",
+      "typography": "Tahoma, Arial, sans-serif",
+      "sha256": "b3a0c4caf11b57c8e64982e01459ffe70099ffae9f04da3e59ddd24286b2429e"
+    },
+    {
+      "id": "editorial-graduation",
+      "category": "graduation",
+      "layout": "diptych",
+      "layers": "frame, pen, ribbon",
+      "motion": "flip, sweep, unfurl",
+      "palette": "ochre",
+      "typography": "Tahoma, Arial, sans-serif",
+      "sha256": "5efcb987c0a27b4876591a7f303e5d61109124b1ca04c98efa955a4014f1c128"
+    },
+    {
+      "id": "starry-achievement",
+      "category": "graduation",
+      "layout": "orbit",
+      "layers": "orbit, starfield, star",
+      "motion": "turn, glint, bloom",
+      "palette": "midgreen",
+      "typography": "Georgia, \"Times New Roman\", serif",
+      "sha256": "dcb9c7b4c4c2c0cb776ab396490a3cae7217235eb117d5149c676620247a7970"
+    }
+  ],
+  "errors": []
+}

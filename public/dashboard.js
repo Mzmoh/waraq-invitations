@@ -1,3 +1,4 @@
+import {delayedSkeleton,optimisticChange} from './async-ui.js';
 import { templates } from './templates/index.js';
 
 const lang = () => document.documentElement.lang.startsWith('en') ? 'en' : 'ar';
@@ -56,6 +57,7 @@ function start(root) {
   const section=el('section','db-page');
   section.append(el('p','db-load',t('جارٍ التحميل…','Loading…')));
   root.replaceChildren(section);
+  const clear=delayedSkeleton(section);new MutationObserver((_,observer)=>{if(!section.querySelector('.db-load')){clear();observer.disconnect();}}).observe(section,{childList:true});
   return section;
 }
 function panel(...children) { return box('db-panel',...children); }
@@ -197,21 +199,25 @@ function accountBar(user,out) {
   },out,'db-text-btn'));
   return box('db-account',el('span','db-account-email',user.email),actions);
 }
-function displayList(page,user,invitations) {
+function displayList(page,user,invitations,state={}) {
+  let pagination=state.pagination,activeStatus='all',filterVersion=0;const totals=state.totals||{},cache=new Map([['all',{invitations,pagination}]]);
+  const more=button(t('عرض المزيد','Load more'),async()=>{more.disabled=true;const requestedStatus=activeStatus,requestedList=invitations;try{const result=await api('/invitations?status='+requestedStatus+'&cursor='+encodeURIComponent(pagination.nextCursor));requestedList.push(...result.invitations);cache.set(requestedStatus,{invitations:requestedList,pagination:result.pagination});if(activeStatus===requestedStatus){invitations=requestedList;pagination=result.pagination;renderFilter(activeStatus);}}catch(error){out.textContent=error.message;}finally{more.disabled=false;}});
   const out=message(), body=el('div','db-list'), filters=box('db-filters');
   const filterNames=['all','draft','published','archived'];
   function renderFilter(active) {
     const filtered=invitations.filter(item=>active==='all'||item.status===active);
+    more.hidden=!pagination?.hasMore;
     for(const item of filters.children) item.setAttribute('aria-pressed',String(item.dataset.status===active));
     body.replaceChildren();
     if(!filtered.length) {
-      const msg=invitations.length?t('لا توجد دعوات بهذه الحالة.','No invitations with this status.'):t('أنشئ دعوتك الأولى','Create your first invitation');
-      body.append(panel(el('h2','',msg),...(invitations.length?[]:[link(t('اختر مناسبة','Choose an occasion'),'/occasions','db-btn db-primary')])));
+      const any=Object.values(totals).some(v=>Number(v)>0)||invitations.length;
+      const msg=any?t('لا توجد دعوات بهذه الحالة.','No invitations with this status.'):t('أنشئ دعوتك الأولى','Create your first invitation');
+      body.append(panel(el('h2','',msg),...(any?[]:[link(t('اختر مناسبة','Choose an occasion'),'/occasions','db-btn db-primary')])));
     }
-    filtered.forEach(inv=>{
+    filtered.forEach((inv,index)=>{
       const design=template(inv.templateId);
       const item=el('article','db-row'); 
-      if(design) {const cover=el('img','db-thumb');cover.alt='';cover.src=design.thumbnail;cover.loading='lazy';item.append(cover);}
+      if(design) {const cover=el('img','db-thumb');cover.alt='';cover.src=design.thumbnail;cover.loading=index<2?'eager':'lazy';item.append(cover);}
       const name=link(title(inv),detailPath(inv.id),'db-record-name');
       const meta=[templateName(design),prettyDate(inv.updatedAt)].filter(Boolean).join(' · ');
       const replyCount=t('الردود','Replies')+' '+n(inv.responseCount||0);
@@ -222,11 +228,11 @@ function displayList(page,user,invitations) {
   }
   for(const status of filterNames) {
     const label=status==='all'?t('الكل','All'):statusName(status);
-    const count=status==='all'?invitations.length:invitations.filter(v=>v.status===status).length;
-    const b=button(label+' · '+n(count),()=>renderFilter(status),'db-filter');
+    const count=status==='all'?(Object.values(totals).reduce((a,v)=>a+Number(v),0)||invitations.length):(totals[status]??invitations.filter(v=>v.status===status).length);
+    const b=button(label+' · '+n(count),async()=>{const version=++filterVersion;b.disabled=true;try{let result=cache.get(status);if(!result){result=await api('/invitations?status='+status);cache.set(status,result);}if(version!==filterVersion)return;activeStatus=status;invitations=result.invitations;pagination=result.pagination;renderFilter(status);}catch(error){out.textContent=error.message;}finally{b.disabled=false;}},'db-filter');
     b.dataset.status=status;filters.append(b);
   }
-  page.replaceChildren(accountBar(user,out),box('db-top',heading(t('دعواتي','My invitations')),link(t('إنشاء دعوة','Create invitation'),'/occasions','db-btn db-primary')),out,filters,body);
+  page.replaceChildren(accountBar(user,out),box('db-top',heading(t('دعواتي','My invitations')),link(t('إنشاء دعوة','Create invitation'),'/occasions','db-btn db-primary')),out,filters,body,more);
   renderFilter('all');
 }
 async function copyUrl(url,out) {
@@ -239,7 +245,7 @@ async function copyUrl(url,out) {
     out.replaceChildren(document.createTextNode(t('انسخ الرابط المحدد.','Copy the selected link.')),input);input.focus();input.select();
   }
 }
-function repliesPanel(responses) {
+function repliesPanel(responses,summary) {
   const people=responses.reduce((sum,r)=>sum+(r.attending?Number(r.count):0),0);
   const declined=responses.filter(r=>!r.attending).length;
   const rows=el('ul','db-replies');
@@ -251,10 +257,10 @@ function repliesPanel(responses) {
     rows.append(row);
   });
   return panel(el('h2','',t('ردود الضيوف','Guest replies')),
-    box('db-metrics',line(t('الردود','Replies'),n(responses.length)),line(t('الحاضرون','Attendees'),n(people)),line(t('الاعتذارات','Declines'),n(declined))),
+    box('db-metrics',line(t('الردود','Replies'),n(summary?.total??responses.length)),line(t('الحاضرون','Attendees'),n(summary?.people??people)),line(t('الاعتذارات','Declines'),n(summary?.declined??declined))),
     responses.length?rows:el('p','db-sub',t('تظهر ردود ضيوفك هنا بعد إرسالها.','Guest replies will appear here as they arrive.')));
 }
-async function displayDetail(root,page,inv,responses) {
+async function displayDetail(root,page,inv,responses,replyState={}) {
   const out=message(), design=template(inv.templateId);
   const url=guestLink(inv), live=inv.status==='published', shareable=live && inv.linkActive!==false;
   const top=box('db-top',heading(title(inv),templateName(design)),guestState(inv));
@@ -283,7 +289,7 @@ async function displayDetail(root,page,inv,responses) {
       act(t('تحميل بطاقة المشاركة','Download share card'),()=>downloadShareCard({...inv.data,settings:inv.settings},url),shareOut));
     page.append(panel(el('h2','',t('مشاركة الدعوة','Share invitation')),actions,shareOut,q));
   }
-  page.append(repliesPanel(responses));
+  const replies=box('db-replies-page');const paintReplies=()=>{replies.replaceChildren(repliesPanel(responses,replyState.summary));if(replyState.pagination?.hasMore)replies.append(act(t('عرض ردود إضافية','Load more replies'),async()=>{const result=await api('/invitations/'+encodeURIComponent(inv.id)+'/responses?cursor='+encodeURIComponent(replyState.pagination.nextCursor));responses.push(...result.responses);replyState=result;paintReplies();},out));};paintReplies();page.append(replies);
   page.append(panel(el('h2','',t('إدارة الدعوة','Manage invitation')),box('db-actions',
     link(t('تصدير الردود CSV','Export responses CSV'),'/api/invitations/'+encodeURIComponent(inv.id)+'/responses.csv'),
     act(t('نسخ الدعوة','Duplicate invitation'),async()=>{
@@ -301,11 +307,11 @@ async function displayDetail(root,page,inv,responses) {
 export async function renderDashboard(root,id) {
   const page=start(root);
   try {
-    const {user}=await api('/me'); if(!user){notice(page,{status:401});return;}
-    if(!id){const {invitations}=await api('/invitations');displayList(page,user,invitations);return;}
+    if(!id){const [{user},state]=await Promise.all([api('/me'),api('/invitations')]);if(!user){notice(page,{status:401});return;}displayList(page,user,state.invitations,state);return;}
+    const {user}=await api('/me');if(!user){notice(page,{status:401});return;}
     const path='/invitations/'+encodeURIComponent(id);
-    const [{invitation},{responses}]=await Promise.all([api(path),api(path+'/responses')]);
-    await displayDetail(root,page,invitation,responses);
+    const [{invitation},replyState]=await Promise.all([api(path),api(path+'/responses')]);
+    await displayDetail(root,page,invitation,replyState.responses,replyState);
   } catch(error){notice(page,error,()=>renderDashboard(root,id));}
 }
 export async function renderAdmin(root) {
@@ -315,10 +321,12 @@ export async function renderAdmin(root) {
     const out=message();
     const headingBar=box('db-top',heading(t('إدارة المنصة','Administration')),link(t('دعواتي','My invitations'),'/dashboard'));
     const tabs=box('db-filters'), content=el('div','db-admin-items');
+    const pending=new Set();
     function manage(active) {
       for(const tab of tabs.children) tab.setAttribute('aria-pressed',String(tab.dataset.section===active));
       content.replaceChildren();
       const list=state[active] || [];
+      if(active==='reports'&&state.pagination?.hasMore)content.append(act(t('عرض بلاغات إضافية','Load more reports'),async()=>{const result=await api('/admin?cursor='+encodeURIComponent(state.pagination.nextCursor));state.reports.push(...result.reports);state.pagination=result.pagination;manage(active);},out));
       if(!list.length){content.append(panel(el('p','db-sub',t('لا توجد عناصر لعرضها.','Nothing to display.')))); return;}
       list.forEach(item=>{
         const isReport=active==='reports';
@@ -330,9 +338,9 @@ export async function renderAdmin(root) {
         const row=box('db-admin-row',box('db-admin-caption',el('h3','',h),el('p','db-sub',sub)),el('span','db-state',status));
         row.append(act(action,async()=>{
           const value=isReport?{status:current?'resolved':'open'}:{published:!current};
-          await api('/admin/'+active+'/'+encodeURIComponent(item.id),'PATCH',value);
-          Object.assign(item,value);manage(active);out.textContent=t('حُفظ التغيير.','Changes saved.');
+          if(isReport){const previous={status:item.status};pending.add(item.id);try{await optimisticChange({apply:()=>{Object.assign(item,value);manage(active);},commit:()=>api('/admin/'+active+'/'+encodeURIComponent(item.id),'PATCH',value),rollback:()=>{Object.assign(item,previous);manage(active);}});}finally{pending.delete(item.id);manage(active);}}else{await api('/admin/'+active+'/'+encodeURIComponent(item.id),'PATCH',value);Object.assign(item,value);manage(active);}out.textContent=t('حُفظ التغيير.','Changes saved.');
         },out));
+        if(pending.has(item.id))row.querySelector('button').disabled=true;
         content.append(row);
       });
     }

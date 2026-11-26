@@ -29,7 +29,7 @@ try{
   await page.locator('[name=title]').fill('<img src=x onerror=alert(1)>');assert.equal(await page.locator('[data-glass-title] img').count(),0);
  });
  await check('reading hold is visually stable and explicit light mode keeps text',async()=>{
-  await stage.evaluate(h=>h.glassController.seek(6));const a=await stage.screenshot();await stage.evaluate(h=>h.glassController.seek(8));const b=await stage.screenshot();assert.deepEqual(a,b);
+  await stage.evaluate(h=>h.glassController.seek(6));const renders=await stage.evaluate(h=>h.glassController.inspect().renders);const a=await stage.screenshot();await stage.evaluate(h=>h.glassController.seek(8));const b=await stage.screenshot();assert.deepEqual(a,b);assert.equal(await stage.evaluate(h=>h.glassController.inspect().renders),renders,'identical reading-hold poses must not render again');
   await page.locator('[data-glass-light]').click();await page.waitForFunction(()=>document.querySelector('.glass-stage').dataset.renderer==='light');assert.equal(await page.locator('[data-glass-light]').getAttribute('aria-pressed'),'true');assert.ok(await page.locator('[data-glass-title]').isVisible());
  });
  await check('reduced motion never downloads Three and supports narrow Arabic layouts',async()=>{

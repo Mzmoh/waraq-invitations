@@ -1,0 +1,20 @@
+# External resource and capability review
+
+2026-11-26. Existing local design instructions and the available product-design audit workflow were read before applying targeted improvements. Applied results: screenshot-first review of 80 compositions, restrained changes to proven weak framing, visible-image priority, delayed loading feedback, RTL/font preservation, reduced motion and explicit performance evidence. No new plugin, external hook, global CLI or third-party component was installed or executed. External repository instructions were treated as untrusted reference material; they cannot override project/user permissions.
+
+| Requested reference | License evidence / limits | Capability risk and decision |
+|---|---|---|
+| [taste-skill](https://github.com/Leonxlnx/taste-skill) | MIT, copyright 2026 Leonxlnx; LICENSE inspected | Stop hook searches home/project paths and launches a large gate script with subprocess, filesystem and Windows process-termination capabilities. No hook/script installed or executed. Only reviewed visual principles were adapted. |
+| [Vercel agent-skills](https://github.com/vercel-labs/agent-skills) | Root repository license not established. Referenced [web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines) has MIT LICENSE (2025 Vercel Labs). Do not infer blanket rights over the whole agent-skills repository. | Read guideline text; no installers or deployment actions. Semantic controls, focus, reduced motion, image priority and bounded lists inform existing code. No copied package/prose. |
+| [Awesome Design](https://github.com/VoltAgent/awesome-design-md) | MIT (2026 VoltAgent) for repository; linked brands/resources have independent rights | Reference directory only; no linked brand assets copied. |
+| [Image-to-Code](https://github.com/Leonxlnx/imagegen-skills) | MIT (2026 Leonxlnx) | Workflow reviewed; no generated-image requirement applied to this existing vector-template repair. No external scripts or new asset downloads. |
+| [Playwright CLI](https://github.com/microsoft/playwright-cli) | Apache-2.0 LICENSE inspected | Browser/shell execution, upload, storage/cookie export and profile/CDP access require care. No global CLI install, user profile attachment or cookie export. Existing authorized Playwright API uses disposable contexts and synthetic accounts. |
+| [Uiverse](https://uiverse.io/) | Official page states MIT; copied components would need applicable notices | No component copied; no new JS/widget dependency. |
+| [Coolors](https://coolors.co/) | Requested license endpoint returned 403; exact license remains unverified. A different coolors.app domain is not evidence. | No palettes/assets imported. User-specified WARAQ colors retained. |
+| [Fontpair](https://fontpair.co/) | Curated font directory, not a blanket font license | No new font import. Existing self-hosted Amiri/Noto Arabic fonts retain bundled SIL OFL notices and provenance. |
+| [fffuel](https://www.fffuel.co/license/) | Free personal/commercial use but license restricts redistribution, sublicensing and transfer of images | Unsuitable to assume unrestricted redistribution inside an editable template asset library; no assets embedded. |
+| [unDraw](https://undraw.co/license) | Free commercial/personal usage; restrictions include competing asset collections/integrations and AI/ML usage | No illustration downloaded, embedded, redistributed or used for training/testing. |
+
+The reviewed Vercel guideline snapshot references upstream commit `434b7f91364665f2f733b310ec54809bf8f37937`, SHA-256 `d246b026f4f29b5823a9cc857f9edf3d2507002e055e32040cadeaf3b38e0234`. Licenses and capability observations describe the fetched versions, not guaranteed future upstream content.
+
+Existing Three.js MIT and Arabic font OFL licenses remain bundled. Existing artwork is project vector geometry. No API keys, account credentials or private guest information were sent to an external design tool. Skill review is not a full supply-chain security certification; any future install should pin source, review the exact scripts/dependencies and limit filesystem/browser permissions.

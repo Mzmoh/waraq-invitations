@@ -1,0 +1,7 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> waraq-invitation-studio@1.0.0 build
+> node scripts/build.mjs
+
+Syntax validated for 77 JavaScript modules.
+Built Node application in dist/ with 80 covers.

@@ -4,7 +4,7 @@ import {DatabaseSync} from 'node:sqlite';
 import worker from '../dist/server/index.js';
 
 const sql=new DatabaseSync(':memory:');
-for(const file of ['0000_001.sql','0001_002.sql','0002_catalog.sql','0003_lifecycle.sql'])sql.exec(readFileSync('drizzle/'+file,'utf8'));
+for(const file of ['0000_001.sql','0001_002.sql','0002_catalog.sql','0003_lifecycle.sql','0004_performance.sql'])sql.exec(readFileSync('drizzle/'+file,'utf8'));
 const bind=statement=>({
   bind:(...args)=>({
     first:async()=>sql.prepare(statement).get(...args)??null,
@@ -18,7 +18,7 @@ const DB={
   batch:async statements=>{
     sql.exec('BEGIN IMMEDIATE');
     try {
-      const results=statements.map(({statement,args})=>({meta:sql.prepare(statement).run(...args)}));
+      const results=statements.map(({statement,args})=>/^\s*(SELECT|WITH)/i.test(statement)?{results:sql.prepare(statement).all(...args)}:{meta:sql.prepare(statement).run(...args)});
       sql.exec('COMMIT');
       return results;
     }catch(error){sql.exec('ROLLBACK');throw error}

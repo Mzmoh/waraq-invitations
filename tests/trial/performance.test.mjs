@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {trialDatabase,memoryStorage} from './helpers.mjs';
+import {postgresDatabase} from '../../server/trial/postgres.mjs';
+import {portableAPI} from '../../server/api-portable.mjs';
+test('PostgreSQL responsive binding, constant ownership SELECT and bounded concurrent uploads',async t=>{
+ const {pg}=await trialDatabase();t.after(()=>pg.close());const storage=memoryStorage(),put=storage.put;let active=0,peak=0;
+ storage.put=async v=>{active++;peak=Math.max(peak,active);await Promise.resolve();try{return await put(v);}finally{active--;}};
+ await pg.query("INSERT INTO users VALUES('performance-owner','perf@example.test','synthetic','creator')");await pg.query('INSERT INTO sessions VALUES($1,$2,$3)',[createHash('sha256').update('synthetic-session').digest('hex'),'performance-owner',Date.now()+600000]);
+ const statements=[],client={query:(sql,args)=>{statements.push(sql);return pg.query(sql,args);}},req={method:'POST',headers:{cookie:'invite_session=synthetic-session'},socket:{remoteAddress:'local'}};
+ const db=postgresDatabase(client,req,{storage}),api=portableAPI(db,{user:async()=>({id:'performance-owner'}),limit:async()=>{}});
+ const tiny='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==',template=(await pg.query('SELECT id FROM templates LIMIT 1')).rows[0].id;
+ const body={templateId:template,data:{images:Array.from({length:4},()=>({src:tiny,width:1000,variants:[{src:tiny,width:480}]}))}};
+ const created=await api.route(req,{},'/api/invitations',body);assert.equal(storage.objects.size,8);assert.ok(peak>1&&peak<=4);const inv=created.invitation;
+ assert.equal(Number((await pg.query('SELECT count(*) AS n FROM invitation_assets WHERE invitation=$1',[inv.id])).rows[0].n),8);
+ statements.length=0;await api.route({...req,method:'PATCH'}, {},'/api/invitations/'+inv.id,{data:inv.data,expectedUpdatedAt:inv.updatedAt});assert.equal(statements.filter(s=>/^SELECT id,mime FROM assets WHERE owner/i.test(s)).length,1);
+ const anonymous=postgresDatabase(client,{headers:{}},{storage});assert.equal((await anonymous.all('SELECT id FROM assets')).length,0);
+ let calls=0;storage.put=async v=>{if(++calls===2)throw Error('Injected parallel upload rejection');return put(v);};
+ const count=storage.objects.size;await assert.rejects(()=>api.route(req,{},'/api/invitations',body),/Injected parallel/);assert.equal(storage.objects.size,count);assert.equal(Number((await pg.query('SELECT count(*) AS n FROM assets')).rows[0].n),8);
+});

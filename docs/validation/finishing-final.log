@@ -1,0 +1,9 @@
+PASS Search all categories and FAQ are usable
+PASS Create persisted custom typography, rotation, main image, background and original audio
+PASS Undo and redo restore actual wording
+PASS Editing the saved date preserves Baghdad seconds after reopening from another device zone
+PASS Published guest replay, explicit audio playback, volume and narrow layout
+PASS Owner copy, CSV export and confirmed deletion controls work
+PASS Missing mail delivery produces a visible actionable recovery error
+PASS Celebratory scene respects a live reduced-motion change
+8 finishing journeys passed; 0 uncaught errors

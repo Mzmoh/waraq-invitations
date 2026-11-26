@@ -1,0 +1,7 @@
+PASS real same-origin Worker encodes private-ready responsive images under CSP
+PASS transparent PNG preserves orientation, white matte and editable defaults: worker
+PASS transparent PNG preserves orientation, white matte and editable defaults: no-worker
+PASS transparent PNG preserves orientation, white matte and editable defaults: worker-load-failure
+PASS JPEG fallback works when WebP encoding is unavailable
+PASS invalid files, limits and failed decode surface errors without stale object URLs
+6 photo browser groups passed

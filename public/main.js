@@ -1,5 +1,5 @@
 import {renderCinematicHome} from './home-cinematic.js';
-import { templates } from './templates/index.js';
+import { templates } from './templates/catalog.js';
 
 const categories = [
   ['general','دعوة مخصصة','Custom invitation','art-deco','M4 6h16v12H4z M4 6l8 7 8-7'],
@@ -53,18 +53,18 @@ async function getCatalog() {
   gallery = templates.filter(template => !hiddenTemplates.includes(template.id) && occasions.some(c=>c[0]===template.category));
 }
 
-function occasionTiles() {
+function occasionTiles(eager=false) {
   return `<div class="occasion-grid">${occasions.map(c=>{
     const first = gallery.find(template => template.id === c[3]) || gallery.find(template=>template.category===c[0]);
     return `<a class="occasion-tile" href="/occasions/${c[0]}">
-      <span class="occasion-art" data-category="${c[0]}">${first ? `<img src="${first.thumbnail}" alt="" loading="lazy" width="360" height="260">` : icon(c[4],42)}</span>
+      <span class="occasion-art" data-category="${c[0]}">${first ? `<img src="${first.thumbnail}" alt="" loading="${eager?'eager':'lazy'}" decoding="async" width="360" height="260">` : icon(c[4],42)}</span>
       <span class="occasion-name">${icon(c[4],19)}<strong>${ctitle(c)}</strong></span>
     </a>`;
   }).join('')}</div>`;
 }
-function cards(list) {
-  return list.map(template => `<article class="template-tile"><a href="/templates/${template.id}">
-    <div class="template-art"><img src="${template.thumbnail}" width="360" height="260" alt="" loading="lazy"></div>
+function cards(list,eagerCount=0) {
+  return list.map((template,index) => `<article class="template-tile"><a href="/templates/${template.id}">
+    <div class="template-art"><img src="${template.thumbnail}" width="360" height="260" alt="" loading="${index<eagerCount?'eager':'lazy'}" decoding="async"></div>
     <div class="template-caption"><h3>${title(template)}</h3><span>${t('معاينة حية','Live preview')}</span></div>
   </a></article>`).join('');
 }
@@ -74,11 +74,12 @@ function browse() {
   const category = occasions.find(c=>c[0]===id);
   if (id && !category) return missing();
   if (!category) {
-    app.innerHTML = `<div class="wrap studio-content"><h1>${t('المناسبات','Occasions')}</h1><p class="studio-lead">${t('اختر نوع المناسبة لتستعرض قوالبها.','Choose an occasion to explore its templates.')}</p>${occasionTiles()}</div>`;
+    app.innerHTML = `<div class="wrap studio-content"><h1>${t('المناسبات','Occasions')}</h1><p class="studio-lead">${t('اختر نوع المناسبة لتستعرض قوالبها.','Choose an occasion to explore its templates.')}</p>${occasionTiles(true)}</div>`;
     const section=document.createElement('section');section.className='wrap studio-section';
     section.innerHTML=`<h2>${t('كل القوالب','All templates')}</h2><form class="studio-filter" role="search"><label>${t('ابحث عن قالب','Search templates')}<input name="query" type="search" autocomplete="off"></label><label>${t('المناسبة','Occasion')}<select name="category"><option value="">${t('جميع المناسبات','All occasions')}</option>${occasions.map(c=>`<option value="${c[0]}">${ctitle(c)}</option>`).join('')}</select></label></form><p role="status"></p><div class="template-grid"></div>`;
     app.append(section);const form=section.querySelector('form');form.onsubmit=e=>e.preventDefault();
-    const update=()=>{const q=form.elements.query.value.trim().toLowerCase();const list=gallery.filter(x=>(!form.elements.category.value||x.category===form.elements.category.value)&&[x.titleAr,x.titleEn].some(s=>s.toLowerCase().includes(q)));section.querySelector('[role=status]').textContent=t(`عدد القوالب: ${list.length}`,`${list.length} templates`);section.querySelector('.template-grid').innerHTML=cards(list);};
+    section.querySelector('.template-grid').innerHTML=cards(gallery);const tiles=[...section.querySelectorAll('.template-tile')];
+    const update=()=>{const q=form.elements.query.value.trim().toLowerCase();const list=gallery.filter(x=>(!form.elements.category.value||x.category===form.elements.category.value)&&[x.titleAr,x.titleEn].some(s=>s.toLowerCase().includes(q)));section.querySelector('[role=status]').textContent=t(`عدد القوالب: ${list.length}`,`${list.length} templates`);const visible=new Set(list.map(t=>t.id));tiles.forEach((tile,i)=>tile.hidden=!visible.has(gallery[i].id));};
     form.addEventListener('input',update);form.addEventListener('change',update);update();return;
   }
   const options = gallery.filter(template=>template.category===id);
@@ -89,13 +90,13 @@ function browse() {
   <form class="studio-filter" role="search"><label>${t('ابحث عن قالب','Search templates')}<input name="query" type="search" autocomplete="off"></label>
   <label>${t('الأسلوب','Style')}<select name="style"><option value="">${t('جميع الأساليب','All styles')}</option>${styles.map(style=>`<option value="${style}">${t(style,styleEn[style]||style)}</option>`).join('')}</select></label></form>
   <p role="status" class="result-count"></p><div class="template-grid" id="browse-grid"></div></div>`;
-  const form = app.querySelector('form');
+  const form = app.querySelector('form');app.querySelector('#browse-grid').innerHTML=cards(options,4);const tiles=[...app.querySelectorAll('#browse-grid .template-tile')];
   const update = () => {
     const query = form.elements.query.value.trim().toLowerCase();
     const list = options.filter(x=>(!form.elements.style.value || x.style===form.elements.style.value) &&
       [x.titleAr,x.titleEn].some(value=>value.toLowerCase().includes(query)));
     app.querySelector('.result-count').textContent = list.length ? t(`عدد القوالب ${list.length}`,`${list.length} templates`) : t('ماكو قالب يطابق البحث.','No templates match your search.');
-    app.querySelector('#browse-grid').innerHTML = cards(list);
+    const visible=new Set(list.map(t=>t.id));tiles.forEach((tile,i)=>tile.hidden=!visible.has(options[i].id));
   };
   form.onsubmit = e=>e.preventDefault();
   form.addEventListener('input',update);
@@ -138,7 +139,8 @@ async function boot() {
     return renderAuth(app);
   }
   if (page === 'create' && new URLSearchParams(location.search).has('id')) {
-    const existing = templates.find(x=>x.id===id);
+    const {templates:full}=await import('./templates/index.js');
+    const existing = full.find(x=>x.id===id);
     if (!existing) return missing();
     const {renderEditor} = await import('./editor.js');
     return renderEditor(app,existing);
@@ -160,7 +162,8 @@ async function boot() {
     app.append(extra);return;
   }
   if (page === 'occasions') return browse();
-  const template = gallery.find(x=>x.id===id);
+  let template = gallery.find(x=>x.id===id);
+  if(template&&['templates','create'].includes(page)){const {templates:full}=await import('./templates/index.js');template=full.find(x=>x.id===id);}
   if (!template) return missing();
   if (page === 'templates') return preview(template);
   if (page === 'create') {

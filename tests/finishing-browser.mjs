@@ -13,7 +13,7 @@ async function check(name,fn){await fn();passes.push(name);console.log('PASS '+n
 try{
  await check('Search all categories and FAQ are usable',async()=>{
    await page.goto('/');await page.getByText('Frequently asked questions',{exact:true}).waitFor();await page.goto('/occasions');
-   await page.locator('[name=query]').fill('Wax Seal');assert.equal(await page.locator('#app .template-tile').count(),1);
+   await page.locator('[name=query]').fill('Wax Seal');assert.equal(await page.locator('#app .template-tile:visible').count(),1);
  });
  await context.request.post('/api/auth/register',{data:{email:'finish@test.test',password:'test-finishing-password'}});
  let invitation;
@@ -30,6 +30,16 @@ try{
   await page.locator('[name=title]').fill('Changed wording');await page.getByRole('button',{name:'Undo',exact:true}).click();assert.equal(await page.locator('[name=title]').inputValue(),original);
   await page.getByRole('button',{name:'Redo',exact:true}).click();assert.equal(await page.locator('[name=title]').inputValue(),'Changed wording');
   await page.getByRole('button',{name:'Undo',exact:true}).click();
+ });
+ await check('Editing the saved date preserves Baghdad seconds after reopening from another device zone',async()=>{
+  await page.locator('.ed-steps button').nth(1).click();
+  const saved=page.waitForResponse(r=>r.url().endsWith('/api/invitations/'+invitation.id)&&r.request().method()==='PATCH');
+  await page.locator('[name=wall]').fill('2035-11-02T19:42:16');
+  const response=await saved;assert.equal(response.status(),200);assert.equal((await response.json()).invitation.data.startAt,'2035-11-02T16:42:16.000Z');
+  await page.reload();await page.locator('.ed-steps button').nth(1).click();
+  assert.equal(await page.locator('[name=wall]').inputValue(),'2035-11-02T19:42:16');
+  const other=await browser.newContext({baseURL,timezoneId:'America/New_York'});
+  try{const p=await other.newPage();await p.goto('/');const actual=await p.evaluate(async()=>{const{utcCandidates}=await import('/editor-model.js');return utcCandidates('2035-11-02T19:42:16','Asia/Baghdad')});assert.deepEqual(actual,['2035-11-02T16:42:16.000Z']);}finally{await other.close();}
  });
  await check('Published guest replay, explicit audio playback, volume and narrow layout',async()=>{
   assert.equal((await context.request.post('/api/invitations/'+invitation.id+'/publish',{data:{}})).status(),200);

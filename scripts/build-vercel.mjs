@@ -1,3 +1,4 @@
+import './build-catalog.mjs';
 import {cpSync,mkdirSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 const check=spawnSync(process.execPath,['scripts/check.mjs'],{stdio:'inherit'});

@@ -1,0 +1,17 @@
+PASS Manifest, unique signatures and standalone cover responses
+PASS Home and occasion selection at five viewport widths
+PASS general ten preview pages and ten interactive reveals
+PASS ramadan ten preview pages and ten interactive reveals
+PASS fitr ten preview pages and ten interactive reveals
+PASS hajj ten preview pages and ten interactive reveals
+PASS adha ten preview pages and ten interactive reveals
+PASS wedding ten preview pages and ten interactive reveals
+PASS baby ten preview pages and ten interactive reveals
+PASS graduation ten preview pages and ten interactive reveals
+PASS Specialized editor inputs and general custom fields
+PASS Editor, phone preview tabs and consent to motion at five widths
+PASS Time zones, DST ambiguity and past countdown
+PASS Wedding creation, photo replacement/removal, live preview, signup and publish
+PASS Independent mobile guest, countdown, calendar, QR, attendance and decline
+PASS No uncaught browser exceptions
+16 passed; 0 failed

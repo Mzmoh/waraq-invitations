@@ -1,3 +1,4 @@
+import './build-catalog.mjs';
 import {cpSync,readFileSync,mkdirSync,statSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import {templates} from '../public/templates/index.js';

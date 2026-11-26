@@ -234,7 +234,7 @@ export async function renderEditor(root,template,initialId) {
     syncTime();
   }
   function design() {
-    const upload=node('input',{type:'file',accept:'image/jpeg,image/png,image/webp',multiple:true});
+    const upload=node('input',{type:'file',accept:'image/jpeg,image/png,image/webp,image/avif',multiple:true});
     const drop=node('label',{className:'ed-drop'},node('strong',{textContent:t('اختَر الصور أو اسحبها هنا','Choose or drop your photos')}),upload,
       info(t('حتى 4 صور · JPG، PNG، WebP · 12 ميغابايت للصورة','Up to 4 images · JPG, PNG, WebP · 12 MB each')));
     let loading=false;

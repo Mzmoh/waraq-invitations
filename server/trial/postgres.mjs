@@ -33,11 +33,10 @@ export function postgresDatabase(client,req,{storage}={}){
   const uploaded=[];
   try{
    const prepared=[];
-   for(const statement of statements){const [sql,...args]=statement;
-    if(/^INSERT INTO assets VALUES/i.test(sql)&&args[3] instanceof Uint8Array){
-     if(!storage)throw Error('Private storage unavailable');
-     const [id,owner,mime,bytes]=args,meta=await storage.put({id,owner,mime,bytes});uploaded.push(meta.key);args[3]=JSON.stringify(meta);
-    }prepared.push([sql,...args]);
+   for(let offset=0;offset<statements.length;offset+=4){
+    const results=await Promise.allSettled(statements.slice(offset,offset+4).map(async statement=>{const [sql,...args]=statement;
+     if(/^INSERT INTO assets VALUES/i.test(sql)&&args[3] instanceof Uint8Array){if(!storage)throw Error('Private storage unavailable');const[id,owner,mime,bytes]=args,meta=await storage.put({id,owner,mime,bytes});uploaded.push(meta.key);args[3]=JSON.stringify(meta);}return [sql,...args];}));
+    const failure=results.find(r=>r.status==='rejected');if(failure)throw failure.reason;prepared.push(...results.map(r=>r.value));
    }
    return await transaction(prepared);
   }catch(e){if(uploaded.length)await storage.remove(uploaded).catch(()=>console.warn('Trial storage orphan cleanup pending'));throw e}
@@ -45,15 +44,15 @@ export function postgresDatabase(client,req,{storage}={}){
  const one=async(sql,...args)=>normalizeRow((await calls([[sql,...args]]))[0].rows?.[0]);
  const all=async(sql,...args)=>((await calls([[sql,...args]]))[0].rows||[]).map(normalizeRow);
  const run=async(sql,...args)=>{const r=(await calls([[sql,...args]]))[0];return {changes:Number(r.rowCount??r.affectedRows??0)}};
- return {one,all,run,batch:async statements=>(await calls(statements)).map(r=>({changes:Number(r.rowCount??r.affectedRows??0)})),
+ return {one,all,run,adminReportSQL:({cursor,limit})=>['SELECT * FROM waraq_private.admin_report_page(?,?,?)',cursor?.[0]??null,cursor?.[1]??null,limit+1],authSecret:async token=>{const results=await transaction([["INSERT OR IGNORE INTO secrets(name,value) VALUES ('hmac',?)",token],["SELECT value FROM secrets WHERE name='hmac'"]]);return results[1].rows[0].value;},readMany:async statements=>(await transaction(statements)).map(r=>(r.rows||[]).map(normalizeRow)),batch:async statements=>(await calls(statements)).map(r=>({changes:Number(r.rowCount??r.affectedRows??0)})),
   async published(slug){
-   const row=await one("SELECT i.* FROM invitations i JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE slug=? AND status='published' AND t.published=1 AND c.published=1",slug);
+   const row=await one("SELECT i.id,i.slug,i.templateId,i.pinHash,i.data,i.settings FROM invitations i JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE slug=? AND status='published' AND t.published=1 AND c.published=1",slug);
    return row||await one('SELECT * FROM waraq_private.guest_metadata(?)',slug);
   },
   grantPin:row=>{grant={slug:row.slug,pinHash:row.pinHash}},
   persistAudio:true,
   assetBytes:asset=>storage.get({...JSON.parse(asset.bytes),id:asset.id,owner:asset.owner}),
-  async flushStorage(){if(!storage)return;const rows=await all('SELECT key FROM storage_gc LIMIT 20');if(rows.length){await storage.remove(rows.map(r=>r.key));await transaction(rows.map(r=>['DELETE FROM storage_gc WHERE key=?',r.key]));}}
+  async flushStorage(){if(!storage)return;const rows=await all('SELECT key FROM storage_gc LIMIT 20');if(rows.length){await storage.remove(rows.map(r=>r.key));await run('DELETE FROM storage_gc WHERE key IN ('+rows.map(()=>'?').join(',')+')',...rows.map(r=>r.key));}}
  };
 }
 let pool;

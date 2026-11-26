@@ -1,0 +1,7 @@
+PASS actual WebGL physical glass material and exact rounded slab bounds
+PASS standalone default, palette/text editing and 9:16 composition
+PASS reading hold is visually stable and explicit light mode keeps text
+PASS reduced motion never downloads Three and supports narrow Arabic layouts
+PASS no WebGL and Save-Data degrade before loading Three
+PASS English LTR and invitation templates retain their own identity
+PASS no uncaught cinematic exceptions

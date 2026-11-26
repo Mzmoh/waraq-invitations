@@ -1,0 +1,9 @@
+GitHub Actions job 139829730186, run 45796889485, PR #3 initial commit f95b674.
+Ubuntu 26.04.1; Node v24.22.3; npm 11.19.1.
+npm install --ignore-scripts succeeded.
+npm test: 58 passed, 0 failed.
+npm run test:trial: 1 passed, 5 failed before nested route cases could execute.
+Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './dist/contrib/pgcrypto.cjs' is not defined by exports in @electric-sql/pglite/package.json.
+The absolute local PGLITE_MODULE override had bypassed package exports and concealed this harness defect.
+Fix: use the documented @electric-sql/pglite/contrib/pgcrypto package entry; resolve the sibling extension file only for an explicitly supplied runtime package override. No API, RLS or production data behavior changed.
+Original provider log: https://github.com/Mzmoh/waraq-invitations/actions/runs/45796889485

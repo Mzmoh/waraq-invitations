@@ -1,0 +1,7 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> waraq-invitation-studio@1.0.0 build:trial
+> node scripts/build-vercel.mjs
+
+Syntax validated for 80 JavaScript modules.
+Vercel static build ready; API and private configuration are excluded.

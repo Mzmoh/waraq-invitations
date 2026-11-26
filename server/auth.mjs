@@ -17,8 +17,7 @@ export async function passwordMatches(password,stored) {
   return expected.length===actual.length && timingSafeEqual(actual,expected);
 }
 export async function createAuth(db,{secure=false}={}) {
-  await db.run("INSERT OR IGNORE INTO secrets(name,value) VALUES ('hmac',?)",token());
-  const secret=(await db.one("SELECT value FROM secrets WHERE name='hmac'")).value;
+  let secret;if(db.authSecret)secret=await db.authSecret(token());else{await db.run("INSERT OR IGNORE INTO secrets(name,value) VALUES ('hmac',?)",token());secret=(await db.one("SELECT value FROM secrets WHERE name='hmac'")).value;}
   const mac=value=>createHmac('sha256',secret).update(value).digest('hex');
   const cookie=(req,name)=>(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith(name+'='))?.slice(name.length+1)||'';
   function set(res,name,value,seconds) {

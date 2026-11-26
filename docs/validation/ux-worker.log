@@ -1,0 +1,3 @@
+PASS report status updates optimistically, disables repeats and rolls back on 503; fast requests do not flash skeletons
+PASS slow requests show delayed skeleton, independent list/auth requests overlap, completion removes placeholder
+PASS mobile browser selects the 480px private source; PIN denies it before unlock
