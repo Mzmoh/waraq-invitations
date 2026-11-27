@@ -39,6 +39,7 @@
 | `COOKIE_SECURE` | `true` |
 | `PUBLIC_ORIGIN` | أصل HTTPS الثابت الفعلي للمشروع، مثل `https://your-trial.vercel.app` دون مسار |
 | `DATABASE_URL` | رابط Transaction pooler الخاص بمشروع Supabase التجريبي، منفذ `6543` |
+| `DATABASE_SSL_CA` | نص شهادة CA الرسمية التي تنزّلها من Database Settings → SSL Configuration في Supabase، بصيغة PEM. يعالج رفض سلسلة الشهادة مع إبقاء التحقق من الشهادة واسم المضيف مفعّلًا. |
 | `SUPABASE_URL` | رابط API لمشروع Supabase |
 | `SUPABASE_SERVICE_ROLE_KEY` | مفتاح service role الخاص بالخادم فقط، من إعدادات المشروع |
 

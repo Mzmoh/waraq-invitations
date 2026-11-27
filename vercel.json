@@ -2,6 +2,15 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "node scripts/build-vercel.mjs",
   "outputDirectory": "dist/vercel",
+  "regions": ["bom1"],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{"type": "host", "value": "waraq-trial.vercel.app"}],
+      "destination": "https://waraq-trial-moh7store.vercel.app/:path*",
+      "permanent": true
+    }
+  ],
   "functions": {
     "api/index.mjs": {
       "maxDuration": 30,
