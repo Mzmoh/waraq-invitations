@@ -31,7 +31,7 @@
 | المتصفحات والـfallback | PASS | 12 مجموعة؛ [النتائج](cross-browser.json) |
 | تسجيل/إنشاء/صورة/WAV/نشر/تعديل/إعادة نشر/PIN/RSVP/عزل مستخدمين | PASS | رحلة UI فعلية مستقلة، [النتيجة](lifecycle-results.json)، [الفيديو](lifecycle.webm) |
 | Node وVercel وWorker build وWorker contract | PASS | بناء محلي دون نشر عام، والاستوديو خارج الأصول المنشورة |
-| Node 24 على GitHub | PASS قبل الإصلاح؛ إعادة التحقق على HEAD الجديد مطلوبة | تشغيل البداية [46014336260](https://github.com/Mzmoh/waraq-invitations/actions/runs/46014336260) ناجح؛ راجع [Checks في PR #5](https://github.com/Mzmoh/waraq-invitations/pull/5/checks) للالتزام المرفوع |
+| Node 24 على GitHub | PASS | نجح كود الإصلاح `5b983fd` في [46019389463](https://github.com/Mzmoh/waraq-invitations/actions/runs/46019389463)، بما فيه npm test وtest:trial وbuild:trial؛ راجع [Checks في PR #5](https://github.com/Mzmoh/waraq-invitations/pull/5/checks) أيضًا لأي التزام توثيق لاحق |
 | هواتف فعلية / GPU فعلي / قارئ شاشة يدوي شامل | BLOCKED | المحاكاة ليست جهاز iPhone أو Android، وaxe لا يساوي تدقيق WCAG شاملًا |
 | اختبار النسخة المستضافة بكامل الوظائف | BLOCKED | يحتاج إنهاء بيانات اتصال الخادم للمشروع الجديد؛ لم تُستخدم قاعدة الموقع العام كبديل |
 
