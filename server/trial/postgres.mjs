@@ -61,6 +61,8 @@ export async function trialPool(env=process.env){
  if(!pool){const {Pool}=await import('pg');const url=new URL(env.DATABASE_URL);
   if(!['postgres:','postgresql:'].includes(url.protocol))throw Error('Invalid PostgreSQL URL');
   url.searchParams.delete('sslmode');url.searchParams.delete('sslcert');url.searchParams.delete('sslkey');url.searchParams.delete('sslrootcert');
-  pool=new Pool({connectionString:url.href,max:1,idleTimeoutMillis:10000,connectionTimeoutMillis:5000,ssl:{rejectUnauthorized:true},allowExitOnIdle:true});
+  const ssl={rejectUnauthorized:true};
+  if(env.DATABASE_SSL_CA)ssl.ca=env.DATABASE_SSL_CA;
+  pool=new Pool({connectionString:url.href,max:1,idleTimeoutMillis:10000,connectionTimeoutMillis:5000,ssl,allowExitOnIdle:true});
  }return pool;
 }
