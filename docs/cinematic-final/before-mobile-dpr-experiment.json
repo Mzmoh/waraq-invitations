@@ -1,0 +1,142 @@
+{
+  "commit": "working candidate",
+  "browser": "158.0.8127.37",
+  "conditions": "Chrome desktop; loopback SQLite; 390x844 DPR2; cache disabled; CPU 4x; 150ms latency; 1.6/.75Mbps; five fresh contexts, 3 seconds after catalog; software WebGL allowed; RAF gaps are not field INP",
+  "samples": [
+    {
+      "lcp": 1524,
+      "cls": 0.031661239112833674,
+      "frameGapP95": 16.900000000000546,
+      "frameGapMax": 518.5,
+      "bytes": 609644,
+      "scene": {
+        "renderer": "webgl",
+        "engine": "180",
+        "material": "MeshPhysicalMaterial",
+        "transmission": 1,
+        "ior": 1.46,
+        "thickness": 0.65,
+        "roughness": 0.16,
+        "clearcoat": 1,
+        "bounds": [
+          4.900000095367432,
+          3.5999999046325684,
+          0.23999999463558197
+        ],
+        "calls": 9,
+        "renders": 130,
+        "quality": "high",
+        "fps": 59.79073243647234,
+        "frameSamples": 120
+      }
+    },
+    {
+      "lcp": 1120,
+      "cls": 0.031661239112833674,
+      "frameGapP95": 16.800000000000182,
+      "frameGapMax": 234.10000000000002,
+      "bytes": 609644,
+      "scene": {
+        "renderer": "webgl",
+        "engine": "180",
+        "material": "MeshPhysicalMaterial",
+        "transmission": 1,
+        "ior": 1.46,
+        "thickness": 0.65,
+        "roughness": 0.16,
+        "clearcoat": 1,
+        "bounds": [
+          4.900000095367432,
+          3.5999999046325684,
+          0.23999999463558197
+        ],
+        "calls": 9,
+        "renders": 159,
+        "quality": "high",
+        "fps": 59.78775347516316,
+        "frameSamples": 120
+      }
+    },
+    {
+      "lcp": 1168,
+      "cls": 0.031661239112833674,
+      "frameGapP95": 16.800000000000182,
+      "frameGapMax": 267.70000000000005,
+      "bytes": 609644,
+      "scene": {
+        "renderer": "webgl",
+        "engine": "180",
+        "material": "MeshPhysicalMaterial",
+        "transmission": 1,
+        "ior": 1.46,
+        "thickness": 0.65,
+        "roughness": 0.16,
+        "clearcoat": 1,
+        "bounds": [
+          4.900000095367432,
+          3.5999999046325684,
+          0.23999999463558197
+        ],
+        "calls": 9,
+        "renders": 158,
+        "quality": "high",
+        "fps": 59.79073243647234,
+        "frameSamples": 120
+      }
+    },
+    {
+      "lcp": 1144,
+      "cls": 0.031661239112833674,
+      "frameGapP95": 16.800000000000182,
+      "frameGapMax": 234.10000000000014,
+      "bytes": 609644,
+      "scene": {
+        "renderer": "webgl",
+        "engine": "180",
+        "material": "MeshPhysicalMaterial",
+        "transmission": 1,
+        "ior": 1.46,
+        "thickness": 0.65,
+        "roughness": 0.16,
+        "clearcoat": 1,
+        "bounds": [
+          4.900000095367432,
+          3.5999999046325684,
+          0.23999999463558197
+        ],
+        "calls": 9,
+        "renders": 157,
+        "quality": "high",
+        "fps": 59.79073243647234,
+        "frameSamples": 120
+      }
+    },
+    {
+      "lcp": 1152,
+      "cls": 0.031661239112833674,
+      "frameGapP95": 16.800000000000182,
+      "frameGapMax": 234.0999999999999,
+      "bytes": 609644,
+      "scene": {
+        "renderer": "webgl",
+        "engine": "180",
+        "material": "MeshPhysicalMaterial",
+        "transmission": 1,
+        "ior": 1.46,
+        "thickness": 0.65,
+        "roughness": 0.16,
+        "clearcoat": 1,
+        "bounds": [
+          4.900000095367432,
+          3.5999999046325684,
+          0.23999999463558197
+        ],
+        "calls": 9,
+        "renders": 158,
+        "quality": "high",
+        "fps": 59.79073243647234,
+        "frameSamples": 120
+      }
+    }
+  ]
+}

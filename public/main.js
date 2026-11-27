@@ -36,7 +36,7 @@ function siteChrome() {
       <a href="/occasions"${active('occasions')}>${t('القوالب','Templates')}</a>
       <a href="/dashboard"${active('dashboard')}>${t('دعواتي','My invitations')}</a>
     </nav>
-    <div class="nav-actions"><button class="lang-button" type="button" lang="${t('en','ar')}" aria-label="${t('تبديل إلى الإنجليزية','Switch to Arabic')}">${t('EN','عربي')}</button>
+    <div class="nav-actions"><button class="lang-button" type="button" lang="${t('en','ar')}" aria-label="${t('EN — Switch to English','عربي — التبديل إلى العربية')}">${t('EN','عربي')}</button>
     <a class="studio-button header-cta" href="/occasions">${t('أنشئ دعوتك','Create invitation')}</a></div>
   </div>`;
   header.querySelector('button').onclick = () => {
@@ -64,7 +64,7 @@ function occasionTiles(eager=false) {
 }
 function cards(list,eagerCount=0) {
   return list.map((template,index) => `<article class="template-tile"><a href="/templates/${template.id}">
-    <div class="template-art" style="view-transition-name:template-${template.id}"><img src="${template.thumbnail}" width="360" height="260" alt="" loading="${index<eagerCount?'eager':'lazy'}" decoding="async"></div>
+    <div class="template-art"><img src="${template.thumbnail}" width="360" height="260" alt="" loading="${index<eagerCount?'eager':'lazy'}" decoding="async"></div>
     <div class="template-caption"><h3>${title(template)}</h3><span>${t('معاينة حية','Live preview')}</span></div>
   </a></article>`).join('');
 }
@@ -107,12 +107,13 @@ function missing() {
   app.innerHTML = `<div class="wrap studio-content"><h1>${t('الصفحة غير متوفرة','Page unavailable')}</h1><a class="studio-button" href="/occasions">${t('عرض المناسبات','Browse occasions')}</a></div>`;
 }
 async function preview(template) {
+  const transitionCover=app.querySelector('[data-transition-cover]');
   const category = categories.find(c=>c[0]===template.category);
   document.title = `${title(template)} | وَرَق`;
   app.innerHTML = `<div class="wrap studio-content studio-preview"><div><a class="crumb" href="/occasions/${category[0]}">${ctitle(category)}</a>
   <h1>${title(template)}</h1><p class="studio-lead">${t('جرّب الفتح والتمرير كما يراهما ضيوفك.','Try opening and scrolling through the invitation as a guest.')}</p>
   <a class="studio-button" href="/create/${template.id}">${t('استخدم هذا القالب','Use this template')}</a></div>
-  <div class="preview-device" id="template-preview" style="view-transition-name:template-${template.id}"></div></div>`;
+  <div class="preview-device" id="template-preview" style="view-transition-name:invitation-preview"></div></div>`;
   const {renderInvitation} = await import('./invitation.js');
   const examples = {
     general:['أمسية صيفية','A summer evening'],ramadan:['أمسية رمضانية','A Ramadan evening'],
@@ -124,6 +125,11 @@ async function preview(template) {
     title:t(...example),message:t('يسعدنا تشاركونا هاللحظة.','We would love to share this moment with you.'),
     startAt:new Date(Date.now()+86400000*10+3723000).toISOString(),timeZone:'Asia/Baghdad',place:t('قاعة الورد','Rose Hall'),
   },{preview:true,lang});
+  if(transitionCover)app.querySelector('#template-preview').append(transitionCover);
+  // Release the temporary cover only after the real preview font is decoded.
+  await document.fonts.ready;
+  app.querySelector('#template-preview .inv-card')?.setAttribute('id','preview-ready');
+  document.dispatchEvent(new Event('waraq:preview-ready'));
 }
 async function boot() {
   if (page === 'i') {
@@ -176,7 +182,7 @@ const booted=boot().catch(error=>{
   console.error(error);
   app.innerHTML = `<div class="wrap studio-content" role="alert"><h1>${t('تعذّر تحميل الصفحة','Could not load page')}</h1><button class="studio-button" type="button">${t('أعد المحاولة','Try again')}</button></div>`;
   app.querySelector('button').onclick=()=>location.reload();
-}).finally(()=>app.setAttribute('aria-busy','false'));
+}).finally(()=>{app.setAttribute('aria-busy','false');document.dispatchEvent(new Event('waraq:page-ready'));});
 // A template must be ready for the incoming shared-element snapshot. Other
 // routes keep their existing immediate loading shell and asynchronous boot.
 if(page==='templates')await booted;

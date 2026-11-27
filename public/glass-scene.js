@@ -3,13 +3,13 @@ import {glassOptions,glassFrame,glassCapability,createMotionClock} from './glass
 export async function mountGlassScene(host,input={}){
  let options=glassOptions(input),disposed=false,frame=0,three,resources,visible=true,userPaused=false,finished=false,samples=0,totalCost=0;
  const reduced=matchMedia('(prefers-reduced-motion: reduce)'),abort=new AbortController(),{signal}=abort;
- const clock=createMotionClock();let generation=0,pointer={x:0,y:0},scroll=0,previous=0,frameTimes=[],quality='high';
+ const clock=createMotionClock();let generation=0,pointer={x:0,y:0},targetPointer={x:0,y:0},scroll=0,targetScroll=0,previous=0,lastTick=0,manualSeek=false,frameTimes=[],quality='high';
  const canvas=host.querySelector('canvas'),copy=host.querySelector('.glass-copy');
  const status=host.querySelector('[data-glass-status]');
  function state(value){host.dataset.renderer=value;if(status)status.textContent=value==='webgl'?(document.documentElement.lang==='ar'?'زجاج ثلاثي الأبعاد':'Refractive glass'):(document.documentElement.lang==='ar'?'عرض هادئ وخفيف':'Quiet, lightweight view');}
  function drawAt(time,force=false){
   const f=glassFrame(time,options,reduced.matches||options.motion===0);host.dataset.holding=String(f.holding);
-  const interactive=input.interactive&&!userPaused&&!reduced.matches&&options.motion>0;
+  const interactive=input.interactive&&!manualSeek&&!reduced.matches&&options.motion>0;
   if(interactive){const time=clock.time();f.rotation+=Math.sin(time*.25)*.035+pointer.x*.045+scroll*.1;f.drift=Math.max(-options.drift,Math.min(options.drift,f.drift+pointer.y*.02));f.cameraX+=pointer.x*.12;f.formRotation+=scroll*.2;}
   const pose=[f.rotation,f.drift,f.cameraX,f.formRotation,f.reveal].join('|');
   if(resources&&!force&&resources.pose===pose)return f;
@@ -24,6 +24,8 @@ export async function mountGlassScene(host,input={}){
  function cancel(){cancelAnimationFrame(frame);frame=0;}
  function loop(timestamp){
   frame=0;if(disposed||!resources||!visible||document.hidden||userPaused||reduced.matches||options.motion===0)return;
+  const delta=lastTick?Math.min(.05,(timestamp-lastTick)/1000):1/60;lastTick=timestamp;
+  const follow=1-Math.exp(-delta*10);pointer.x+=(targetPointer.x-pointer.x)*follow;pointer.y+=(targetPointer.y-pointer.y)*follow;scroll+=(targetScroll-scroll)*follow;
   const time=Math.min(options.duration,Math.floor(clock.time()*options.fps)/options.fps),start=performance.now();
   if(time!==resources.lastTime||input.interactive){const renders=resources.renders;drawAt(time);resources.lastTime=time;if(++samples<=25)totalCost+=performance.now()-start;
    if(resources.renders!==renders){if(previous&&timestamp-previous<1000){frameTimes.push(timestamp-previous);if(frameTimes.length>120)frameTimes.shift();}previous=timestamp;}
@@ -33,7 +35,7 @@ export async function mountGlassScene(host,input={}){
   if(time>=options.duration&&!input.interactive){finished=true;clock.pause();return;}frame=requestAnimationFrame(loop);
  }
  function resume(){if(!userPaused&&!finished&&visible&&!document.hidden){clock.play();if(resources&&!frame&&!reduced.matches)frame=requestAnimationFrame(loop);}}
- function pause(){clock.pause();previous=0;cancel();}
+ function pause(){clock.pause();previous=0;lastTick=0;cancel();}
  function release(){
   cancel();if(!resources)return;const r=resources;resources=null;
   r.scene.traverse(object=>{object.geometry?.dispose();for(const material of [].concat(object.material||[]))material.dispose();});
@@ -52,7 +54,7 @@ export async function mountGlassScene(host,input={}){
   try{
    three??=await import('./vendor/three/three.module.min.js');if(disposed||ticket!==generation)return;
    const T=three,renderer=new T.WebGLRenderer({canvas,context,alpha:false,antialias:true,powerPreference:'low-power'});
-   quality=options.quality==='low'?'low':'high';renderer.setPixelRatio(quality==='low'?.75:Math.min(devicePixelRatio||1,1.5));renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.outputColorSpace=T.SRGBColorSpace;
+   quality=options.quality==='low'?'low':'high';const pixelCap=host.clientWidth<600?1:1.5;renderer.setPixelRatio(quality==='low'?.75:Math.min(devicePixelRatio||1,pixelCap));renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.outputColorSpace=T.SRGBColorSpace;
    const scene=new T.Scene();pending={renderer,scene};scene.background=new T.Color(options.palette.deep);
    const camera=new T.PerspectiveCamera(options.fov,1,.1,60);camera.position.z=9;
    // A procedural lit room supplies real PBR reflections, without remote HDR files.
@@ -84,9 +86,9 @@ export async function mountGlassScene(host,input={}){
  }
  function visibility(){if(document.hidden||!visible)pause();else resume();}
  document.addEventListener('visibilitychange',visibility,{signal});
- host.addEventListener('pointermove',event=>{if(event.pointerType==='touch')return;const rect=host.getBoundingClientRect();pointer={x:(event.clientX-rect.left)/rect.width-.5,y:(event.clientY-rect.top)/rect.height-.5};},{signal,passive:true});
- host.addEventListener('pointerleave',()=>{pointer={x:0,y:0};},{signal});
- const onScroll=()=>{scroll=Math.max(0,Math.min(1,-host.getBoundingClientRect().top/innerHeight));};
+ host.addEventListener('pointermove',event=>{if(event.pointerType==='touch')return;const rect=host.getBoundingClientRect();targetPointer={x:(event.clientX-rect.left)/rect.width-.5,y:(event.clientY-rect.top)/rect.height-.5};},{signal,passive:true});
+ host.addEventListener('pointerleave',()=>{targetPointer={x:0,y:0};},{signal});
+ const onScroll=()=>{targetScroll=Math.max(0,Math.min(1,-host.getBoundingClientRect().top/innerHeight));};
  if(input.interactive)addEventListener('scroll',onScroll,{signal,passive:true});
  reduced.addEventListener('change',()=>{pause();initialize();},{signal});
  canvas?.addEventListener('webglcontextlost',event=>{event.preventDefault();pause();release();state('light');drawAt(options.duration);},{signal});
@@ -96,10 +98,10 @@ export async function mountGlassScene(host,input={}){
  applyPalette();await initialize();
  return {
   get options(){return options;},get time(){return Math.min(clock.time(),options.duration);},
-  inspect(){if(!resources)return {renderer:host.dataset.renderer};const {slab,renderer}=resources;slab.geometry.computeBoundingBox();return {renderer:'webgl',engine:three.REVISION,material:slab.material.type,transmission:slab.material.transmission,ior:slab.material.ior,thickness:slab.material.thickness,roughness:slab.material.roughness,clearcoat:slab.material.clearcoat,bounds:slab.geometry.boundingBox.getSize(new three.Vector3()).toArray(),calls:renderer.info.render.calls,renders:resources.renders,quality,fps:frameTimes.length?1000/(frameTimes.reduce((a,b)=>a+b,0)/frameTimes.length):null,frameSamples:frameTimes.length};},
-  replay(){finished=false;userPaused=false;clock.seek(0);drawAt(reduced.matches||!resources?options.duration:0);resume();},
-  pause(){userPaused=true;pause();},play(){userPaused=false;resume();},
-  seek(seconds){pause();userPaused=true;clock.seek(Math.min(options.duration,Math.max(0,seconds)));drawAt(clock.time());},
+  inspect(){if(!resources)return {renderer:host.dataset.renderer};const {slab,renderer}=resources;slab.geometry.computeBoundingBox();return {renderer:'webgl',engine:three.REVISION,material:slab.material.type,transmission:slab.material.transmission,ior:slab.material.ior,thickness:slab.material.thickness,roughness:slab.material.roughness,clearcoat:slab.material.clearcoat,bounds:slab.geometry.boundingBox.getSize(new three.Vector3()).toArray(),calls:renderer.info.render.calls,renders:resources.renders,quality,pixelRatio:renderer.getPixelRatio(),fps:clock.running&&!userPaused&&visible&&!document.hidden&&!finished&&options.motion>0&&frameTimes.length?1000/(frameTimes.reduce((a,b)=>a+b,0)/frameTimes.length):null,frameSamples:frameTimes.length};},
+  replay(){finished=false;userPaused=false;manualSeek=false;clock.seek(0);drawAt(reduced.matches||!resources?options.duration:0);resume();},
+  pause(){userPaused=true;pause();},play(){userPaused=false;manualSeek=false;resume();},
+  seek(seconds){pause();userPaused=true;manualSeek=true;clock.seek(Math.min(options.duration,Math.max(0,seconds)));drawAt(clock.time());},
   async update(next){options=glassOptions({...options,...next,palette:{...options.palette,...next.palette}});applyPalette();pause();await initialize();},
   dispose(){disposed=true;generation++;abort.abort();observer.disconnect();sizeObserver.disconnect();release();}
  };
