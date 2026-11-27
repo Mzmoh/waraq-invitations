@@ -3,12 +3,14 @@ import {glassOptions,glassFrame,glassCapability,createMotionClock} from './glass
 export async function mountGlassScene(host,input={}){
  let options=glassOptions(input),disposed=false,frame=0,three,resources,visible=true,userPaused=false,finished=false,samples=0,totalCost=0;
  const reduced=matchMedia('(prefers-reduced-motion: reduce)'),abort=new AbortController(),{signal}=abort;
- const clock=createMotionClock();let generation=0;
+ const clock=createMotionClock();let generation=0,pointer={x:0,y:0},scroll=0,previous=0,frameTimes=[],quality='high';
  const canvas=host.querySelector('canvas'),copy=host.querySelector('.glass-copy');
  const status=host.querySelector('[data-glass-status]');
  function state(value){host.dataset.renderer=value;if(status)status.textContent=value==='webgl'?(document.documentElement.lang==='ar'?'زجاج ثلاثي الأبعاد':'Refractive glass'):(document.documentElement.lang==='ar'?'عرض هادئ وخفيف':'Quiet, lightweight view');}
  function drawAt(time,force=false){
   const f=glassFrame(time,options,reduced.matches||options.motion===0);host.dataset.holding=String(f.holding);
+  const interactive=input.interactive&&!userPaused&&!reduced.matches&&options.motion>0;
+  if(interactive){const time=clock.time();f.rotation+=Math.sin(time*.25)*.035+pointer.x*.045+scroll*.1;f.drift=Math.max(-options.drift,Math.min(options.drift,f.drift+pointer.y*.02));f.cameraX+=pointer.x*.12;f.formRotation+=scroll*.2;}
   const pose=[f.rotation,f.drift,f.cameraX,f.formRotation,f.reveal].join('|');
   if(resources&&!force&&resources.pose===pose)return f;
   copy?.style.setProperty('--glass-reveal',f.reveal);
@@ -20,15 +22,18 @@ export async function mountGlassScene(host,input={}){
   }return f;
  }
  function cancel(){cancelAnimationFrame(frame);frame=0;}
- function loop(){
+ function loop(timestamp){
   frame=0;if(disposed||!resources||!visible||document.hidden||userPaused||reduced.matches||options.motion===0)return;
   const time=Math.min(options.duration,Math.floor(clock.time()*options.fps)/options.fps),start=performance.now();
-  if(time!==resources.lastTime){drawAt(time);resources.lastTime=time;if(++samples<=25)totalCost+=performance.now()-start;}
-  if(samples===25&&totalCost/samples>45){release();state('light');drawAt(options.duration);return;}
-  if(time>=options.duration){finished=true;clock.pause();return;}frame=requestAnimationFrame(loop);
+  if(time!==resources.lastTime||input.interactive){const renders=resources.renders;drawAt(time);resources.lastTime=time;if(++samples<=25)totalCost+=performance.now()-start;
+   if(resources.renders!==renders){if(previous&&timestamp-previous<1000){frameTimes.push(timestamp-previous);if(frameTimes.length>120)frameTimes.shift();}previous=timestamp;}
+  }
+  if(samples===25&&totalCost/samples>45&&quality==='high'){resources.renderer.setPixelRatio(.75);resources.width=0;quality='low';samples=0;totalCost=0;resize();}
+  else if(samples===25&&totalCost/samples>80){release();state('light');drawAt(options.duration);return;}
+  if(time>=options.duration&&!input.interactive){finished=true;clock.pause();return;}frame=requestAnimationFrame(loop);
  }
  function resume(){if(!userPaused&&!finished&&visible&&!document.hidden){clock.play();if(resources&&!frame&&!reduced.matches)frame=requestAnimationFrame(loop);}}
- function pause(){clock.pause();cancel();}
+ function pause(){clock.pause();previous=0;cancel();}
  function release(){
   cancel();if(!resources)return;const r=resources;resources=null;
   r.scene.traverse(object=>{object.geometry?.dispose();for(const material of [].concat(object.material||[]))material.dispose();});
@@ -39,7 +44,7 @@ export async function mountGlassScene(host,input={}){
  }
  async function initialize(){
   const ticket=++generation;release();finished=false;samples=0;totalCost=0;
-  let capability=glassCapability({reduced:reduced.matches,saveData:navigator.connection?.saveData,memory:navigator.deviceMemory,cores:navigator.hardwareConcurrency,mode:input.mode||'auto'});
+  let capability=glassCapability({reduced:reduced.matches,saveData:navigator.connection?.saveData,memory:navigator.deviceMemory,cores:navigator.hardwareConcurrency,mode:options.mode||'auto'});
   state(capability==='webgl'?'loading':capability);drawAt(options.duration);if(capability!=='webgl')return;
   let context;try{context=canvas.getContext('webgl2',{alpha:false,antialias:true,powerPreference:'low-power'});}catch{state('light');return;}
   if(!context||context.isContextLost()){state('light');return;}
@@ -47,7 +52,7 @@ export async function mountGlassScene(host,input={}){
   try{
    three??=await import('./vendor/three/three.module.min.js');if(disposed||ticket!==generation)return;
    const T=three,renderer=new T.WebGLRenderer({canvas,context,alpha:false,antialias:true,powerPreference:'low-power'});
-   renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.outputColorSpace=T.SRGBColorSpace;
+   quality=options.quality==='low'?'low':'high';renderer.setPixelRatio(quality==='low'?.75:Math.min(devicePixelRatio||1,1.5));renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.outputColorSpace=T.SRGBColorSpace;
    const scene=new T.Scene();pending={renderer,scene};scene.background=new T.Color(options.palette.deep);
    const camera=new T.PerspectiveCamera(options.fov,1,.1,60);camera.position.z=9;
    // A procedural lit room supplies real PBR reflections, without remote HDR files.
@@ -57,7 +62,8 @@ export async function mountGlassScene(host,input={}){
     const light=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({color}));light.position.set(x,y,z);light.lookAt(0,0,0);room.add(light);
    }
    const pmrem=new T.PMREMGenerator(renderer),environment=pmrem.fromScene(room,.08);pending.environment=environment;scene.environment=environment.texture;pmrem.dispose();room.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});
-   scene.add(new T.HemisphereLight(0xfff5f1,0x221b49,2));const key=new T.DirectionalLight(0xffffff,4);key.position.set(-3,5,7);scene.add(key);
+   const intensity=Number.isFinite(options.light)?Math.max(0,Math.min(3,options.light)):1;
+   scene.add(new T.HemisphereLight(0xfff5f1,0x221b49,2*intensity));const key=new T.DirectionalLight(0xffffff,4*intensity);key.position.set(-3,5,7);scene.add(key);
    // Extrude a rounded 2D outline: RoundedBoxGeometry clamps radius to depth/2,
    // which cannot express the requested .35 corner on a .24-deep glass slab.
    const bevel=.035,w=options.width-2*bevel,h=options.height-2*bevel,r=Math.min(options.radius-bevel,w/2,h/2),shape=new T.Shape();
@@ -78,6 +84,10 @@ export async function mountGlassScene(host,input={}){
  }
  function visibility(){if(document.hidden||!visible)pause();else resume();}
  document.addEventListener('visibilitychange',visibility,{signal});
+ host.addEventListener('pointermove',event=>{if(event.pointerType==='touch')return;const rect=host.getBoundingClientRect();pointer={x:(event.clientX-rect.left)/rect.width-.5,y:(event.clientY-rect.top)/rect.height-.5};},{signal,passive:true});
+ host.addEventListener('pointerleave',()=>{pointer={x:0,y:0};},{signal});
+ const onScroll=()=>{scroll=Math.max(0,Math.min(1,-host.getBoundingClientRect().top/innerHeight));};
+ if(input.interactive)addEventListener('scroll',onScroll,{signal,passive:true});
  reduced.addEventListener('change',()=>{pause();initialize();},{signal});
  canvas?.addEventListener('webglcontextlost',event=>{event.preventDefault();pause();release();state('light');drawAt(options.duration);},{signal});
  const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;visibility();},{threshold:.05});observer.observe(host);
@@ -86,7 +96,7 @@ export async function mountGlassScene(host,input={}){
  applyPalette();await initialize();
  return {
   get options(){return options;},get time(){return Math.min(clock.time(),options.duration);},
-  inspect(){if(!resources)return {renderer:host.dataset.renderer};const {slab,renderer}=resources;slab.geometry.computeBoundingBox();return {renderer:'webgl',engine:three.REVISION,material:slab.material.type,transmission:slab.material.transmission,ior:slab.material.ior,thickness:slab.material.thickness,roughness:slab.material.roughness,clearcoat:slab.material.clearcoat,bounds:slab.geometry.boundingBox.getSize(new three.Vector3()).toArray(),calls:renderer.info.render.calls,renders:resources.renders};},
+  inspect(){if(!resources)return {renderer:host.dataset.renderer};const {slab,renderer}=resources;slab.geometry.computeBoundingBox();return {renderer:'webgl',engine:three.REVISION,material:slab.material.type,transmission:slab.material.transmission,ior:slab.material.ior,thickness:slab.material.thickness,roughness:slab.material.roughness,clearcoat:slab.material.clearcoat,bounds:slab.geometry.boundingBox.getSize(new three.Vector3()).toArray(),calls:renderer.info.render.calls,renders:resources.renders,quality,fps:frameTimes.length?1000/(frameTimes.reduce((a,b)=>a+b,0)/frameTimes.length):null,frameSamples:frameTimes.length};},
   replay(){finished=false;userPaused=false;clock.seek(0);drawAt(reduced.matches||!resources?options.duration:0);resume();},
   pause(){userPaused=true;pause();},play(){userPaused=false;resume();},
   seek(seconds){pause();userPaused=true;clock.seek(Math.min(options.duration,Math.max(0,seconds)));drawAt(clock.time());},

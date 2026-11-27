@@ -64,7 +64,7 @@ function occasionTiles(eager=false) {
 }
 function cards(list,eagerCount=0) {
   return list.map((template,index) => `<article class="template-tile"><a href="/templates/${template.id}">
-    <div class="template-art"><img src="${template.thumbnail}" width="360" height="260" alt="" loading="${index<eagerCount?'eager':'lazy'}" decoding="async"></div>
+    <div class="template-art" style="view-transition-name:template-${template.id}"><img src="${template.thumbnail}" width="360" height="260" alt="" loading="${index<eagerCount?'eager':'lazy'}" decoding="async"></div>
     <div class="template-caption"><h3>${title(template)}</h3><span>${t('معاينة حية','Live preview')}</span></div>
   </a></article>`).join('');
 }
@@ -112,7 +112,7 @@ async function preview(template) {
   app.innerHTML = `<div class="wrap studio-content studio-preview"><div><a class="crumb" href="/occasions/${category[0]}">${ctitle(category)}</a>
   <h1>${title(template)}</h1><p class="studio-lead">${t('جرّب الفتح والتمرير كما يراهما ضيوفك.','Try opening and scrolling through the invitation as a guest.')}</p>
   <a class="studio-button" href="/create/${template.id}">${t('استخدم هذا القالب','Use this template')}</a></div>
-  <div class="preview-device" id="template-preview"></div></div>`;
+  <div class="preview-device" id="template-preview" style="view-transition-name:template-${template.id}"></div></div>`;
   const {renderInvitation} = await import('./invitation.js');
   const examples = {
     general:['أمسية صيفية','A summer evening'],ramadan:['أمسية رمضانية','A Ramadan evening'],
@@ -172,9 +172,12 @@ async function boot() {
   }
   return missing();
 }
-boot().catch(error=>{
+const booted=boot().catch(error=>{
   console.error(error);
   app.innerHTML = `<div class="wrap studio-content" role="alert"><h1>${t('تعذّر تحميل الصفحة','Could not load page')}</h1><button class="studio-button" type="button">${t('أعد المحاولة','Try again')}</button></div>`;
   app.querySelector('button').onclick=()=>location.reload();
 }).finally(()=>app.setAttribute('aria-busy','false'));
+// A template must be ready for the incoming shared-element snapshot. Other
+// routes keep their existing immediate loading shell and asynchronous boot.
+if(page==='templates')await booted;
 

@@ -1,0 +1,25 @@
+{
+  "method": "read-only current recovery, no candidate deployed, one warm-up excluded",
+  "rows": [
+    {
+      "status": 200,
+      "ms": 252.59100000000012
+    },
+    {
+      "status": 200,
+      "ms": 266.15700000000015
+    },
+    {
+      "status": 200,
+      "ms": 248.5163
+    },
+    {
+      "status": 200,
+      "ms": 250.3771999999999
+    },
+    {
+      "status": 200,
+      "ms": 253.14570000000003
+    }
+  ]
+}

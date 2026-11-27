@@ -1,5 +1,7 @@
 # WARAQ — Luxury Cinematic Glass
 
+Historical implementation notes. The current recovery-based cinematic-kit checkpoint, test evidence and local studio are documented in [DESIGN_PROGRESS.md](DESIGN_PROGRESS.md). Hosting statements below describe their original checkpoint, not the current recovered deployment.
+
 Development branch: engineering/20261124-cinematic-glass. No main merge or deployment.
 
 ## Delivered interface
