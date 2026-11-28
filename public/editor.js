@@ -20,7 +20,7 @@ async function api(path,method='GET',body) {
     body:body ? JSON.stringify(body) : undefined
   });
   const result = await response.json();
-  if (!response.ok) throw Object.assign(Error(result.message || result.error || String(response.status)),{status:response.status,code:result.code});
+  if (!response.ok) throw Object.assign(Error(result.error?.message || result.message || result.error || String(response.status)),{status:response.status,code:result.error?.code||result.code});
   return result;
 }
 const choices = {
@@ -28,7 +28,7 @@ const choices = {
   eid:[['دعوة تجمع','Family gathering'],['معايدة','Greeting']],
   hajj:[['استقبال الحجاج','Welcome home'],['تهنئة','Congratulations']]
 };
-export async function renderEditor(root,template,initialId) {
+export async function renderEditor(root,template,initialId,{rentals=false}={}) {
   if (!document.querySelector('link[href="/editor.css"]')) document.head.append(node('link',{rel:'stylesheet',href:'/editor.css'}));
   const en = document.documentElement.lang.startsWith('en');
   const t=(ar,english)=>en?english:ar;
@@ -45,11 +45,16 @@ export async function renderEditor(root,template,initialId) {
     if (id && !user) {location.assign('/auth?next='+encodeURIComponent(location.pathname+location.search)); return}
     if (id) {
       record=(await api('/invitations/'+encodeURIComponent(id))).invitation;
+      rentals=record.rentals??rentals;
       if(record.templateId!==template.id) {
         location.replace('/create/'+encodeURIComponent(record.templateId)+'?id='+encodeURIComponent(id));return;
       }
     } else { try {pending=await localDraft(localKey)} catch {} }
   } catch(error) {announce(t('تعذّر فتح المحرر. ','Unable to open editor. ')+error.message,true);return}
+  if(record?.rental?.state==='pending'||(record?.rentalUntil&&record.status==='published'&&new Date(record.rentalUntil)>new Date())){
+    announce(t('توقّف التعديل أثناء المراجعة أو الإيجار.','Editing is paused during review or rental.'));
+    rootPanel.append(node('a',{href:'/dashboard/invitations/'+encodeURIComponent(id),textContent:t('العودة إلى الدعوة','Back to invitation')}));return;
+  }
   const data=Object.assign({title:'',hosts:'',message:'',language:en?'en':'ar',timeZone:'Asia/Baghdad',
     startAt:'',showCountdown:true,showHijri:false,sections:Object.keys(sectionLabels),font:'serif',images:[],schedule:[],customFields:[]},(record || pending)?.data);
   const settings=Object.assign({privacy:'unlisted',rsvpEnabled:true,maxGuests:4},(record || pending)?.settings);
@@ -59,7 +64,7 @@ export async function renderEditor(root,template,initialId) {
   let previousSnapshot;
   let pinStored=Boolean(record?.settings?.hasPin || record?.settings?.privacy==='pin');
   let serverVersion=record?.updatedAt, conflict=false;
-  const isPublished = record?.status==='published';
+  const isPublished = record?.status==='published'&&(!rentals||!record.rentalUntil||new Date(record.rentalUntil)>new Date());
   const mobileTabs=node('nav',{className:'ed-mobiles'});
   mobileTabs.setAttribute('aria-label',t('أوضاع المحرر','Editor views'));
   const setView = mode=>{rootPanel.dataset.view=mode;for(const b of mobileTabs.children)b.setAttribute('aria-pressed',String(b.dataset.mode===mode))};
@@ -309,7 +314,7 @@ export async function renderEditor(root,template,initialId) {
     fields.append(field('rsvpEnabled','السماح بتأكيد الحضور','Accept guest responses','checkbox',{target:settings,after:draw}));
     if(settings.rsvpEnabled)fields.append(field('maxGuests','الحد الأقصى لكل رد','Maximum guests per response','number',{target:settings,attrs:{min:1,max:30}}));
     fields.append(field('rsvpUrl','رابط تأكيد حضور إضافي (اختياري)','Additional RSVP link (optional)','url'),
-      info(user?t('بعد النشر يصبح رابط الدعوة متاحًا للضيوف.','Publishing makes the invitation link available to guests.'):
+      info(rentals?t('هذه معاينة خاصة. يصبح رابط الضيوف متاحًا بعد إرسال الطلب وموافقة الإدارة.','This is a private preview. The guest link opens after your request is approved.'):user?t('بعد النشر يصبح رابط الدعوة متاحًا للضيوف.','Publishing makes the invitation link available to guests.'):
       t('تُحفظ المسودة على هذا الجهاز. سجّل الدخول عند النشر للحصول على رابط الضيوف.','This draft stays on your device. Sign in to publish a guest link.')));
   }
   function validate() {
@@ -335,6 +340,7 @@ export async function renderEditor(root,template,initialId) {
       }
       await save();
       if(publish){
+        if(rentals){blocked=true;location.assign('/dashboard/invitations/'+encodeURIComponent(id)+'#rental-request');return;}
         const result=await api('/invitations/'+encodeURIComponent(id)+'/publish','POST',{});
         blocked=true;
         location.assign('/dashboard/invitations/'+encodeURIComponent(result.invitation.id));
@@ -366,7 +372,7 @@ export async function renderEditor(root,template,initialId) {
     }
     if(!isPublished)actions.append(button(t('حفظ المسودة','Save draft'),()=>submit(false)));
     if(step<3)actions.append(button(t('التالي','Continue'),()=>{step++;draw();formTitle.scrollIntoView({block:'nearest'})},'ed-primary'));
-    else actions.append(button(isPublished?t('نشر التغييرات','Publish changes'):t('نشر الدعوة','Publish invitation'),()=>submit(true),'ed-primary'));
+    else actions.append(button(rentals?t('متابعة إلى طلب الإيجار','Continue to rental request'):isPublished?t('نشر التغييرات','Publish changes'):t('نشر الدعوة','Publish invitation'),()=>submit(true),'ed-primary'));
   }
   const leave=()=>{
     clearTimeout(previewTimer);clearTimeout(saveTimer);cleanup();

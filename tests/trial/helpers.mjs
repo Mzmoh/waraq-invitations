@@ -3,7 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {dirname,resolve} from 'node:path';
 import {templates} from '../../public/templates/index.js';
-export async function trialDatabase({performanceMigration=true}={}){
+export async function trialDatabase({performanceMigration=true,rentalMigration=false}={}){
  const require=createRequire(import.meta.url);
  const pkg=process.env.PGLITE_MODULE||'@electric-sql/pglite';
  const {PGlite}=require(pkg);
@@ -16,6 +16,7 @@ export async function trialDatabase({performanceMigration=true}={}){
  if(performanceMigration)await pg.exec(await readFile(new URL('../../supabase/migrations/0004_performance.sql',import.meta.url),'utf8'));
  await pg.exec(await readFile(new URL('../../supabase/migrations/0005_responsive_media.sql',import.meta.url),'utf8'));
  await pg.exec(await readFile(new URL('../../supabase/migrations/0006_report_pagination.sql',import.meta.url),'utf8'));
+ if(rentalMigration)await pg.exec(await readFile(new URL('../../supabase/migrations/0007_rentals.sql',import.meta.url),'utf8'));
  await pg.query('SET search_path=waraq_private,pg_catalog');
  for(const c of new Set(templates.map(t=>t.category)))await pg.query('INSERT INTO categories VALUES($1,1)',[c]);
  for(const t of templates)await pg.query('INSERT INTO templates VALUES($1,$2,1)',[t.id,t.category]);

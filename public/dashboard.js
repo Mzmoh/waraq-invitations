@@ -1,4 +1,5 @@
 import {delayedSkeleton,optimisticChange} from './async-ui.js';
+import {withDesign,renderSocial} from './rental-template.js';
 import { templates } from './templates/index.js';
 
 const lang = () => document.documentElement.lang.startsWith('en') ? 'en' : 'ar';
@@ -87,8 +88,8 @@ async function api(path,method='GET',body) {
     FORBIDDEN:'Administrator access required.', AUTH_REQUIRED:'Sign in to continue.',
     RATE_LIMIT:'Too many requests. Please try again later.', SERVER_ERROR:'The server could not complete your request.'
   };
-  const englishError=lang()==='en' ? errorMessages[value.code] : '';
-  if(!response.ok) throw Object.assign(new Error(englishError||value.error||t('تعذّر تنفيذ الطلب. حاول مجددًا.','Request failed. Please try again.')),{status:response.status});
+  const englishError=lang()==='en' ? errorMessages[value.error?.code||value.code] : '';
+  if(!response.ok) throw Object.assign(new Error(englishError||value.error?.message||(typeof value.error==='string'?value.error:'')||t('تعذّر تنفيذ الطلب. حاول مجددًا.','Request failed. Please try again.')),{status:response.status});
   return value;
 }
 function act(text,action,out,cls) {
@@ -102,6 +103,7 @@ function act(text,action,out,cls) {
   },cls);
 }
 function guestState(invitation) {
+  if(invitation.rentalUntil&&!invitation.linkActive&&new Date(invitation.rentalUntil)<=new Date())return el('span','db-state',t('منتهية','Expired'));
   return el('span','db-state db-'+invitation.status,statusName(invitation.status));
 }
 function nextDestination() {
@@ -261,8 +263,12 @@ function repliesPanel(responses,summary) {
     responses.length?rows:el('p','db-sub',t('تظهر ردود ضيوفك هنا بعد إرسالها.','Guest replies will appear here as they arrive.')));
 }
 async function displayDetail(root,page,inv,responses,replyState={}) {
-  const out=message(), design=template(inv.templateId);
-  const url=guestLink(inv), live=inv.status==='published', shareable=live && inv.linkActive!==false;
+  const out=message(), design=withDesign(template(inv.custom?.base??inv.templateId),inv.custom);
+  const live=inv.status==='published', shareable=live && inv.linkActive!==false;
+  const url=shareable?guestLink(inv):null;
+  const pending=inv.rental?.state==='pending';
+  const expired=live&&inv.rentalUntil&&new Date(inv.rentalUntil)<=new Date();
+  const canEdit=!pending&&!(inv.rentalUntil&&!expired&&live);
   const top=box('db-top',heading(title(inv),templateName(design)),guestState(inv));
   const edit=link(t('تعديل الدعوة والخصوصية','Edit invitation and privacy'),editPath(inv),'db-btn db-primary');
   const changing=act(live?t('أرشفة وإيقاف الرابط','Archive and disable link'):t('نشر الدعوة','Publish invitation'),async()=>{
@@ -271,9 +277,35 @@ async function displayDetail(root,page,inv,responses,replyState={}) {
     await renderDashboard(root,inv.id);
   },out);
   const manage=panel(el('h2','',t('إعدادات الدعوة','Invitation settings')),
-    line(t('حالة الرابط','Link status'),shareable?t('متاح للضيوف','Open to guests'):live?t('القالب موقوف من إدارة المنصة','Template disabled by an administrator'):t('متوقف','Inactive')),
-    line(t('الخصوصية','Privacy'),inv.settings?.privacy==='pin'?t('رمز دخول','PIN protected'):inv.settings?.privacy==='public'?t('عامة','Public'):t('غير مدرجة','Unlisted')),line(t('آخر تحديث','Last update'),prettyDate(inv.updatedAt)),box('db-actions',edit,changing));
+    line(t('حالة الرابط','Link status'),pending?t('بانتظار الموافقة','Awaiting approval'):expired?t('انتهت مدة الإيجار','Rental ended'):shareable?t('متاح للضيوف','Open to guests'):live?t('القالب موقوف من إدارة المنصة','Template disabled by an administrator'):t('متوقف','Inactive')),
+    line(t('الخصوصية','Privacy'),inv.settings?.privacy==='pin'?t('رمز دخول','PIN protected'):inv.settings?.privacy==='public'?t('عامة','Public'):t('غير مدرجة','Unlisted')),line(t('آخر تحديث','Last update'),prettyDate(inv.updatedAt)),box('db-actions',...(canEdit?[edit]:[]),...(!inv.rentals||(live&&!expired&&!pending)?[changing]:[])));
+  if(inv.rentalUntil)manage.append(line(t('نهاية الإيجار بتوقيت جهازك','Rental ends in your device time zone'),new Intl.DateTimeFormat(lang(),{dateStyle:'medium',timeStyle:'short'}).format(new Date(inv.rentalUntil))));
   page.replaceChildren(link(t('العودة إلى دعواتي','Back to my invitations'),'/dashboard','db-text-btn'),top,out,manage);
+  if(inv.rentals){
+    const request=panel(el('h2','',t('طلب الإيجار','Rental request')));
+    request.id='rental-request';
+    const last=inv.rental;
+    if(last){
+      request.append(line(t('الحالة','Status'),{pending:t('بانتظار المراجعة','Awaiting review'),approved:t('تمت الموافقة','Approved'),rejected:t('لم يُقبل الطلب','Declined')}[last.state]),line(t('الأيام المطلوبة','Requested days'),n(last.days)));
+      if(last.note)request.append(el('p','db-sub',last.note));
+    }
+    if(!pending&&(!live||expired)){
+      const form=el('form','db-rental-form');
+      const days=el('input','db-input');Object.assign(days,{type:'number',min:1,max:365,required:true,value:7});
+      const note=el('textarea','db-input');note.maxLength=1000;note.rows=3;
+      const send=el('button','db-btn db-primary',t('إرسال طلب الإيجار','Send rental request'));
+      const feedback=message();
+      form.append(el('p','db-sub',t('تبدأ المدة عند الموافقة. كل يوم يعادل 24 ساعة.','Your term starts on approval. Each day is 24 hours.')),labeled(t('مدة الإيجار بالأيام','Rental days'),days),labeled(t('ملاحظة للإدارة (اختياري)','Note for the administrator (optional)'),note),send,feedback);
+      form.onsubmit=async event=>{
+        event.preventDefault();send.disabled=true;feedback.textContent='';
+        try{await api('/invitations/'+encodeURIComponent(inv.id)+'/rent','POST',{days:days.valueAsNumber,note:note.value,expectedUpdatedAt:inv.updatedAt});await renderDashboard(root,inv.id);}
+        catch(error){feedback.textContent=error.message;send.disabled=false;}
+      };
+      request.append(form);
+    }
+    page.append(request);
+    if(location.hash==='#rental-request'){request.tabIndex=-1;request.focus();}
+  }
   if(shareable) {
     const shareOut=message(), q=el('div','db-qr');
     const {showQR,downloadShareCard}=await import('./invitation-share.js');
@@ -318,6 +350,10 @@ export async function renderAdmin(root) {
   const page=start(root);
   try {
     const state=await api('/admin');
+    if(state.rentals&&new URLSearchParams(location.search).get('section')!=='moderation'){
+      const {renderSuperAdmin}=await import('./super-admin.js');
+      return await renderSuperAdmin(page,{state,api,t,templates});
+    }
     const out=message();
     const headingBar=box('db-top',heading(t('إدارة المنصة','Administration')),link(t('دعواتي','My invitations'),'/dashboard'));
     const tabs=box('db-filters'), content=el('div','db-admin-items');
@@ -348,7 +384,7 @@ export async function renderAdmin(root) {
       const b=button(t(ar,en)+' · '+n(state[key]?.length||0),()=>manage(key),'db-filter');
       b.dataset.section=key;tabs.append(b);
     }
-    page.replaceChildren(headingBar,out,tabs,content);manage('categories');
+    page.replaceChildren(...(state.rentals?[link(t('العودة إلى لوحة الإدارة','Back to platform management'),'/admin')]:[]),headingBar,out,tabs,content);manage('categories');
   } catch(error) {notice(page,error,()=>renderAdmin(root));}
 }
 

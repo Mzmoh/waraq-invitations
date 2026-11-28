@@ -1,4 +1,5 @@
 import {renderCinematicHome} from './home-cinematic.js';
+import {withDesign,renderSocial} from './rental-template.js';
 import { templates } from './templates/catalog.js';
 
 const categories = [
@@ -25,6 +26,8 @@ const mark = icon('M2.5 5.5h19v13h-19z M2.5 5.5l9.5 7.4 9.5-7.4 M7 20.5h10',22);
 const brand = `<a class="brand" href="/" aria-label="${t('وَرَق، الرئيسية','Waraq home')}"><span>${mark}</span><strong>${t('وَرَق','Waraq')}</strong></a>`;
 const ctitle = c => t(c[1],c[2]);
 const title = template => t(template.titleAr,template.titleEn);
+const safe = value=>String(value).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+let custom=[],rentals=false;
 const active = name => page === name ? ' aria-current="page"' : '';
 let gallery = templates;
 let occasions = categories;
@@ -48,9 +51,11 @@ function siteChrome() {
 async function getCatalog() {
   const response = await fetch('/api/catalog');
   if (!response.ok) throw new Error('Catalog unavailable');
-  const {hiddenTemplates = [],hiddenCategories = []} = await response.json();
+  const {hiddenTemplates = [],hiddenCategories = [],custom:designs=[],social,rentals:enabled} = await response.json();
+  custom=designs;rentals=Boolean(enabled);
+  renderSocial(footer.querySelector('.footer-inner'),social);
   occasions = categories.filter(c => !hiddenCategories.includes(c[0]));
-  gallery = templates.filter(template => !hiddenTemplates.includes(template.id) && occasions.some(c=>c[0]===template.category));
+  gallery = [...templates,...custom.map(d=>withDesign(templates.find(x=>x.id===d.base),d)).filter(Boolean)].filter(template => !hiddenTemplates.includes(template.id) && occasions.some(c=>c[0]===template.category));
 }
 
 function occasionTiles(eager=false) {
@@ -65,7 +70,7 @@ function occasionTiles(eager=false) {
 function cards(list,eagerCount=0) {
   return list.map((template,index) => `<article class="template-tile"><a href="/templates/${template.id}">
     <div class="template-art"><img src="${template.thumbnail}" width="360" height="260" alt="" loading="${index<eagerCount?'eager':'lazy'}" decoding="async"></div>
-    <div class="template-caption"><h3>${title(template)}</h3><span>${t('معاينة حية','Live preview')}</span></div>
+    <div class="template-caption"><h3>${safe(title(template))}</h3><span>${t('معاينة حية','Live preview')}</span></div>
   </a></article>`).join('');
 }
 
@@ -114,7 +119,7 @@ async function preview(template) {
   const category = categories.find(c=>c[0]===template.category);
   document.title = `${title(template)} | وَرَق`;
   app.innerHTML = `<div class="wrap studio-content studio-preview"><div><a class="crumb" href="/occasions/${category[0]}">${ctitle(category)}</a>
-  <h1>${title(template)}</h1><p class="studio-lead">${t('جرّب الفتح والتمرير كما يراهما ضيوفك.','Try opening and scrolling through the invitation as a guest.')}</p>
+  <h1>${safe(title(template))}</h1><p class="studio-lead">${t('جرّب الفتح والتمرير كما يراهما ضيوفك.','Try opening and scrolling through the invitation as a guest.')}</p>
   <a class="studio-button" href="/create/${template.id}">${t('استخدم هذا القالب','Use this template')}</a></div>
   <div class="preview-device" id="template-preview" style="view-transition-name:invitation-preview"></div></div>`;
   const examples = {
@@ -142,13 +147,24 @@ async function boot() {
   siteChrome();
   if (page === 'dashboard' || page === 'admin' || page === 'auth' || page === 'login') {
     const {renderDashboard,renderAdmin,renderAuth} = await import('./dashboard.js');
-    if (page === 'dashboard') return renderDashboard(app,page === 'dashboard' && id === 'invitations' ? item : undefined);
+    if (page === 'dashboard') {
+      void getCatalog().catch(()=>{});
+      return renderDashboard(app,id === 'invitations' ? item : undefined);
+    }
     if (page === 'admin') return renderAdmin(app);
     return renderAuth(app);
   }
   if (page === 'create' && new URLSearchParams(location.search).has('id')) {
     const {templates:full}=await import('./templates/index.js');
-    const existing = full.find(x=>x.id===id);
+    let existing = full.find(x=>x.id===id);
+    if(!existing&&id?.startsWith('custom-')){
+      const key=new URLSearchParams(location.search).get('id');
+      const response=await fetch('/api/invitations/'+encodeURIComponent(key));
+      if(response.status===401){location.assign('/auth?next='+encodeURIComponent(location.pathname+location.search));return;}
+      if(!response.ok)return missing();
+      const {invitation}=await response.json();
+      if(invitation.custom?.id===id)existing=withDesign(full.find(x=>x.id===invitation.custom.base),invitation.custom);
+    }
     if (!existing) return missing();
     const {renderEditor} = await import('./editor.js');
     return renderEditor(app,existing);
@@ -163,7 +179,7 @@ async function boot() {
       [t('ردود ضيوفك','Guest replies'),t('تابع تأكيدات الحضور وصدّرها من لوحة دعوتك.','Track attendance replies and export them from your invitation dashboard.')]
     ].map(([title,body])=>`<article class="studio-feature"><h3>${title}</h3><p>${body}</p></article>`).join('')}</div></section><section class="studio-section studio-faq"><h2>${t('أسئلة شائعة','Frequently asked questions')}</h2>${[
       [t('هل أحتاج حسابًا؟','Do I need an account?'),t('يمكنك تجربة المحرر بدون حساب. تحتاج حسابًا لحفظ الدعوة على السيرفر ونشرها.','You can try the editor without an account. Sign in to save to the server and publish.')],
-      [t('هل أستطيع التعديل بعد النشر؟','Can I edit after publishing?'),t('نعم، عدّل من دعواتي ثم أكد نشر التغييرات. يبقى رابط الدعوة نفسه.','Yes. Edit from My invitations and publish the changes. The guest link stays the same.')],
+      [t('هل أستطيع التعديل بعد النشر؟','Can I edit after publishing?'),rentals?t('يمكن تعديل المسودة قبل إرسال طلب الإيجار. لتعديل دعوة إيجار نشطة، أوقف رابطها أولًا.','Edit your draft before requesting rental. To edit an active rental, disable its link first.'):t('نعم، عدّل من دعواتي ثم أكد نشر التغييرات. يبقى رابط الدعوة نفسه.','Yes. Edit from My invitations and publish the changes. The guest link stays the same.')],
       [t('هل يصل الصوت تلقائيًا؟','Does audio start automatically?'),t('يختار الضيف تشغيل الصوت بنفسه احترامًا لإعدادات المتصفح.','Guests choose to play audio themselves, respecting browser policies.')],
       [t('هل الرابط المحلي يفتح عند الضيوف؟','Can guests open a local link?'),t('روابط localhost و127.0.0.1 للتجربة على جهازك. المشاركة عبر الإنترنت تتطلب موقعًا منشورًا على استضافة عامة.','localhost and 127.0.0.1 are for testing on your device. Internet sharing requires a deployed public host.')]
     ].map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</section>`;
@@ -171,12 +187,12 @@ async function boot() {
   }
   if (page === 'occasions') return browse();
   let template = gallery.find(x=>x.id===id);
-  if(template&&['templates','create'].includes(page)){const {templates:full}=await import('./templates/index.js');template=full.find(x=>x.id===id);}
+  if(template&&['templates','create'].includes(page)){const {templates:full}=await import('./templates/index.js');const design=custom.find(x=>x.id===id);template=withDesign(full.find(x=>x.id===(design?.base??id)),design);}
   if (!template) return missing();
   if (page === 'templates') return preview(template);
   if (page === 'create') {
     const {renderEditor} = await import('./editor.js');
-    return renderEditor(app,template);
+    return renderEditor(app,template,undefined,{rentals});
   }
   return missing();
 }
