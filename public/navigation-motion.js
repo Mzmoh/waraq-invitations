@@ -54,6 +54,10 @@ for(const name of ['pageswap','pagereveal'])addEventListener(name,event=>{
  transition.ready.catch(()=>{});transitionFinished=transition.finished.catch(()=>{});
  if(matchMedia('(prefers-reduced-motion: reduce)').matches){transition.skipTransition();return;}
  if(name==='pagereveal')incomingArtwork();
+ // Narrow Chrome snapshots can expose an unpainted SVG tile while stretching
+ // a landscape cover into the portrait device. Keep the decoded live cover
+ // and its CSS arrival on mobile instead of animating that browser snapshot.
+ if(name==='pagereveal'&&previewRoute.test(location.pathname)&&innerWidth<600){transition.skipTransition();return;}
  const from=event.activation?.from?.url||window.navigation?.activation?.from?.url;
  const to=event.activation?.entry?.url||window.navigation?.activation?.entry?.url;
  if(previewRoute.test(location.pathname)||[from,to].some(url=>{try{return previewRoute.test(new URL(url).pathname);}catch{return false;}}))document.documentElement.dataset.templateTransition='true';

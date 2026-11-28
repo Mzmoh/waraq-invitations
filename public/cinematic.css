@@ -14,6 +14,8 @@ html[data-template-transition]::view-transition-old(invitation-preview){animatio
 .studio-preview .preview-device{background:var(--lux-deep)}
 .preview-device:has([data-transition-cover]){position:relative}
 [data-transition-cover]{position:absolute;inset:0;z-index:10;display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;background:var(--lux-deep)}
+@keyframes preview-arrive{from{transform:translateY(8px)}to{transform:translateY(0)}}
+@media(max-width:599px) and (prefers-reduced-motion:no-preference){.studio-preview .preview-device{animation:preview-arrive .24s ease-out both}}
 .brand-intro{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:radial-gradient(ellipse at 50% 46%,#594479 0,#221b49 62%);pointer-events:none}
 .brand-intro::before{content:'';position:absolute;width:min(60vw,420px);aspect-ratio:1;border:1px solid #fff5f126;border-radius:50%;box-shadow:0 0 100px #7059f326,inset 0 0 80px #fff5f109}
 .brand-intro .brand{position:relative;transform-origin:center;font-size:3rem;gap:22px}.brand-intro .brand span{width:72px;height:72px}.brand-intro .brand svg{width:42px;height:42px}.brand-intro p{color:var(--lux-amber);font-size:.9rem;letter-spacing:.05em}.brand-intro button{position:absolute;bottom:max(30px,env(safe-area-inset-bottom));min-height:44px;padding:8px 24px;background:#fff1;color:var(--lux-paper);border:1px solid #fff5;border-radius:100px;font:inherit;pointer-events:auto;cursor:pointer}
