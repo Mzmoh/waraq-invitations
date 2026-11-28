@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Chrome",
+    "version": "158.0.8127.37",
+    "platform": "win32",
+    "node": "v26.13.0"
+  },
+  {
+    "name": "Firefox",
+    "version": "153.0",
+    "platform": "win32",
+    "node": "v26.13.0"
+  },
+  {
+    "name": "WebKit",
+    "version": "26.5",
+    "platform": "win32",
+    "node": "v26.13.0"
+  }
+]

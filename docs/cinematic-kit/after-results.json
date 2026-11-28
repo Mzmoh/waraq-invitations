@@ -1,0 +1,30 @@
+{
+  "results": [
+    {
+      "name": "intro is skippable, session-scoped and uses the existing brand",
+      "status": "PASS"
+    },
+    {
+      "name": "live 3D responds to pointer, scroll and pause",
+      "status": "PASS"
+    },
+    {
+      "name": "keyboard access, responsive RTL/LTR and reduced motion",
+      "status": "PASS"
+    },
+    {
+      "name": "mobile card/detail Back/Forward preserves route and scroll",
+      "status": "PASS"
+    },
+    {
+      "name": "studio is loopback-only and production application returns 404",
+      "status": "PASS"
+    },
+    {
+      "name": "no uncaught exceptions or HTTP 5xx",
+      "status": "PASS"
+    }
+  ],
+  "errors": [],
+  "network": []
+}

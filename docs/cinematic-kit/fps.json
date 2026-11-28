@@ -1,0 +1,13 @@
+{
+  "renderer": "webgl2",
+  "options": {
+    "ior": 1.7,
+    "thickness": 1.1,
+    "refraction": 1.4,
+    "roughness": 0.02,
+    "dispersion": 0.09,
+    "light": 1.3
+  },
+  "fps": 59.78775347516317,
+  "frameSamples": 120
+}

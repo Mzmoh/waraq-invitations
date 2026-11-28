@@ -1,0 +1,30 @@
+{
+  "environment": "Desktop Chrome, loopback SQLite, 390x844 DPR2, cold cache, 4x CPU, 150ms, 1.6/.75 Mbps; three page samples; five warm API samples. Software WebGL allowed.",
+  "pages": [
+    {
+      "lcp": 1284,
+      "cls": 0.03163235077203916,
+      "bytes": 603130,
+      "requests": 28
+    },
+    {
+      "lcp": 876,
+      "cls": 0.03163235077203916,
+      "bytes": 602772,
+      "requests": 27
+    },
+    {
+      "lcp": 888,
+      "cls": 0.03163235077203916,
+      "bytes": 602772,
+      "requests": 27
+    }
+  ],
+  "apiMs": [
+    3.03689999999915,
+    0.983700000000681,
+    0.6942000000017288,
+    0.7942000000002736,
+    0.6682000000000698
+  ]
+}

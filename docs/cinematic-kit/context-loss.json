@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "method": "WEBGL_lose_context extension on actual Three canvas",
+  "fallback": "light",
+  "textVisible": true
+}

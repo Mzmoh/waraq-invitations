@@ -1,0 +1,11 @@
+{
+  "steps": [
+    "Existing synthetic account signed in through UI",
+    "Real image and generated owned WAV uploaded through editor",
+    "Invitation saved, published with PIN and uploaded media persisted",
+    "Published edit explicitly republished and survived reopening",
+    "Anonymous PIN/asset denial, guest unlock, real uploaded audio playback and RSVP",
+    "Owner isolation and guest response-list denial"
+  ],
+  "errors": []
+}

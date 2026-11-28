@@ -1,0 +1,95 @@
+{
+  "results": [
+    {
+      "name": "chrome RTL home/editor/catalog/dashboard 1440",
+      "status": "PASS"
+    },
+    {
+      "name": "chrome RTL home/editor/catalog/dashboard 390",
+      "status": "PASS"
+    },
+    {
+      "name": "chrome native route fallback and Back/Forward",
+      "status": "PASS"
+    },
+    {
+      "name": "real WebGL context loss, paused resize, reduced motion and recovery",
+      "status": "PASS"
+    },
+    {
+      "name": "firefox RTL home/editor/catalog/dashboard 1440",
+      "status": "PASS"
+    },
+    {
+      "name": "firefox RTL home/editor/catalog/dashboard 390",
+      "status": "PASS"
+    },
+    {
+      "name": "firefox native route fallback and Back/Forward",
+      "status": "PASS"
+    },
+    {
+      "name": "webkit RTL home/editor/catalog/dashboard 1440",
+      "status": "PASS"
+    },
+    {
+      "name": "webkit RTL home/editor/catalog/dashboard 390",
+      "status": "PASS"
+    },
+    {
+      "name": "webkit native route fallback and Back/Forward",
+      "status": "PASS"
+    },
+    {
+      "name": "studio CSS fallback and context loss keep all controls usable",
+      "status": "PASS"
+    },
+    {
+      "name": "no uncaught browser or console errors across engines",
+      "status": "PASS"
+    }
+  ],
+  "errors": [],
+  "a11y": [
+    {
+      "route": "home",
+      "width": 1440,
+      "violations": []
+    },
+    {
+      "route": "catalog",
+      "width": 1440,
+      "violations": []
+    },
+    {
+      "route": "editor",
+      "width": 1440,
+      "violations": []
+    },
+    {
+      "route": "dashboard",
+      "width": 1440,
+      "violations": []
+    },
+    {
+      "route": "home",
+      "width": 390,
+      "violations": []
+    },
+    {
+      "route": "catalog",
+      "width": 390,
+      "violations": []
+    },
+    {
+      "route": "editor",
+      "width": 390,
+      "violations": []
+    },
+    {
+      "route": "dashboard",
+      "width": 390,
+      "violations": []
+    }
+  ]
+}

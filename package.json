@@ -4,9 +4,11 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=24"
+    "node": "24.x || 26.x"
   },
   "scripts": {
+    "dev:design": "node scripts/design-studio.mjs",
+    "test:e2e:kit": "node tests/cinematic-kit-browser.mjs",
     "dev": "node --env-file-if-exists=.env server/index.mjs",
     "start": "node --env-file-if-exists=.env server/index.mjs",
     "test": "node --test tests/*.test.mjs server/tests/*.test.mjs",
