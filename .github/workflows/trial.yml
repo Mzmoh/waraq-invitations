@@ -23,3 +23,24 @@ jobs:
       - run: npm test
       - run: npm run test:trial
       - run: npm run build:trial
+  rental-races:
+    name: Rental transactions (PostgreSQL 17)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: waraq_rental_test
+          POSTGRES_PASSWORD: rental_test
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 3s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - run: npm install --ignore-scripts
+      - run: node --test tests/trial/rentals.test.mjs
+        env:
+          WARAQ_RENTAL_TEST_DATABASE_URL: postgresql://postgres:rental_test@127.0.0.1:5432/waraq_rental_test

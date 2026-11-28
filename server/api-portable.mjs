@@ -1,3 +1,4 @@
+import {rentalRoutes} from './trial/rentals.mjs';
 import {pageRequest,pageResult,invitationList,responseList} from './pagination.mjs';
 import {randomUUID,randomBytes} from 'node:crypto';
 import {recoveryHandler} from './account-recovery.mjs';
@@ -18,6 +19,14 @@ function ownerFields(row) {
 export function portableAPI(db,auth,mail={}) {
   const recover=recoveryHandler(db,auth,mail);
   const {one,all,run,batch}=db;
+  const rentals=db.rentals?rentalRoutes(db):null;
+  const ownerView=row=>rentals?rentals.ownerDetails(ownerFields(row)):ownerFields(row);
+  async function guestView(row){
+    if(!row)absent();
+    const invitation=publicFields(row);
+    if(rentals)invitation.custom=await rentals.custom(row.templateId);
+    return invitation;
+  }
   const reads=statements=>db.readMany?db.readMany(statements):Promise.all(statements.map(([sql,...args])=>all(sql,...args)));
   const lookup=(id,full=true)=>one((full?invitationSQL:'SELECT i.id,i.owner,i.slug,i.updatedAt FROM invitations i')+' WHERE i.id=?',id);
   const published=slug=>db.published?db.published(slug):one("SELECT i.id,i.slug,i.templateId,i.pinHash,i.data,i.settings FROM invitations i JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE slug=? AND status='published' AND t.published=1 AND c.published=1",slug);
@@ -55,7 +64,7 @@ export function portableAPI(db,auth,mail={}) {
     }
     if(path==='/api/catalog' && method==='GET'){
       const [hiddenTemplates,hiddenCategories]=await reads([['SELECT id FROM templates WHERE published=0'],['SELECT id FROM categories WHERE published=0']]);
-      return {hiddenTemplates:hiddenTemplates.map(t=>t.id),hiddenCategories:hiddenCategories.map(c=>c.id)};
+      return {hiddenTemplates:hiddenTemplates.map(t=>t.id),hiddenCategories:hiddenCategories.map(c=>c.id),...(rentals?await rentals.catalog():{})};
     }
     if(base==='assets') {
       if(!id && method==='DELETE') {
@@ -74,7 +83,7 @@ export function portableAPI(db,auth,mail={}) {
         const asset=await one('SELECT id,owner,mime,bytes FROM assets WHERE id=?',id);
         if(!asset)absent();
         if(asset.owner!==(await auth.user(req))?.id) {
-          const bindings=await all("SELECT i.id,i.slug,i.pinHash,i.settings FROM invitation_assets a JOIN invitations i ON i.id=a.invitation JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE a.asset=? AND i.status='published' AND t.published=1 AND c.published=1",id);
+          const bindings=await all("SELECT i.id,i.slug,i.pinHash,i.settings FROM invitation_assets a JOIN invitations i ON i.id=a.invitation JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE a.asset=? AND "+(db.assetLinkSQL||"i.status='published'")+" AND t.published=1 AND c.published=1",id);
           const allowed=bindings.some(row=>JSON.parse(row.settings).privacy!=='pin'||auth.hasGrant(req,row));
           if(!allowed)absent();
         }
@@ -85,13 +94,22 @@ export function portableAPI(db,auth,mail={}) {
       const user=await owner(req);
       if(!id && method==='GET') {
         const paging=pageRequest(req);
-        const [rows,totals]=await reads([invitationList(user.id,paging),['SELECT status,count(*) AS count FROM invitations WHERE owner=? GROUP BY status',user.id]]);
+        const [rows,totals]=await reads([invitationList(user.id,paging,Boolean(rentals)),['SELECT status,count(*) AS count FROM invitations WHERE owner=? GROUP BY status',user.id]]);
         const page=pageResult(rows,paging,'updatedAt');
-        return {invitations:page.items.map(ownerFields),pagination:page.pagination,totals:Object.fromEntries(totals.map(r=>[r.status,Number(r.count)]))};
+        return {invitations:page.items.map(row=>{
+          const inv=ownerFields(row);
+          return rentals?{...inv,slug:inv.linkActive?inv.slug:null,rentalUntil:row.rentalUntil}:inv;
+        }),pagination:page.pagination,totals:Object.fromEntries(totals.map(r=>[r.status,Number(r.count)]))};
       }
       const row=id?await lookup(id,!['responses','responses.csv','archive'].includes(action)&&method!=='DELETE'):null;
       if(id && (!row||row.owner!==user.id))absent();
-      if(id && !action && method==='GET')return {invitation:ownerFields(row)};
+      if(id && !action && method==='GET')return {invitation:await ownerView(row)};
+      if(id&&action==='rent'&&method==='POST'&&rentals){
+        await limit('rental:'+user.id,60,3600);
+        validateData(JSON.parse(row.data),true);
+        if(!await templateAllowed(row.templateId))invalid('القالب متوقف حاليًا.');
+        return rentals.request(row,body);
+      }
       if(action==='responses.csv' && method==='GET') {
         const rows=await all('SELECT name,attending,count,comment,createdAt FROM responses WHERE invitation=? ORDER BY createdAt DESC',id);
         const cell=v=>'"'+String(v??'').replace(/^[\s]*[=+@-]/,"'$&").replaceAll('"','""')+'"';
@@ -128,6 +146,7 @@ export function portableAPI(db,auth,mail={}) {
         if(body.expectedUpdatedAt && body.expectedUpdatedAt!==row.updatedAt)fail(409,'EDIT_CONFLICT','Reload before changing publication status.');
         await limit('status:'+user.id,60,3600);
         if(action==='publish') {
+          if(rentals)fail(409,'RENTAL_REQUIRED','أرسل طلب إيجار لتفعيل رابط الضيوف.');
           validateData(JSON.parse(row.data),true);
           if(!await templateAllowed(row.templateId))invalid('القالب متوقف حاليًا.');
         }
@@ -185,7 +204,7 @@ export function portableAPI(db,auth,mail={}) {
           if(newAssets.length)await batch(newAssets.map(asset=>['DELETE FROM assets WHERE id=? AND owner=? AND NOT EXISTS (SELECT 1 FROM invitation_assets a WHERE a.asset=assets.id)',asset,user.id]));
           fail(409,'EDIT_CONFLICT','تغيرت الدعوة. أعد تحميلها.');
         }
-        return {invitation:ownerFields(await lookup(recordId))};
+        return {invitation:await ownerView(await lookup(recordId))};
       }
     }
     if(base==='public' && id) {
@@ -199,10 +218,10 @@ export function portableAPI(db,auth,mail={}) {
           auth.unlock(res,row);
           if(db.grantPin){db.grantPin(row);row=await published(id);}
         }
-        return {invitation:publicFields(row)};
+        return {invitation:await guestView(row)};
       }
       publicAccess(req,row);
-      if(!action && method==='GET')return {invitation:publicFields(row)};
+      if(!action && method==='GET')return {invitation:await guestView(row)};
       if(action==='rsvp' && method==='POST') {
         if(!settings.rsvpEnabled)absent();
         if(body.website)invalid('Unable to accept this response.');
@@ -229,11 +248,13 @@ export function portableAPI(db,auth,mail={}) {
     if(base==='admin') {
       const user=await owner(req);
       if(user.role!=='admin')fail(403,'FORBIDDEN','هذه الصفحة لمسؤول المنصة.');
+      const rentalResult=await rentals?.admin(req,id,action,body,user);
+      if(rentalResult)return rentalResult;
       if(!id && method==='GET') {
         const paging=pageRequest(req,50),cursor=paging.cursor;
         const reportQuery=db.adminReportSQL?db.adminReportSQL(paging):['SELECT r.id,i.slug,r.reason,r.status,r.createdAt FROM reports r JOIN invitations i ON i.id=r.invitation'+(cursor?' WHERE (r.createdAt<? OR (r.createdAt=? AND r.id<?))':'')+' ORDER BY r.createdAt DESC,r.id DESC LIMIT ?',...(cursor?[cursor[0],cursor[0],cursor[1]]:[]),paging.limit+1];
         const [templates,categories,rows]=await reads([['SELECT id,published FROM templates'],['SELECT id,published FROM categories'],reportQuery]);const page=pageResult(rows,paging,'createdAt');
-        return {templates:templates.map(r=>({...r,published:!!r.published})),categories:categories.map(r=>({...r,published:!!r.published})),reports:page.items,pagination:page.pagination};
+        return {rentals:Boolean(rentals),templates:templates.map(r=>({...r,published:!!r.published})),categories:categories.map(r=>({...r,published:!!r.published})),reports:page.items,pagination:page.pagination};
       }
       if(action && method==='PATCH' && ['categories','templates','reports'].includes(id)) {
         if(!await one('SELECT id FROM '+id+' WHERE id=?',action))absent();

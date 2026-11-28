@@ -5,6 +5,7 @@ import {createAuth} from '../auth.mjs';
 import {HttpError,fail,plain} from '../validation.mjs';
 import {normalizeIP} from '../production-config.mjs';
 import {resendConfiguration} from '../mail-resend.mjs';
+import {rentalError} from './rentals.mjs';
 import {postgresDatabase} from './postgres.mjs';
 
 export const BODY_LIMIT=3*1024*1024;
@@ -25,6 +26,7 @@ async function bodyOf(request){
 }
 export function createTrialHandler({pool,storage,env=process.env,mail,htmlLoader=()=>readFile(new URL('../../public/index.html',import.meta.url),'utf8')}={}){
  const origin=trialConfiguration(env);
+ const rentals=env.WARAQ_RENTALS==='true';
  mail??=env.RESEND_API_KEY?resendConfiguration(env):{};
  return async request=>{
   const headers=new Headers({'Cache-Control':'private, no-store','CDN-Cache-Control':'no-store','Vercel-CDN-Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Frame-Options':'SAMEORIGIN','Referrer-Policy':'strict-origin-when-cross-origin','Content-Security-Policy':CSP,'X-Request-ID':randomUUID(),'X-Robots-Tag':'noindex, nofollow'});
@@ -44,8 +46,12 @@ export function createTrialHandler({pool,storage,env=process.env,mail,htmlLoader
    if(path==='/robots.txt'){headers.set('Content-Type','text/plain');output='User-agent: *\nDisallow: /\n';}
    else if(path==='/sitemap.xml'){headers.set('Content-Type','application/xml');output='<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>';}
    else if(path.startsWith('/api/')||/^\/i\/[\w-]+$/.test(path)){
-    client=await pool.connect();const db=postgresDatabase(client,req,{storage});const auth=await createAuth(db,{secure:true});const api=portableAPI(db,auth,mail);
-    if(path.startsWith('/api/')){const result=await api.route(req,res,path.replace(/\/$/,''),body);if(!ended){headers.set('Content-Type','application/json; charset=utf-8');output=JSON.stringify(result);}}
+    client=await pool.connect();const db=postgresDatabase(client,req,{storage,rentals});const auth=await createAuth(db,{secure:true});const api=portableAPI(db,auth,mail);
+    if(path.startsWith('/api/')){const result=await api.route(req,res,path.replace(/\/$/,''),body).catch(error=>{
+     if(rentals&&error.code==='42501'&&/^\/api\/public\//.test(path))fail(404,'NOT_FOUND','هذا المحتوى غير متوفر.');
+     if(rentals)rentalError(error);
+     throw error;
+    });if(!ended){headers.set('Content-Type','application/json; charset=utf-8');output=JSON.stringify(result);}}
     else{
      const row=await db.published(path.slice(3));if(!row)status=404;
      const data=row&&JSON.parse(row.settings).privacy==='public'?JSON.parse(row.data):{};

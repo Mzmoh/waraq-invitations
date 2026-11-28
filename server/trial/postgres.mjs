@@ -1,5 +1,5 @@
 import {createHash} from 'node:crypto';
-const names={userid:'userId',templateid:'templateId',updatedat:'updatedAt',createdat:'createdAt',pinhash:'pinHash',responsecount:'responseCount',linkactive:'linkActive',verifiedat:'verifiedAt'};
+const names={rentaluntil:'rentalUntil',userid:'userId',templateid:'templateId',updatedat:'updatedAt',createdat:'createdAt',pinhash:'pinHash',responsecount:'responseCount',linkactive:'linkActive',verifiedat:'verifiedAt'};
 export function normalizeRow(row){return row&&Object.fromEntries(Object.entries(row).map(([k,v])=>[names[k]||k,['responsecount','hits'].includes(k)?Number(v):v]))}
 export function postgresSQL(sql){
  if(sql==='SELECT r.id,i.slug,r.reason,r.status,r.createdAt FROM reports r JOIN invitations i ON i.id=r.invitation ORDER BY r.createdAt DESC')return 'SELECT * FROM waraq_private.admin_reports()';
@@ -16,8 +16,9 @@ function context(req){
  const cookies=Object.fromEntries((req.headers.cookie||'').split(';').map(x=>x.trim()).filter(x=>x.includes('=')).map(x=>[x.slice(0,x.indexOf('=')),x.slice(x.indexOf('=')+1)]));
  return {session:createHash('sha256').update(cookies.invite_session||'').digest('hex'),pins:Object.fromEntries(Object.entries(cookies).filter(([k])=>/^invite_pin_[\w-]+$/.test(k)))};
 }
-export function postgresDatabase(client,req,{storage}={}){
+export function postgresDatabase(client,req,{storage,rentals=false}={}){
  const who=context(req);let grant={};
+ const activeLink=rentals?"waraq_private.link_open(i.status,i.rental_until)":"i.status='published'";
  async function transaction(statements){
   await client.query('BEGIN');
   try{
@@ -44,9 +45,9 @@ export function postgresDatabase(client,req,{storage}={}){
  const one=async(sql,...args)=>normalizeRow((await calls([[sql,...args]]))[0].rows?.[0]);
  const all=async(sql,...args)=>((await calls([[sql,...args]]))[0].rows||[]).map(normalizeRow);
  const run=async(sql,...args)=>{const r=(await calls([[sql,...args]]))[0];return {changes:Number(r.rowCount??r.affectedRows??0)}};
- return {one,all,run,adminReportSQL:({cursor,limit})=>['SELECT * FROM waraq_private.admin_report_page(?,?,?)',cursor?.[0]??null,cursor?.[1]??null,limit+1],authSecret:async token=>{const results=await transaction([["INSERT OR IGNORE INTO secrets(name,value) VALUES ('hmac',?)",token],["SELECT value FROM secrets WHERE name='hmac'"]]);return results[1].rows[0].value;},readMany:async statements=>(await transaction(statements)).map(r=>(r.rows||[]).map(normalizeRow)),batch:async statements=>(await calls(statements)).map(r=>({changes:Number(r.rowCount??r.affectedRows??0)})),
+ return {one,all,run,rentals,assetLinkSQL:activeLink,adminReportSQL:({cursor,limit})=>['SELECT * FROM waraq_private.admin_report_page(?,?,?)',cursor?.[0]??null,cursor?.[1]??null,limit+1],authSecret:async token=>{const results=await transaction([["INSERT OR IGNORE INTO secrets(name,value) VALUES ('hmac',?)",token],["SELECT value FROM secrets WHERE name='hmac'"]]);return results[1].rows[0].value;},readMany:async statements=>(await transaction(statements)).map(r=>(r.rows||[]).map(normalizeRow)),batch:async statements=>(await calls(statements)).map(r=>({changes:Number(r.rowCount??r.affectedRows??0)})),
   async published(slug){
-   const row=await one("SELECT i.id,i.slug,i.templateId,i.pinHash,i.data,i.settings FROM invitations i JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE slug=? AND status='published' AND t.published=1 AND c.published=1",slug);
+   const row=await one("SELECT i.id,i.slug,i.templateId,i.pinHash,i.data,i.settings FROM invitations i JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category WHERE slug=? AND "+activeLink+" AND t.published=1 AND c.published=1",slug);
    return row||await one('SELECT * FROM waraq_private.guest_metadata(?)',slug);
   },
   grantPin:row=>{grant={slug:row.slug,pinHash:row.pinHash}},

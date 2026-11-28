@@ -16,10 +16,10 @@ export function pageResult(rows,{limit},timeKey){
  const more=rows.length>limit,items=rows.slice(0,limit),last=items.at(-1);
  return {items,pagination:{limit,hasMore:more,nextCursor:more?Buffer.from(JSON.stringify([last[timeKey],last.id])).toString('base64url'):null}};
 }
-export function invitationList(owner,{limit,cursor,status}){
+export function invitationList(owner,{limit,cursor,status},rentals=false){
  const condition=(status?' AND i.status=?':'')+(cursor?' AND (i.updatedAt<? OR (i.updatedAt=? AND i.id<?))':'');
  const args=[owner,...(status?[status]:[]),...(cursor?[cursor[0],cursor[0],cursor[1]]:[]),limit+1];
- const sql=`WITH page AS (SELECT i.id,i.slug,i.templateId,i.status,i.updatedAt,i.pinHash,i.settings,json_object('title',json_extract(i.data,'$.title')) AS data FROM invitations i WHERE i.owner=?${condition} ORDER BY i.updatedAt DESC,i.id DESC LIMIT ?), counts AS (SELECT invitation,count(*) AS replies FROM responses WHERE invitation IN(SELECT id FROM page) GROUP BY invitation) SELECT i.id,i.slug,i.templateId,i.status,i.updatedAt,i.pinHash,i.settings,i.data,t.published*c.published AS linkActive,COALESCE(r.replies,0) AS responseCount FROM page i JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category LEFT JOIN counts r ON r.invitation=i.id ORDER BY i.updatedAt DESC,i.id DESC`;
+ const sql=`WITH page AS (SELECT i.id,i.slug,i.templateId,i.status,${rentals?'i.rental_until,':''}i.updatedAt,i.pinHash,i.settings,json_object('title',json_extract(i.data,'$.title')) AS data FROM invitations i WHERE i.owner=?${condition} ORDER BY i.updatedAt DESC,i.id DESC LIMIT ?), counts AS (SELECT invitation,count(*) AS replies FROM responses WHERE invitation IN(SELECT id FROM page) GROUP BY invitation) SELECT i.id,i.slug,i.templateId,i.status,i.updatedAt,i.pinHash,i.settings,i.data,${rentals?'i.rental_until AS rentaluntil, ':''}t.published*c.published${rentals?'*waraq_private.link_open(i.status,i.rental_until)::int':''} AS linkActive,COALESCE(r.replies,0) AS responseCount FROM page i JOIN templates t ON t.id=i.templateId JOIN categories c ON c.id=t.category LEFT JOIN counts r ON r.invitation=i.id ORDER BY i.updatedAt DESC,i.id DESC`;
  return [sql,...args];
 }
 export function responseList(invitation,{limit,cursor}){

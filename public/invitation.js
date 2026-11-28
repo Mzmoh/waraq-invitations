@@ -1,4 +1,5 @@
 import {enhanceExperience} from './experience.js';
+import {withDesign} from './rental-template.js';
 import { templates, scene } from './templates/index.js';
 import { validMap } from './editor-model.js';
 import { downloadCalendar, shareInvitation, downloadShareCard, showQR } from './invitation-share.js';
@@ -252,7 +253,7 @@ export async function renderGuest(root,slug) {
       }
       if(!response.ok)throw new Error(response.status===404?t('هذه الدعوة غير متاحة حاليًا.','This invitation is currently unavailable.'):response.status===429?t('انتظر قليلًا قبل إعادة المحاولة.','Please wait before trying again.'):t('تعذر تحميل الدعوة.','Could not load this invitation.'));
       const invitation=json.invitation;
-      const template=templates.find(item=>item.id===invitation.templateId);
+      const template=withDesign(templates.find(item=>item.id===(invitation.custom?.base??invitation.templateId)),invitation.custom);
       if(!template)throw new Error(t('قالب الدعوة غير متاح.','Invitation design unavailable.'));
       document.title=invitation.data.title || template.titleAr;
       renderInvitation(root,template,{...invitation.data,...invitation.settings},{slug});

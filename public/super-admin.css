@@ -1,0 +1,85 @@
+.super-admin {
+ --sa-bg:#14101e;--sa-card:#211a2c;--sa-line:#4d3d56;--sa-text:#fff6ef;--sa-muted:#c8bace;--sa-gold:#f0c994;
+ display:grid;grid-template-columns:minmax(185px,224px) minmax(0,1fr);gap:26px;
+ max-width:1330px;margin:26px auto;padding:20px;color:var(--sa-text);border:1px solid var(--sa-line);border-radius:24px;
+ background:radial-gradient(ellipse at 70% 0,#302038 0,transparent 58%),var(--sa-bg);
+}
+.super-admin,.super-admin dialog {color-scheme:dark}
+.super-admin :is(h1,h2,h3,p){margin:0}
+.super-admin h1 {font-size:clamp(1.9rem,4vw,3rem);line-height:1.3}
+.super-admin h2 {font-size:1.35rem}
+.super-admin h3 {font-size:1.02rem}
+.super-admin .sa-sidebar{display:flex;flex-direction:column;gap:12px;padding:16px;background:#1b1424;border:1px solid var(--sa-line);border-radius:18px}
+.sa-brand,.sa-row-heading,.sa-action-row,.sa-request-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sa-brand{min-height:67px;flex-wrap:nowrap}
+.sa-brand-icon{display:grid;place-items:center;width:44px;min-height:44px;border-radius:13px;border:1px solid #866b78;color:var(--sa-gold);background:#35263c;font-size:1.45rem}
+.sa-brand small,.sa-muted{color:var(--sa-muted)}
+.sa-brand small{display:block;font-size:.8rem}
+.sa-nav{display:grid;gap:5px}
+.sa-nav-button,.sa-button{min-height:44px;border:1px solid var(--sa-line);border-radius:10px;color:var(--sa-text);background:#292035;padding:7px 13px;font:inherit;text-decoration:none;cursor:pointer;line-height:1.5}
+.sa-request > .sa-button{justify-self:start}
+.sa-request > .sa-note{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sa-button{display:inline-flex;align-items:center;justify-content:center;align-self:start;max-width:100%}
+.sa-nav-button{display:flex;gap:10px;align-items:center;text-align:start;background:transparent;border-color:transparent;width:100%}
+.sa-nav-button[aria-pressed=true]{color:var(--sa-gold);background:#382941;border-color:#6b526c}
+.sa-nav-icon{font-size:1.2rem;width:1.25rem}
+.sa-button:hover,.sa-nav-button:hover{border-color:var(--sa-gold)}
+.sa-primary{color:#251827;background:var(--sa-gold);border-color:var(--sa-gold);font-weight:700}
+.sa-button:disabled{opacity:.55;cursor:wait}
+.super-admin :focus-visible{outline:2px solid var(--sa-gold);outline-offset:3px}
+.sa-main{display:grid;align-content:start;min-width:0;gap:15px}
+.sa-header{padding:10px 4px 2px}
+.sa-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.sa-metric,.sa-request,.sa-form,.sa-table-wrap{border:1px solid var(--sa-line);background:var(--sa-card);border-radius:14px;padding:15px}
+.sa-metric{display:grid;gap:5px;background:linear-gradient(140deg,#382941,var(--sa-card));min-height:89px}
+.sa-metric strong{font-size:1.85rem;color:var(--sa-gold);line-height:1.14}
+.sa-content,.sa-section-body,.sa-list,.sa-form,.sa-request,.sa-review-detail{display:grid;gap:12px;min-width:0;justify-items:stretch}
+.sa-content h2{padding-block:2px 5px}
+.sa-content > .sa-section-body > .sa-field{max-width:310px}
+.sa-row-heading{justify-content:space-between}
+.sa-row-heading div,.sa-note{overflow-wrap:anywhere;min-width:0}
+.sa-pill{display:inline-block;background:#3b2c45;border:1px solid #725a7b;color:#f4dcff;border-radius:99px;padding:4px 10px;font-size:.8rem}
+.sa-pending{background:#42321a;color:#ffdea4;border-color:#866c46}
+.sa-approved{background:#1e3c35;color:#cef0e1;border-color:#558a79}
+.sa-rejected{background:#46283a;color:#ffdce6;border-color:#925e77}
+.sa-request-meta,.sa-empty,.sa-status{color:var(--sa-muted);font-size:.9rem}
+.sa-note{white-space:pre-wrap}
+.sa-status:empty{display:none}
+.sa-field{display:grid;gap:6px;min-width:0;color:var(--sa-muted)}
+.sa-field :is(input,select){background:#17111e;color:var(--sa-text);border:1px solid #78657e;border-radius:8px;min-height:44px;padding:8px;font:inherit;width:100%;min-width:0}
+.sa-field input[type=color]{padding:4px}
+.sa-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sa-social{grid-template-columns:minmax(0,1fr) auto;align-items:end}
+.sa-social .sa-button{align-self:end}
+.sa-swatches{display:flex;gap:7px}
+.sa-swatches span{width:28px;height:22px;border-radius:5px;border:1px solid #a590a8}
+.sa-table-wrap{padding:4px 12px}
+.sa-table{width:100%;border-collapse:collapse;text-align:start;font-size:.92rem}
+.sa-table :is(th,td){padding:10px;text-align:start;overflow-wrap:anywhere}
+.sa-table th{color:var(--sa-muted)}
+.sa-table td{border-block-start:1px solid var(--sa-line)}
+.sa-dialog{background:#211a2c;color:var(--sa-text);border:1px solid #78657e;border-radius:20px;padding:clamp(14px,4vw,26px);width:min(94vw,660px);max-height:88dvh;overflow:auto}
+.sa-dialog[open]{display:grid;gap:16px;animation:sa-enter .16s ease-out}
+.sa-dialog::backdrop{background:#100c17d9}
+.sa-check{display:flex;min-height:44px;align-items:center;gap:9px;cursor:pointer}
+.sa-check input{width:20px;height:20px;accent-color:var(--sa-gold)}
+.sa-review-note{border-inline-start:2px solid var(--sa-gold);padding-inline-start:9px}
+.db-rental-form{display:grid;gap:12px;max-width:620px;padding-block-start:12px}
+.db-rental-form .db-btn{justify-self:start}
+.social-links{display:flex;gap:12px;flex-wrap:wrap}
+.social-links a{display:inline-flex;min-height:44px;align-items:center}
+@keyframes sa-enter{from{opacity:.65;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:860px){
+ .super-admin{grid-template-columns:minmax(0,1fr);margin:12px;padding:12px;gap:14px}
+ .super-admin .sa-sidebar{display:grid;grid-template-columns:1fr auto auto;align-items:center;padding:12px}
+ .sa-nav{grid-column:1/-1;grid-row:2;grid-template-columns:repeat(auto-fit,minmax(124px,1fr))}
+ .sa-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:540px){
+ .super-admin .sa-sidebar{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .sa-brand{grid-column:1/-1}
+ .sa-social{grid-template-columns:minmax(0,1fr)}
+ .sa-table-wrap{overflow:auto;max-width:100%}
+ .sa-table :is(th,td){padding:8px}
+}
+@media(prefers-reduced-motion:reduce){.sa-dialog[open]{animation:none}}
