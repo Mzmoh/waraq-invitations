@@ -107,6 +107,9 @@ function missing() {
   app.innerHTML = `<div class="wrap studio-content"><h1>${t('الصفحة غير متوفرة','Page unavailable')}</h1><a class="studio-button" href="/occasions">${t('عرض المناسبات','Browse occasions')}</a></div>`;
 }
 async function preview(template) {
+  // Keep the incoming cover mounted while a cold network loads the renderer.
+  // Clearing the device before this import leaves an empty frame on hosting.
+  const {renderInvitation} = await import('./invitation.js');
   const transitionCover=app.querySelector('[data-transition-cover]');
   const category = categories.find(c=>c[0]===template.category);
   document.title = `${title(template)} | وَرَق`;
@@ -114,7 +117,6 @@ async function preview(template) {
   <h1>${title(template)}</h1><p class="studio-lead">${t('جرّب الفتح والتمرير كما يراهما ضيوفك.','Try opening and scrolling through the invitation as a guest.')}</p>
   <a class="studio-button" href="/create/${template.id}">${t('استخدم هذا القالب','Use this template')}</a></div>
   <div class="preview-device" id="template-preview" style="view-transition-name:invitation-preview"></div></div>`;
-  const {renderInvitation} = await import('./invitation.js');
   const examples = {
     general:['أمسية صيفية','A summer evening'],ramadan:['أمسية رمضانية','A Ramadan evening'],
     fitr:['عيدكم مبارك','Eid Mubarak'],hajj:['حجّ مبرور','Hajj Mabroor'],adha:['عيد الأضحى المبارك','Eid al-Adha'],
